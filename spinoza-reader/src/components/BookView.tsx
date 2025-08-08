@@ -29,8 +29,6 @@ const BookView: React.FC<BookViewProps> = ({
     const parts = elementId.split('.');
     
     if (parts.length < 2) return elementId;
-    
-    const part = parts[0]; // "I"
     const type = parts[1]; // "def", "ax", "prop"
     const number = parts[2]; // "17"
     const subElement = parts[3]; // "proof", "corollary", "note"

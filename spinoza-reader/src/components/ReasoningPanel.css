@@ -288,6 +288,17 @@
   margin-bottom: 0.75rem;
 }
 
+.reasoning-item.inferred {
+  background-color: #f0f8ff;
+  border-left-color: #9b59b6;
+  box-shadow: 0 1px 3px rgba(155, 89, 182, 0.1);
+}
+
+.reasoning-item.original {
+  background-color: #f8f9fa;
+  border-left-color: #3498db;
+}
+
 .reasoning-relationship {
   margin-bottom: 0.5rem;
 }
@@ -356,6 +367,23 @@
   font-style: italic;
   margin-top: 0.25rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.inferred-badge {
+  background-color: #9b59b6;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 600;
+  font-style: normal;
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .transitive-chains {

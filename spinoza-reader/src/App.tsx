@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMLParser } from 'fast-xml-parser';
 import { Store, Parser, DataFactory } from 'n3';
+import { n3reasoner } from 'eyereasoner';
 import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
@@ -16,6 +17,7 @@ interface SpinozaElement {
 interface AppState {
   elements: Map<string, SpinozaElement>;
   n3Store: Store;
+  eyeStore: Store; // Store with EYE-js inferred facts
   selectedElement: string | null;
   hoveredElement: string | null;
   reasoning: any[];
@@ -28,6 +30,7 @@ const App: React.FC = () => {
   const [state, setState] = useState<AppState>({
     elements: new Map(),
     n3Store: new Store(),
+    eyeStore: new Store(),
     selectedElement: null,
     hoveredElement: null,
     reasoning: [],
@@ -49,20 +52,43 @@ const App: React.FC = () => {
       const xmlText = await xmlResponse.text();
       const elements = parseXML(xmlText);
 
-      // Load and parse N3
+      // Load and parse N3 data (use original file since N3.js can't parse reasoning rules)
       const n3Response = await fetch('/ethica-logic.n3');
       const n3Content = await n3Response.text();
       const n3Store = await parseN3(n3Content);
+
+      // Load the EYE-js rules file and perform reasoning
+      let eyeStore = new Store();
+      
+      try {
+        // Load the file with active reasoning rules for EYE-js
+        const eyeResponse = await fetch('/ethica-logic-eye.n3');
+        const eyeContent = await eyeResponse.text();
+        
+        const reasoningResults = await n3reasoner(eyeContent, undefined, {
+          output: 'derivations',
+          outputType: 'string'
+        });
+        
+        if (reasoningResults.trim()) {
+          eyeStore = await parseN3(reasoningResults);
+        }
+        
+      } catch (error) {
+        console.error('EYE-js reasoning failed, continuing without inference:', error);
+        // Continue with empty eye store
+      }
 
       setState(prev => ({
         ...prev,
         elements,
         n3Store,
+        eyeStore,
         loading: false
       }));
 
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading data or performing reasoning:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
   };
@@ -236,8 +262,8 @@ const App: React.FC = () => {
       const results: any[] = [];
       const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
       
-      // All possible predicates in our knowledge graph
-      const predicates = [
+      // Original predicates from the knowledge graph
+      const originalPredicates = [
         'cites',
         'refersTo',
         'mentions',
@@ -258,14 +284,27 @@ const App: React.FC = () => {
         'containsElement',
         'type'  // RDF type relationships
       ];
+
+      // EYE-js inferred predicates
+      const inferredPredicates = [
+        'transitivelyDependsOn',
+        'dependsUpon',
+        'circularArgument',
+        'derivedFrom',
+        'explainsElement'
+      ];
+
+      const allPredicates = [...originalPredicates, ...inferredPredicates];
       
       // Find outward relationships (this element relates to others)
-      predicates.forEach(predicate => {
+      allPredicates.forEach(predicate => {
         const predicateURI = predicate === 'type' 
           ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
           : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
           
-        const outward = state.n3Store.getQuads(elementURI, predicateURI, null, null);
+        // Check both original data and EYE-js inferred facts
+        const storeToUse = inferredPredicates.includes(predicate) ? state.eyeStore : state.n3Store;
+        const outward = storeToUse.getQuads(elementURI, predicateURI, null, null);
         
         outward.forEach(quad => {
           const objectValue = quad.object.value;
@@ -276,18 +315,21 @@ const App: React.FC = () => {
           results.push({
             subject: elementId,
             predicate: predicate,
-            object: cleanObject
+            object: cleanObject,
+            inferred: inferredPredicates.includes(predicate)
           });
         });
       });
       
       // Find inward relationships (others relate to this element)  
-      predicates.forEach(predicate => {
+      allPredicates.forEach(predicate => {
         const predicateURI = predicate === 'type' 
           ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
           : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
           
-        const inward = state.n3Store.getQuads(null, predicateURI, elementURI, null);
+        // Check both original data and EYE-js inferred facts
+        const storeToUse = inferredPredicates.includes(predicate) ? state.eyeStore : state.n3Store;
+        const inward = storeToUse.getQuads(null, predicateURI, elementURI, null);
         
         inward.forEach(quad => {
           const subjectValue = quad.subject.value;
@@ -320,7 +362,8 @@ const App: React.FC = () => {
           results.push({
             subject: cleanSubject,
             predicate: inversePredicate,
-            object: elementId
+            object: elementId,
+            inferred: inferredPredicates.includes(predicate)
           });
         });
       });
@@ -334,6 +377,83 @@ const App: React.FC = () => {
   };
 
   const findTransitiveChains = async (startElementId: string, maxDepth: number = 4): Promise<any[]> => {
+    // Use EYE-js inferred transitive relationships instead of manual traversal
+    try {
+      const chains: any[] = [];
+      const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${startElementId}`);
+      
+      // Find all transitive dependencies inferred by EYE-js
+      const transitivelyDependsOnURI = DataFactory.namedNode('http://spinoza.org/ethics#transitivelyDependsOn');
+      const dependsUponURI = DataFactory.namedNode('http://spinoza.org/ethics#dependsUpon');
+      
+      // Get outward transitive dependencies
+      const outwardTransitive = state.eyeStore.getQuads(elementURI, transitivelyDependsOnURI, null, null);
+      const outwardDependencies = state.eyeStore.getQuads(elementURI, dependsUponURI, null, null);
+      
+      outwardTransitive.forEach(quad => {
+        const target = quad.object.value.split('#')[1];
+        chains.push({
+          type: 'transitive_dependency',
+          start: startElementId,
+          end: target,
+          relationship: 'transitivelyDependsOn',
+          inferred: true,
+          path: [{ from: startElementId, to: target, relationship: 'transitivelyDependsOn' }]
+        });
+      });
+      
+      outwardDependencies.forEach(quad => {
+        const target = quad.object.value.split('#')[1];
+        chains.push({
+          type: 'dependency',
+          start: startElementId,
+          end: target,
+          relationship: 'dependsUpon',
+          inferred: true,
+          path: [{ from: startElementId, to: target, relationship: 'dependsUpon' }]
+        });
+      });
+      
+      // Get inward transitive dependencies (others depend on this element)
+      const inwardTransitive = state.eyeStore.getQuads(null, transitivelyDependsOnURI, elementURI, null);
+      const inwardDependencies = state.eyeStore.getQuads(null, dependsUponURI, elementURI, null);
+      
+      inwardTransitive.forEach(quad => {
+        const source = quad.subject.value.split('#')[1];
+        chains.push({
+          type: 'inverse_transitive_dependency',
+          start: source,
+          end: startElementId,
+          relationship: 'transitivelyDependsOn',
+          inferred: true,
+          path: [{ from: source, to: startElementId, relationship: 'transitivelyDependsOn' }]
+        });
+      });
+      
+      inwardDependencies.forEach(quad => {
+        const source = quad.subject.value.split('#')[1];
+        chains.push({
+          type: 'inverse_dependency',
+          start: source,
+          end: startElementId,
+          relationship: 'dependsUpon',
+          inferred: true,
+          path: [{ from: source, to: startElementId, relationship: 'dependsUpon' }]
+        });
+      });
+      
+      console.log(`Found ${chains.length} EYE-js inferred chains for ${startElementId}:`, chains);
+      return chains;
+      
+    } catch (error) {
+      console.error('EYE-js transitive reasoning failed:', error);
+      return [];
+    }
+  };
+
+  // Keep the old manual implementation as fallback
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const findTransitiveChainsManual = async (startElementId: string, maxDepth: number = 4): Promise<any[]> => {
     try {
       const chains: any[] = [];
       const visited = new Set<string>();
@@ -649,11 +769,12 @@ const App: React.FC = () => {
           <div className="project-info">
             <h4>About This Project</h4>
             <p>
-              An interactive digital humanities project exploring logical relationships 
-              in philosophical texts using semantic web technologies and automated reasoning.
+              An interactive digital humanities project that transforms Spinoza's systematic 
+              philosophy into a computational exploration tool. Uses automated reasoning to 
+              discover implicit logical relationships in the Ethics.
             </p>
             <p className="tech-stack">
-              Built with React, N3.js, and prepared for EYE-js reasoning integration.
+              Built with React, N3.js for data querying, and EYE-js for automated logical reasoning.
             </p>
           </div>
         </div>

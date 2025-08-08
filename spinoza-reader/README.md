@@ -65,13 +65,74 @@ Launches the test runner in interactive watch mode.
 
 Builds the app for production to the `build` folder.
 
+## Current State & EYE-js Integration
+
+### What's Working Now ✅
+- **Hybrid Architecture**: N3.js for efficient data querying + EYE-js for automated reasoning
+- **True EYE-js Reasoning**: Active inference rules automatically discover new logical relationships
+- **Visual Distinction**: Original relationships (blue) vs. inferred relationships (purple with 🔍 badge)
+- **Interactive Exploration**: Click elements to see citations, dependencies, and logical connections
+- **Weight Analysis**: Computational analysis of how "load-bearing" elements are in the philosophical structure
+- **Robust Error Handling**: Application works even if reasoning fails
+
+### EYE-js Integration Architecture
+The application uses a **clean separation of concerns**:
+
+**N3.js (Data Layer)**:
+- Efficient indexed querying of base facts from `ethica-logic.n3`
+- Fast relationship lookup with `getQuads(subject, predicate, object, graph)`
+- Standard RDF/JS compatibility
+
+**EYE-js (Reasoning Layer)**:
+- Processes active inference rules from `ethica-logic-eye.n3`
+- Automatically discovers transitive dependencies, circular arguments, and implicit relationships
+- Returns new facts as standard RDF/JS quads
+
+**Active Reasoning Rules Include**:
+```n3
+# Transitivity across relationship types
+{ ?x ethics:necessarilyFollows ?y . ?y ethics:appliesResultFrom ?z }
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+# Citation implies dependency
+{ ?x ethics:cites ?y } => { ?x ethics:dependsUpon ?y } .
+
+# Circular argument detection
+{ ?x ethics:refutedByAbsurdity ?y . ?y ethics:refutedByAbsurdity ?x }
+    => { ?x ethics:circularArgument ?y } .
+```
+
+### Benefits Realized
+- **Automatic Discovery**: EYE-js finds logical connections not explicitly mapped
+- **Formal Validation**: Reasoning engine validates Spinoza's argument structure  
+- **Extensible Rules**: Easy to add new inference patterns for deeper analysis
+- **Performance**: N3 Store provides efficient querying while EYE-js handles complex reasoning
+
 ## Future Enhancements
 
-- Full EYE-js integration for advanced logical reasoning
-- Multi-part support (currently Part I only)
+### Immediate Priorities
+- **Performance Optimization**: Optimize EYE-js reasoning for larger datasets
+
+### Content Expansion  
+- **Parts II-V**: Currently only Part I ("Concerning God") is implemented
+  - Part II: Of the Nature and Origin of the Mind
+  - Part III: On the Origin and Nature of the Emotions
+  - Part IV: Of Human Bondage, or the Strength of the Emotions  
+  - Part V: Of the Power of the Understanding, or of Human Freedom
+- **Cross-Part Navigation**: Logical relationships span across all five parts
+- **Complete Logical Graph**: Full Ethics as integrated knowledge system
+
+### Multilingual & Comparative Analysis
+- **Original Latin Text Integration**: Side-by-side with Elwes English translation
+- **Cross-linguistic Cross-linking**: Connect corresponding elements between Latin and English
+- **Comparative Reasoning**: Analyze how translation choices affect logical relationships
+- **Scholarly Apparatus**: Support for multiple translations and critical editions
+
+### Advanced Features
 - Advanced text selection and annotation
 - Export functionality for citations and analysis
-- Search and filtering capabilities
-- Cross-reference navigation
+- Search and filtering capabilities across all parts
+- Visual graph representation of logical relationships
+- Automated consistency checking across the complete system
 
 This application transforms Spinoza's systematic philosophy into an interactive digital experience, enabling scholars and students to explore the logical structure with modern computational tools.

@@ -14,6 +14,7 @@ interface Reasoning {
   subject: string;
   predicate: string;
   object: string;
+  inferred?: boolean;
 }
 
 interface ReasoningPanelProps {
@@ -53,12 +54,10 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   };
 
   const formatElementLabel = (elementId: string): string => {
-    // Convert technical IDs like "I.prop.17.proof" to readable labels like "Proposition XVII"
+    // Convert technical IDs like "I.prop.17.proof" to readable labels like "Proposition XVII" 
     const parts = elementId.split('.');
     
     if (parts.length < 2) return elementId;
-    
-    const part = parts[0]; // "I"
     const type = parts[1]; // "def", "ax", "prop"
     const number = parts[2]; // "17"
     const subElement = parts[3]; // "proof", "corollary", "note"
@@ -210,7 +209,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
               </h4>
               <div className="reasoning-items">
                 {relations.map((relation, index) => (
-                  <div key={index} className="reasoning-item">
+                  <div key={index} className={`reasoning-item ${relation.inferred ? 'inferred' : 'original'}`}>
                     <div className="reasoning-relationship">
                       {relation.subject === selectedElement ? (
                         <div className="relationship-flow">
@@ -239,6 +238,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
                       )}
                     </div>
                     <div className="relationship-type">
+                      {relation.inferred && <span className="inferred-badge">🔍 Inferred</span>}
                       {relation.predicate}
                     </div>
                   </div>
