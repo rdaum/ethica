@@ -171,23 +171,26 @@ ethics:I.appendix
     ethics:containsElement ethics:I.appendix.introduction, ethics:I.appendix.teleological, ethics:I.appendix.good_and_bad .
 
 # ============================================================================
-# SAMPLE INFERENCE RULES
+# SAMPLE INFERENCE RULES (N3 Logic - commented for N3.js compatibility)
 # ============================================================================
 
-# Transitivity rules
-{ ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z } 
-    => { ?x ethics:transitivelyDependsOn ?z } .
+# NOTE: These rules use N3 Logic syntax, not supported by all parsers
+# Uncomment when using an N3 reasoner like EYE or cwm
 
-{ ?x ethics:necessarilyFollows ?y . ?y ethics:necessarilyFollows ?z }
-    => { ?x ethics:transitivelyDependsOn ?z } .
+# Transitivity rules
+# { ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z } 
+#     => { ?x ethics:transitivelyDependsOn ?z } .
+
+# { ?x ethics:necessarilyFollows ?y . ?y ethics:necessarilyFollows ?z }
+#     => { ?x ethics:transitivelyDependsOn ?z } .
 
 # Citation implies some form of dependency
-{ ?x ethics:cites ?y }
-    => { ?x ethics:dependsUpon ?y } .
+# { ?x ethics:cites ?y }
+#     => { ?x ethics:dependsUpon ?y } .
 
 # Absurdity detection
-{ ?x ethics:refutedByAbsurdity ?y . ?y ethics:refutedByAbsurdity ?x }
-    => { ?x ethics:circularArgument ?y } .
+# { ?x ethics:refutedByAbsurdity ?y . ?y ethics:refutedByAbsurdity ?x }
+#     => { ?x ethics:circularArgument ?y } .
 
 # ============================================================================
 # PART I STRUCTURAL DEFINITIONS AND RELATIONSHIPS
@@ -340,59 +343,21 @@ ethics:I.prop.4 a ethics:Proposition ;
 # COMPLETE PART I CITATION MAPPINGS
 # ============================================================================
 
-# PROPOSITION I - "Two substances differing in attributes have nothing in common"
-ethics:I.prop.1 
-    # Physical references
-    ethics:cites ethics:I.def.3, ethics:I.def.5 ;
-    # Semantic relationships  
-    ethics:clearlyfollowsFrom ethics:I.def.3, ethics:I.def.5 .
-
-# PROPOSITION II - "Two substances having different attributes have nothing in common"  
-ethics:I.prop.2
-    # Physical references
-    ethics:cites ethics:I.def.3 ;
-    # Semantic relationships
-    ethics:evidentFrom ethics:I.def.3 .
-
-# PROPOSITION III - "Things which have nothing in common cannot be the cause one of the other"
-ethics:I.prop.3
-    # Physical references  
-    ethics:cites ethics:I.ax.5, ethics:I.ax.4 ;
-    # Semantic relationships
-    ethics:necessarilyFollows ethics:I.ax.5 ;
-    ethics:groundedIn ethics:I.ax.4 .
-
-# PROPOSITION IV - "Two or more distinct things are distinguished by attributes or modes"
-ethics:I.prop.4
-    # Physical references
-    ethics:cites ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.4 ;
-    # Semantic relationships  
-    ethics:groundedIn ethics:I.ax.1 ;
-    ethics:buildsUpon ethics:I.def.3, ethics:I.def.5 .
+# PROPOSITION I-IV - Citations moved to respective proof elements to maintain normalized structure
 
 # PROPOSITION V - "There cannot exist in the universe two or more substances having the same nature or attribute"
 ethics:I.prop.5 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 5 ;
-    # Physical references
-    ethics:cites ethics:I.prop.4, ethics:I.def.3, ethics:I.def.6, ethics:I.prop.4 ;
-    # Semantic relationships
-    ethics:buildsUpon ethics:I.prop.4 ;
-    ethics:groundedIn ethics:I.def.3, ethics:I.def.6 .
+    ethics:number 5 .
 
 # PROPOSITION VI - "One substance cannot be produced by another substance"
 ethics:I.prop.6 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 6 ;
-    # Physical references
-    ethics:cites ethics:I.prop.2, ethics:I.prop.3 ;
-    # Semantic relationships
-    ethics:necessarilyFollows ethics:I.prop.2 ;
-    ethics:groundedIn ethics:I.prop.3 .
+    ethics:number 6 .
 
 # PROPOSITION VII - "Existence belongs to the nature of substance"  
 ethics:I.prop.7 a ethics:Proposition ;
@@ -424,12 +389,8 @@ ethics:I.prop.8 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 8 ;
+    ethics:number 8  ;
     ethics:hasNote ethics:I.prop.8.note1, ethics:I.prop.8.note2 ;
-    # Physical references
-    ethics:cites ethics:I.prop.7, ethics:I.def.2, ethics:I.prop.7, ethics:I.prop.5 ;
-    # Semantic relationships
-    ethics:necessarilyFollows ethics:I.prop.7 ;
     ethics:refutedByAbsurdity ethics:I.prop.5 .
 
 ethics:I.prop.8.note1 a ethics:Note ;
@@ -446,31 +407,23 @@ ethics:I.prop.9 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 9 ;
-    # Physical references
-    ethics:cites ethics:I.def.4 ;
-    # Semantic relationships
-    ethics:clearlyfollowsFrom ethics:I.def.4 .
+    ethics:number 9 .
 
 # PROPOSITION X - "Each particular attribute of substance must be conceived through itself"  
 ethics:I.prop.10 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 10 ;
-    # Physical references
-    ethics:cites ethics:I.def.4, ethics:I.def.3 ;
-    # Semantic relationships
-    ethics:clearlyfollowsFrom ethics:I.def.4 ;
-    ethics:groundedIn ethics:I.def.3 .
+    ethics:number 10 .
 
 # PROPOSITION XI - "God, or substance, consisting of infinite attributes...necessarily exists"
 ethics:I.prop.11 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 11 ;
-    ethics:hasProof ethics:I.prop.11.proof1, ethics:I.prop.11.proof2, ethics:I.prop.11.proof3 .
+    ethics:number 11  ;
+    ethics:hasProof ethics:I.prop.11.proof1, ethics:I.prop.11.proof2, ethics:I.prop.11.proof3 ;
+    ethics:refutedByAbsurdity ethics:I.prop.7 .
 
 ethics:I.prop.11.proof1 a ethics:Proof ;
     ethics:partOf ethics:I.prop.11 ;
@@ -505,12 +458,7 @@ ethics:I.prop.12 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 12 ;
-    # Physical references
-    ethics:cites ethics:I.prop.8, ethics:I.prop.6, ethics:I.prop.5, ethics:I.prop.2, ethics:I.def.4, ethics:I.prop.10, ethics:I.prop.7 ;
-    # Semantic relationships  
-    ethics:necessarilyFollows ethics:I.prop.8 ;
-    ethics:groundedIn ethics:I.prop.6, ethics:I.prop.5 ;
+    ethics:number 12  ;
     ethics:refutedByAbsurdity ethics:I.prop.6, ethics:I.prop.2, ethics:I.prop.7 .
 
 # PROPOSITION XIII - "Substance absolutely infinite is indivisible"
@@ -518,12 +466,9 @@ ethics:I.prop.13 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 13 ;
+    ethics:number 13  ;
     ethics:hasCorollaryElement ethics:I.prop.13.corollary ;
     ethics:hasNote ethics:I.prop.13.note ;
-    # Physical references
-    ethics:cites ethics:I.prop.5, ethics:I.prop.7, ethics:I.prop.11 ;
-    # Semantic relationships
     ethics:refutedByAbsurdity ethics:I.prop.5, ethics:I.prop.7, ethics:I.prop.11 .
 
 ethics:I.prop.13.corollary a ethics:Corollary ;
@@ -547,12 +492,8 @@ ethics:I.prop.14 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 14 ;
+    ethics:number 14  ;
     ethics:hasCorollaryElement ethics:I.prop.14.corollary1, ethics:I.prop.14.corollary2 ;
-    # Physical references
-    ethics:cites ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.5 ;
-    # Semantic relationships
-    ethics:groundedIn ethics:I.def.6, ethics:I.prop.11 ;
     ethics:refutedByAbsurdity ethics:I.prop.5 .
 
 ethics:I.prop.14.corollary1 a ethics:Corollary ;
@@ -581,10 +522,8 @@ ethics:I.prop.15 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 15 ;
-    ethics:hasNote ethics:I.prop.15.note ;
-    ethics:cites ethics:I.prop.14, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.1 ;
-    ethics:groundedIn ethics:I.prop.14, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.1 .
+    ethics:number 15  ;
+    ethics:hasNote ethics:I.prop.15.note .
 
 ethics:I.prop.15.note a ethics:Note ;
     ethics:partOf ethics:I.prop.15 ;
@@ -599,10 +538,8 @@ ethics:I.prop.16 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 16 ;
-    ethics:hasCorollaryElement ethics:I.prop.16.corollary1, ethics:I.prop.16.corollary2, ethics:I.prop.16.corollary3 ;
-    ethics:cites ethics:I.def.6 ;
-    ethics:necessarilyFollows ethics:I.def.6 .
+    ethics:number 16  ;
+    ethics:hasCorollaryElement ethics:I.prop.16.corollary1, ethics:I.prop.16.corollary2, ethics:I.prop.16.corollary3 .
 
 ethics:I.prop.16.corollary1 a ethics:Corollary ;
     ethics:partOf ethics:I.prop.16 ;
@@ -615,10 +552,9 @@ ethics:I.prop.17 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 17 ;
+    ethics:number 17  ;
     ethics:hasCorollaryElement ethics:I.prop.17.corollary1, ethics:I.prop.17.corollary2 ;
     ethics:hasNote ethics:I.prop.17.note ;
-    ethics:cites ethics:I.prop.16, ethics:I.prop.15 ;
     ethics:demonstratedBy ethics:I.prop.16 ;
     ethics:provedBy ethics:I.prop.15 .
 
@@ -635,10 +571,7 @@ ethics:I.prop.18 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 18 ;
-    ethics:cites ethics:I.prop.15, ethics:I.prop.16.corollary1, ethics:I.prop.14 ;
-    ethics:groundedIn ethics:I.prop.15 ;
-    ethics:necessarilyFollows ethics:I.prop.16.corollary1 ;
+    ethics:number 18  ;
     ethics:provedBy ethics:I.prop.14 .
 
 # PROPOSITION XIX - "God, and all the attributes of God, are eternal"
@@ -646,39 +579,30 @@ ethics:I.prop.19 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 19 ;
-    ethics:cites ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.7, ethics:I.def.8, ethics:I.def.4 ;
-    ethics:groundedIn ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.7 ;
-    ethics:necessarilyFollows ethics:I.def.8, ethics:I.def.4 .
+    ethics:number 19 .
 
 # PROPOSITION XX - "The existence of God and his essence are one and the same"
 ethics:I.prop.20 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 20 ;
+    ethics:number 20  ;
     ethics:hasCorollaryElement ethics:I.prop.20.corollary1, ethics:I.prop.20.corollary2 ;
-    ethics:cites ethics:I.prop.19, ethics:I.def.8 ;
-    ethics:appliesResultFrom ethics:I.prop.19 ;
-    ethics:groundedIn ethics:I.def.8 .
+    ethics:appliesResultFrom ethics:I.prop.19 .
 
 # PROPOSITION XXI - "All things which follow from the absolute nature of any attribute of God must always exist"
 ethics:I.prop.21 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 21 ;
-    ethics:cites ethics:I.prop.11, ethics:I.def.2, ethics:I.prop.20.corollary2, ethics:I.def.8 ;
-    ethics:necessarilyFollows ethics:I.prop.11 ;
-    ethics:groundedIn ethics:I.def.2 ;
-    ethics:buildsUpon ethics:I.prop.20.corollary2, ethics:I.def.8 .
+    ethics:number 21 .
 
 # PROPOSITION XXII - "Whatsoever follows from any attribute of God must also exist necessarily"
 ethics:I.prop.22 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 22 ;
+    ethics:number 22  ;
     ethics:refersTo ethics:I.prop.21 ;
     ethics:appliesResultFrom ethics:I.prop.21 .
 
@@ -687,20 +611,15 @@ ethics:I.prop.23 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 23 ;
-    ethics:cites ethics:I.def.5, ethics:I.prop.15, ethics:I.def.8, ethics:I.prop.21, ethics:I.prop.22 ;
-    ethics:groundedIn ethics:I.def.5, ethics:I.prop.15, ethics:I.def.8 ;
-    ethics:necessarilyFollows ethics:I.prop.21, ethics:I.prop.22 .
+    ethics:number 23 .
 
 # PROPOSITION XXIV - "The essence of things produced by God does not involve existence"
 ethics:I.prop.24 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 24 ;
-    ethics:hasCorollaryElement ethics:I.prop.24.corollary ;
-    ethics:cites ethics:I.def.1 ;
-    ethics:evidentFrom ethics:I.def.1 .
+    ethics:number 24  ;
+    ethics:hasCorollaryElement ethics:I.prop.24.corollary .
 
 ethics:I.prop.24.corollary a ethics:Corollary ;
     ethics:partOf ethics:I.prop.24 ;
@@ -715,12 +634,10 @@ ethics:I.prop.25 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 25 ;
+    ethics:number 25  ;
     ethics:hasNote ethics:I.prop.25.note ;
     ethics:hasCorollaryElement ethics:I.prop.25.corollary ;
-    ethics:cites ethics:I.ax.4, ethics:I.prop.15 ;
-    ethics:refutedByAbsurdity ethics:I.ax.4 ;
-    ethics:groundedIn ethics:I.prop.15 .
+    ethics:refutedByAbsurdity ethics:I.ax.4 .
 
 ethics:I.prop.25.corollary a ethics:Corollary ;
     ethics:partOf ethics:I.prop.25 ;
@@ -734,74 +651,53 @@ ethics:I.prop.26 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 26 ;
-    ethics:cites ethics:I.prop.25, ethics:I.prop.16 ;
-    ethics:necessarilyFollows ethics:I.prop.25, ethics:I.prop.16 .
+    ethics:number 26 .
 
 # PROPOSITION XXVII - "A thing conditioned by God to act cannot render itself unconditioned"
 ethics:I.prop.27 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 27 ;
-    ethics:cites ethics:I.ax.3 ;
-    ethics:evidentFrom ethics:I.ax.3 .
+    ethics:number 27 .
 
 # PROPOSITION XXVIII - "Every individual thing cannot exist unless it be conditioned by another cause"
 ethics:I.prop.28 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 28 ;
-    ethics:hasNote ethics:I.prop.28.note ;
-    ethics:cites ethics:I.prop.26, ethics:I.prop.24.corollary, ethics:I.prop.21, ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5 ;
-    ethics:groundedIn ethics:I.prop.26, ethics:I.prop.24.corollary ;
-    ethics:necessarilyFollows ethics:I.prop.21 ;
-    ethics:buildsUpon ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5 .
+    ethics:number 28  ;
+    ethics:hasNote ethics:I.prop.28.note .
 
 # PROPOSITION XXIX - "Nothing in the universe is contingent, but all things are conditioned by the necessity of the divine nature"
 ethics:I.prop.29 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 29 ;
-    ethics:hasNote ethics:I.prop.29.note ;
-    ethics:cites ethics:I.prop.15, ethics:I.prop.11, ethics:I.prop.16, ethics:I.prop.27, ethics:I.prop.24.corollary, ethics:I.prop.26 ;
-    ethics:groundedIn ethics:I.prop.15, ethics:I.prop.11 ;
-    ethics:necessarilyFollows ethics:I.prop.16, ethics:I.prop.27 ;
-    ethics:buildsUpon ethics:I.prop.24.corollary, ethics:I.prop.26 .
+    ethics:number 29  ;
+    ethics:hasNote ethics:I.prop.29.note .
 
 # PROPOSITION XXX - "Intellect must comprehend the attributes of God and the modifications of God"
 ethics:I.prop.30 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 30 ;
-    ethics:cites ethics:I.ax.6, ethics:I.prop.14.corollary1, ethics:I.prop.15 ;
-    ethics:groundedIn ethics:I.ax.6 ;
-    ethics:necessarilyFollows ethics:I.prop.14.corollary1, ethics:I.prop.15 .
+    ethics:number 30 .
 
 # PROPOSITION XXXI - "The intellect in function should be referred to passive nature and not to active nature"
 ethics:I.prop.31 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 31 ;
-    ethics:hasNote ethics:I.prop.31.note ;
-    ethics:cites ethics:I.def.5, ethics:I.prop.15, ethics:I.def.6 ;
-    ethics:necessarilyFollows ethics:I.def.5 ;
-    ethics:groundedIn ethics:I.prop.15, ethics:I.def.6 .
+    ethics:number 31  ;
+    ethics:hasNote ethics:I.prop.31.note .
 
 # PROPOSITION XXXII - "Will cannot be called a free cause, but only a necessary cause"
 ethics:I.prop.32 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 32 ;
-    ethics:hasCorollaryElement ethics:I.prop.32.corollary1, ethics:I.prop.32.corollary2 ;
-    ethics:cites ethics:I.prop.28, ethics:I.prop.23, ethics:I.def.7 ;
-    ethics:necessarilyFollows ethics:I.prop.28, ethics:I.prop.23 ;
-    ethics:groundedIn ethics:I.def.7 .
+    ethics:number 32  ;
+    ethics:hasCorollaryElement ethics:I.prop.32.corollary1, ethics:I.prop.32.corollary2 .
 
 ethics:I.prop.32.corollary2 a ethics:Corollary ;
     ethics:partOf ethics:I.prop.32 ;
@@ -816,11 +712,8 @@ ethics:I.prop.33 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 33 ;
+    ethics:number 33  ;
     ethics:hasNote ethics:I.prop.33.note1, ethics:I.prop.33.note2 ;
-    ethics:cites ethics:I.prop.16, ethics:I.prop.29, ethics:I.prop.11, ethics:I.prop.14.corollary1 ;
-    ethics:necessarilyFollows ethics:I.prop.16, ethics:I.prop.29 ;
-    ethics:groundedIn ethics:I.prop.11 ;
     ethics:refutedByAbsurdity ethics:I.prop.14.corollary1 .
 
 # PROPOSITION XXXIV - "God's power is identical with his essence"
@@ -828,17 +721,14 @@ ethics:I.prop.34 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 34 ;
-    ethics:cites ethics:I.prop.11, ethics:I.prop.16, ethics:I.prop.16.corollary1 ;
-    ethics:necessarilyFollows ethics:I.prop.11 ;
-    ethics:groundedIn ethics:I.prop.16, ethics:I.prop.16.corollary1 .
+    ethics:number 34 .
 
 # PROPOSITION XXXV - "Whatsoever we conceive to be in the power of God, necessarily exists"
 ethics:I.prop.35 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 35 ;
+    ethics:number 35  ;
     ethics:refersTo ethics:I.prop.34 ;
     ethics:appliesResultFrom ethics:I.prop.34 .
 
@@ -847,10 +737,7 @@ ethics:I.prop.36 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
     ethics:partNumber 1 ;
-    ethics:number 36 ;
-    ethics:cites ethics:I.prop.25.corollary, ethics:I.prop.34, ethics:I.prop.16 ;
-    ethics:groundedIn ethics:I.prop.25.corollary, ethics:I.prop.34 ;
-    ethics:necessarilyFollows ethics:I.prop.16 .
+    ethics:number 36 .
 
 # ============================================================================
 # APPENDIX - Detailed Philosophical Arguments

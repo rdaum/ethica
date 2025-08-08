@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinoza Ethics Interactive Explorer</title>
+    <script src="https://unpkg.com/n3@1.17.2/browser/n3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xml2js/0.6.2/xml2js.min.js"></script>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .query-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        select, button {
+            padding: 10px;
+            margin: 5px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .citation-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+        }
+        .semantic-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f0f8e8;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        .dependency-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #fff3e0;
+            border-left: 4px solid #FF9800;
+            border-radius: 4px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        #graph-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .element-text {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-style: italic;
+            color: #333;
+        }
+        .element-type {
+            font-weight: bold;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+        .preview-area {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 60px;
+            font-style: italic;
+            color: #666;
+            display: none;
+        }
+        .preview-active {
+            display: block;
+            border-color: #667eea;
+        }
+        .preview-type {
+            font-weight: bold;
+            color: #667eea;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏛️ Spinoza Ethics Knowledge Graph</h1>
+        <p>Interactive Exploration of Part I Logical Structure</p>
+    </div>
+
+    <div id="graph-stats"></div>
+
+    <div class="query-panel">
+        <h2>📖 Citation Explorer</h2>
+        <select id="proposition-select">
+            <option value="">Select an element...</option>
+        </select>
+        <div id="citation-preview" class="preview-area">
+            <div class="preview-type"></div>
+            <div class="preview-text">Select or navigate through dropdown options to see text preview</div>
+        </div>
+        <button onclick="showCitations()">Show Outward Citations</button>
+        <button onclick="showInwardCitations()">Show Inward Citations</button>
+        <div id="citation-results" class="results" style="display: none;"></div>
+    </div>
+
+    <div class="query-panel">
+        <h2>⚡ Logical Consequences</h2>
+        <select id="element-select">
+            <option value="">Select a definition or axiom...</option>
+        </select>
+        <div id="consequence-preview" class="preview-area">
+            <div class="preview-type"></div>
+            <div class="preview-text">Select or navigate through dropdown options to see text preview</div>
+        </div>
+        <button onclick="showConsequences()">Show What Follows</button>
+        <div id="consequence-results" class="results" style="display: none;"></div>
+    </div>
+
+    <div class="query-panel">
+        <h2>🔗 Dependency Chain</h2>
+        <select id="dependency-select">
+            <option value="">Select starting element...</option>
+        </select>
+        <div id="dependency-preview" class="preview-area">
+            <div class="preview-type"></div>
+            <div class="preview-text">Select or navigate through dropdown options to see text preview</div>
+        </div>
+        <button onclick="showDependencies()">Trace Dependencies</button>
+        <div id="dependency-results" class="results" style="display: none;"></div>
+    </div>
+
+    <div class="query-panel">
+        <h2>💥 Reductio Ad Absurdum Arguments</h2>
+        <button onclick="showReductio()">Find All Reductio Arguments</button>
+        <div id="reductio-results" class="results" style="display: none;"></div>
+    </div>
+
+    <script>
+        let store;
+        let xmlContent = {};
+        const prefixes = {
+            'ethics': 'http://spinoza.org/ethics#',
+            'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+            'rdfs': 'http://www.w3.org/2000/01/rdf-schema#'
+        };
+
+        // Load and parse the N3 file and XML
+        async function loadGraph() {
+            document.getElementById('graph-stats').innerHTML = '<div class="loading">📖 Loading knowledge graph and text...</div>';
+            
+            try {
+                // Load N3 file
+                const n3Response = await fetch('./ethica-logic.n3');
+                const n3Content = await n3Response.text();
+                
+                store = new N3.Store();
+                const parser = new N3.Parser();
+                
+                await new Promise((resolve, reject) => {
+                    parser.parse(n3Content, (error, quad, prefixes) => {
+                        if (error) {
+                            reject(error);
+                        } else if (quad) {
+                            store.addQuad(quad);
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+
+                // Load XML file
+                const xmlResponse = await fetch('./ethica_1.xml');
+                const xmlText = await xmlResponse.text();
+                
+                const parser2 = new DOMParser();
+                const xmlDoc = parser2.parseFromString(xmlText, 'text/xml');
+                parseXMLContent(xmlDoc);
+
+                populateSelectors();
+                showStats();
+                console.log(`Loaded ${store.size} triples and XML content`);
+                
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('graph-stats').innerHTML = 
+                    '<div class="loading">❌ Error loading files. Make sure ethica-logic.n3 and ethica_1.xml are available.</div>';
+            }
+        }
+
+        // Parse XML content into easily accessible format
+        function parseXMLContent(xmlDoc) {
+            xmlContent = {};
+            
+            // Parse definitions
+            const definitions = xmlDoc.querySelectorAll('def');
+            definitions.forEach(def => {
+                const id = def.getAttribute('id');
+                const text = def.querySelector('text')?.textContent?.trim();
+                if (id && text) {
+                    xmlContent[id] = {
+                        type: 'definition',
+                        text: text,
+                        number: def.getAttribute('number')
+                    };
+                }
+            });
+            
+            // Parse axioms
+            const axioms = xmlDoc.querySelectorAll('axiom');
+            axioms.forEach(axiom => {
+                const id = axiom.getAttribute('id');
+                const text = axiom.querySelector('text')?.textContent?.trim();
+                if (id && text) {
+                    xmlContent[id] = {
+                        type: 'axiom',
+                        text: text,
+                        number: axiom.getAttribute('number')
+                    };
+                }
+            });
+            
+            // Parse propositions
+            const propositions = xmlDoc.querySelectorAll('prop');
+            propositions.forEach(prop => {
+                const id = prop.getAttribute('id');
+                const text = prop.querySelector('text')?.textContent?.trim();
+                if (id && text) {
+                    xmlContent[id] = {
+                        type: 'proposition',
+                        text: text,
+                        number: prop.getAttribute('number')
+                    };
+                }
+                
+                // Parse proofs within propositions
+                const proofs = prop.querySelectorAll('proof');
+                proofs.forEach(proof => {
+                    const proofId = proof.getAttribute('id');
+                    const proofText = proof.querySelector('text')?.textContent?.trim();
+                    if (proofId && proofText) {
+                        xmlContent[proofId] = {
+                            type: 'proof',
+                            text: proofText,
+                            parentId: id
+                        };
+                    }
+                });
+                
+                // Parse corollaries
+                const corollaries = prop.querySelectorAll('corollary');
+                corollaries.forEach(cor => {
+                    const corId = cor.getAttribute('id');
+                    const corText = cor.querySelector('text')?.textContent?.trim();
+                    if (corId && corText) {
+                        xmlContent[corId] = {
+                            type: 'corollary',
+                            text: corText,
+                            parentId: id
+                        };
+                    }
+                });
+                
+                // Parse notes
+                const notes = prop.querySelectorAll('note');
+                notes.forEach(note => {
+                    const noteId = note.getAttribute('id');
+                    const noteText = note.querySelector('text')?.textContent?.trim();
+                    if (noteId && noteText) {
+                        xmlContent[noteId] = {
+                            type: 'note',
+                            text: noteText,
+                            parentId: id
+                        };
+                    }
+                });
+            });
+            
+            console.log(`Parsed ${Object.keys(xmlContent).length} XML elements`);
+        }
+
+        function getElementText(elementId) {
+            const element = xmlContent[elementId];
+            if (!element) return null;
+            
+            let displayText = element.text;
+            if (displayText.length > 200) {
+                displayText = displayText.substring(0, 200) + '...';
+            }
+            
+            return {
+                type: element.type,
+                text: displayText,
+                fullText: element.text
+            };
+        }
+
+        // Populate dropdown selectors
+        function populateSelectors() {
+            const propositions = getElementsOfType('Proposition');
+            const definitions = getElementsOfType('Definition');
+            const axioms = getElementsOfType('Axiom');
+            const proofs = getElementsOfType('Proof');
+            const corollaries = getElementsOfType('Corollary');
+            const notes = getElementsOfType('Note');
+
+            // Citation selector (all elements that might have citations)
+            const propSelect = document.getElementById('proposition-select');
+            [...definitions, ...axioms, ...propositions, ...proofs, ...corollaries, ...notes].forEach(elem => {
+                const option = document.createElement('option');
+                option.value = elem;
+                option.textContent = elem;
+                propSelect.appendChild(option);
+            });
+            addPreviewListeners('proposition-select', 'citation-preview');
+
+            // Element selector (definitions + axioms)
+            const elemSelect = document.getElementById('element-select');
+            [...definitions, ...axioms].forEach(elem => {
+                const option = document.createElement('option');
+                option.value = elem;
+                option.textContent = elem;
+                elemSelect.appendChild(option);
+            });
+            addPreviewListeners('element-select', 'consequence-preview');
+
+            // Dependency selector (all elements)
+            const depSelect = document.getElementById('dependency-select');
+            [...definitions, ...axioms, ...propositions].forEach(elem => {
+                const option = document.createElement('option');
+                option.value = elem;
+                option.textContent = elem;
+                depSelect.appendChild(option);
+            });
+            addPreviewListeners('dependency-select', 'dependency-preview');
+        }
+
+        function addPreviewListeners(selectId, previewId) {
+            const select = document.getElementById(selectId);
+            const preview = document.getElementById(previewId);
+            const previewType = preview.querySelector('.preview-type');
+            const previewText = preview.querySelector('.preview-text');
+
+            // Show preview on hover over options (this is tricky with select elements)
+            // Instead, we'll update on change and focus
+            select.addEventListener('change', function() {
+                updatePreview(this.value, previewType, previewText, preview);
+                clearResults(selectId);
+            });
+
+            select.addEventListener('focus', function() {
+                preview.classList.add('preview-active');
+            });
+
+            select.addEventListener('blur', function() {
+                if (!this.value) {
+                    preview.classList.remove('preview-active');
+                }
+            });
+
+            // For better UX, let's also listen to keyboard navigation
+            select.addEventListener('keydown', function(e) {
+                setTimeout(() => {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption && selectedOption.value) {
+                        updatePreview(selectedOption.value, previewType, previewText, preview);
+                    }
+                }, 0);
+            });
+        }
+
+        function updatePreview(elementId, previewType, previewText, preview) {
+            if (!elementId) {
+                preview.classList.remove('preview-active');
+                return;
+            }
+
+            const elementText = getElementText(elementId);
+            if (elementText) {
+                previewType.textContent = elementText.type;
+                previewText.textContent = elementText.text;
+                preview.classList.add('preview-active');
+            } else {
+                previewType.textContent = '';
+                previewText.textContent = `No text available for ${elementId}`;
+                preview.classList.add('preview-active');
+            }
+        }
+
+        function clearResults(selectId) {
+            // Clear results when a new element is selected
+            if (selectId === 'proposition-select') {
+                const resultsDiv = document.getElementById('citation-results');
+                resultsDiv.style.display = 'none';
+                resultsDiv.innerHTML = '';
+            } else if (selectId === 'element-select') {
+                const resultsDiv = document.getElementById('consequence-results');
+                resultsDiv.style.display = 'none';
+                resultsDiv.innerHTML = '';
+            } else if (selectId === 'dependency-select') {
+                const resultsDiv = document.getElementById('dependency-results');
+                resultsDiv.style.display = 'none';
+                resultsDiv.innerHTML = '';
+            }
+        }
+
+        function getElementsOfType(type) {
+            const quads = store.getQuads(
+                null,
+                N3.DataFactory.namedNode(prefixes.rdf + 'type'),
+                N3.DataFactory.namedNode(prefixes.ethics + type)
+            );
+            
+            return quads.map(quad => 
+                quad.subject.value.replace(prefixes.ethics, '')
+            ).sort();
+        }
+
+        function showStats() {
+            const definitions = getElementsOfType('Definition').length;
+            const axioms = getElementsOfType('Axiom').length;
+            const propositions = getElementsOfType('Proposition').length;
+            const proofs = getElementsOfType('Proof').length;
+            const corollaries = getElementsOfType('Corollary').length;
+            const notes = getElementsOfType('Note').length;
+
+            document.getElementById('graph-stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${definitions}</div>
+                    <div>Definitions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${axioms}</div>
+                    <div>Axioms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${propositions}</div>
+                    <div>Propositions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${proofs}</div>
+                    <div>Proofs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${corollaries}</div>
+                    <div>Corollaries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${store.size}</div>
+                    <div>Total Triples</div>
+                </div>
+            `;
+        }
+
+        function showCitations() {
+            const selected = document.getElementById('proposition-select').value;
+            if (!selected) return;
+
+            const citations = store.getQuads(
+                N3.DataFactory.namedNode(prefixes.ethics + selected),
+                N3.DataFactory.namedNode(prefixes.ethics + 'cites'),
+                null
+            );
+
+            let html = `<h3>📖 ${selected} cites:</h3>`;
+            
+            // Show text of selected element
+            const selectedText = getElementText(selected);
+            if (selectedText) {
+                html += `<div class="element-text">
+                    <div class="element-type">${selectedText.type}</div>
+                    ${selectedText.text}
+                </div>`;
+            }
+            
+            if (citations.length === 0) {
+                html += '<p>No outward citations found.</p>';
+            } else {
+                citations.forEach(quad => {
+                    const cited = quad.object.value.replace(prefixes.ethics, '');
+                    const citedText = getElementText(cited);
+                    
+                    html += `<div class="citation-item">
+                        <strong>📖 ${cited}</strong>`;
+                    
+                    if (citedText) {
+                        html += `<div class="element-text">
+                            <div class="element-type">${citedText.type}</div>
+                            ${citedText.text}
+                        </div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+            }
+
+            const resultsDiv = document.getElementById('citation-results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showInwardCitations() {
+            const selected = document.getElementById('proposition-select').value;
+            if (!selected) return;
+
+            const inwardCitations = store.getQuads(
+                null,
+                N3.DataFactory.namedNode(prefixes.ethics + 'cites'),
+                N3.DataFactory.namedNode(prefixes.ethics + selected)
+            );
+
+            let html = `<h3>📖 Elements that cite ${selected}:</h3>`;
+            
+            // Show text of selected element
+            const selectedText = getElementText(selected);
+            if (selectedText) {
+                html += `<div class="element-text">
+                    <div class="element-type">${selectedText.type}</div>
+                    ${selectedText.text}
+                </div>`;
+            }
+            
+            if (inwardCitations.length === 0) {
+                html += '<p>No inward citations found.</p>';
+            } else {
+                inwardCitations.forEach(quad => {
+                    const citing = quad.subject.value.replace(prefixes.ethics, '');
+                    const citingText = getElementText(citing);
+                    
+                    html += `<div class="citation-item">
+                        <strong>📖 ${citing}</strong>`;
+                    
+                    if (citingText) {
+                        html += `<div class="element-text">
+                            <div class="element-type">${citingText.type}</div>
+                            ${citingText.text}
+                        </div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+            }
+
+            const resultsDiv = document.getElementById('citation-results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showConsequences() {
+            const selected = document.getElementById('element-select').value;
+            if (!selected) return;
+
+            const consequences = store.getQuads(
+                null,
+                N3.DataFactory.namedNode(prefixes.ethics + 'necessarilyFollows'),
+                N3.DataFactory.namedNode(prefixes.ethics + selected)
+            );
+
+            let html = `<h3>⚡ What necessarily follows from ${selected}:</h3>`;
+            if (consequences.length === 0) {
+                html += '<p>No direct logical consequences found.</p>';
+            } else {
+                consequences.forEach(quad => {
+                    const consequent = quad.subject.value.replace(prefixes.ethics, '');
+                    html += `<div class="semantic-item">⚡ ${consequent} necessarily follows</div>`;
+                });
+            }
+
+            const resultsDiv = document.getElementById('consequence-results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showDependencies() {
+            const selected = document.getElementById('dependency-select').value;
+            if (!selected) return;
+
+            const visited = new Set();
+            let html = `<h3>🔗 Dependency chain from ${selected}:</h3>`;
+
+            function traceDeps(element, depth) {
+                if (depth > 2 || visited.has(element)) return '';
+                visited.add(element);
+
+                const indent = '&nbsp;'.repeat(depth * 4);
+                let result = `<div class="dependency-item">${indent}📍 ${element}</div>`;
+
+                // Find direct dependencies
+                const directDeps = store.getQuads(
+                    N3.DataFactory.namedNode(prefixes.ethics + element),
+                    N3.DataFactory.namedNode(prefixes.ethics + 'cites'),
+                    null
+                );
+
+                // If no direct dependencies, look for sub-element dependencies (proofs, corollaries, etc.)
+                if (directDeps.length === 0) {
+                    const subElements = store.getQuads(
+                        null,
+                        N3.DataFactory.namedNode(prefixes.ethics + 'partOf'),
+                        N3.DataFactory.namedNode(prefixes.ethics + element)
+                    );
+
+                    subElements.forEach(subQuad => {
+                        const subElement = subQuad.subject.value.replace(prefixes.ethics, '');
+                        const subDeps = store.getQuads(
+                            N3.DataFactory.namedNode(prefixes.ethics + subElement),
+                            N3.DataFactory.namedNode(prefixes.ethics + 'cites'),
+                            null
+                        );
+                        
+                        if (subDeps.length > 0) {
+                            result += `<div class="dependency-item">${indent}&nbsp;&nbsp;(via ${subElement}):</div>`;
+                            subDeps.forEach(depQuad => {
+                                const dependency = depQuad.object.value.replace(prefixes.ethics, '');
+                                result += traceDeps(dependency, depth + 1);
+                            });
+                        }
+                    });
+                } else {
+                    // Use direct dependencies
+                    directDeps.forEach(quad => {
+                        const dependency = quad.object.value.replace(prefixes.ethics, '');
+                        result += traceDeps(dependency, depth + 1);
+                    });
+                }
+
+                return result;
+            }
+
+            html += traceDeps(selected, 0);
+
+            const resultsDiv = document.getElementById('dependency-results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showReductio() {
+            const reductions = store.getQuads(
+                null,
+                N3.DataFactory.namedNode(prefixes.ethics + 'refutedByAbsurdity'),
+                null
+            );
+
+            const elements = new Set();
+            reductions.forEach(quad => {
+                elements.add(quad.subject.value.replace(prefixes.ethics, ''));
+            });
+
+            let html = '<h3>💥 Elements using reductio ad absurdum:</h3>';
+            if (elements.size === 0) {
+                html += '<p>No reductio arguments found.</p>';
+            } else {
+                Array.from(elements).sort().forEach(element => {
+                    html += `<div class="semantic-item">💥 ${element}</div>`;
+                });
+            }
+
+            const resultsDiv = document.getElementById('reductio-results');
+            resultsDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+
+        // Load the graph when page loads
+        window.addEventListener('load', loadGraph);
+    </script>
+</body>
+</html>
