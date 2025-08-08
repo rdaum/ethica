@@ -1,27 +1,58 @@
 {
-  "name": "spinoza-ethics-graph",
-  "version": "1.0.0",
-  "description": "Interactive exploration of Spinoza's Ethics logical structure using N3.js",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js", 
-    "test": "node test.js",
-    "deploy": "cd spinoza-reader && npm run build && cd .. && gh-pages -d spinoza-reader/build"
-  },
+  "name": "spinoza-ethics-reader",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://rdaum.github.io/ethica",
   "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.68",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "eyereasoner": "^4.4.16",
+    "fast-xml-parser": "^4.3.2",
     "n3": "^1.17.2",
-    "xml2js": "^0.6.2"
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5",
+    "web-vitals": "^2.1.4"
   },
-  "keywords": [
-    "philosophy",
-    "spinoza",
-    "rdf",
-    "n3",
-    "knowledge-graph"
-  ],
-  "author": "",
-  "license": "MIT",
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "deploy": "npm run build && gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@types/n3": "^1.16.4",
     "gh-pages": "^6.3.0"
   },
   "repository": {
@@ -31,5 +62,5 @@
   "bugs": {
     "url": "https://github.com/rdaum/ethica/issues"
   },
-  "homepage": "https://github.com/rdaum/ethica#readme"
+  "license": "MIT"
 }

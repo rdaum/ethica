@@ -48,12 +48,13 @@ const App: React.FC = () => {
       setState(prev => ({ ...prev, loading: true }));
 
       // Load and parse XML
-      const xmlResponse = await fetch('/ethica_1.xml');
+      const basePath = process.env.PUBLIC_URL || '.';
+      const xmlResponse = await fetch(`${basePath}/ethica_1.xml`);
       const xmlText = await xmlResponse.text();
       const elements = parseXML(xmlText);
 
       // Load and parse N3 data (use original file since N3.js can't parse reasoning rules)
-      const n3Response = await fetch('/ethica-logic.n3');
+      const n3Response = await fetch(`${basePath}/ethica-logic.n3`);
       const n3Content = await n3Response.text();
       const n3Store = await parseN3(n3Content);
 
@@ -62,7 +63,7 @@ const App: React.FC = () => {
       
       try {
         // Load the file with active reasoning rules for EYE-js
-        const eyeResponse = await fetch('/ethica-logic-eye.n3');
+        const eyeResponse = await fetch(`${basePath}/ethica-logic-eye.n3`);
         const eyeContent = await eyeResponse.text();
         
         const reasoningResults = await n3reasoner(eyeContent, undefined, {
@@ -696,7 +697,7 @@ const App: React.FC = () => {
         <div className="header-content">
           <div className="signet-container">
             <img 
-              src="/spinoza-signet.png"
+              src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
               alt="Spinoza's Signet Ring - Rose with 'Caute' motto"
               className="spinoza-signet"
             />

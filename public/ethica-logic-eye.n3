@@ -1,0 +1,1231 @@
+# Spinoza Ethics Part I - Logical Structure Graph
+# Two-layer approach: Physical references + Semantic relationships
+
+@prefix ethics: <http://spinoza.org/ethics#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ============================================================================
+# LAYER 1: PHYSICAL TEXT REFERENCES
+# Direct citations as they appear in the text
+# ============================================================================
+
+# Physical reference predicates
+ethics:cites a rdf:Property ;
+    rdfs:comment "Direct textual citation, e.g. '(by Prop. vii.)'" .
+
+ethics:refersTo a rdf:Property ;
+    rdfs:comment "Indirect reference, e.g. 'by the last Prop.'" .
+
+ethics:mentions a rdf:Property ;
+    rdfs:comment "Mentions without formal citation" .
+
+# ============================================================================
+# LAYER 2: SEMANTIC RELATIONSHIP TYPES  
+# The logical manner of connection
+# ============================================================================
+
+# Deductive relationships
+ethics:clearlyfollowsFrom a rdf:Property ;
+    rdfs:comment "This is clear from..." .
+
+ethics:evidentFrom a rdf:Property ;
+    rdfs:comment "Also evident from..." .
+
+ethics:necessarilyFollows a rdf:Property ;
+    rdfs:comment "necessarily follows from" .
+
+# Proof relationships  
+ethics:provedBy a rdf:Property ;
+    rdfs:comment "Demonstrated by formal proof" .
+
+ethics:demonstratedBy a rdf:Property ;
+    rdfs:comment "as demonstrated by..." .
+
+ethics:groundedIn a rdf:Property ;
+    rdfs:comment "as appears from..." .
+
+# Consequential relationships
+ethics:hasCorollary a rdf:Property ;
+    rdfs:comment "Hence it follows that..." .
+
+ethics:impliesConsequence a rdf:Property ;
+    rdfs:comment "Direct logical implication" .
+
+# Structural relationships
+ethics:buildsUpon a rdf:Property ;
+    rdfs:comment "Incremental logical development" .
+
+ethics:appliesResultFrom a rdf:Property ;
+    rdfs:comment "by the last Prop" .
+
+# Argumentative relationships
+ethics:refutedByAbsurdity a rdf:Property ;
+    rdfs:comment "which is absurd - reductio ad absurdum" .
+
+ethics:contradicts a rdf:Property ;
+    rdfs:comment "Logical contradiction" .
+
+# Inferred relationship predicates (derived by EYE-js reasoning)
+ethics:transitivelyDependsOn a rdf:Property ;
+    rdfs:comment "Transitive dependency through multiple relationship types" .
+
+ethics:dependsUpon a rdf:Property ;
+    rdfs:comment "General dependency relationship (inferred from citations, proofs, etc.)" .
+
+ethics:circularArgument a rdf:Property ;
+    rdfs:comment "Circular reasoning detection (mutual refutation by absurdity)" .
+
+ethics:derivedFrom a rdf:Property ;
+    rdfs:comment "Element is derived from another (inferred from structural relationships)" .
+
+ethics:explainsElement a rdf:Property ;
+    rdfs:comment "Note or explanation relationship (inferred from hasNote)" .
+
+# ============================================================================
+# ONTOLOGY: STRUCTURAL ELEMENTS & HIERARCHY
+# ============================================================================
+
+# Document structure classes
+ethics:Part a rdfs:Class .
+ethics:Section a rdfs:Class .
+ethics:Definition a rdfs:Class .
+ethics:Axiom a rdfs:Class .  
+ethics:Proposition a rdfs:Class .
+ethics:Proof a rdfs:Class .
+ethics:Corollary a rdfs:Class .
+ethics:Note a rdfs:Class .
+ethics:Appendix a rdfs:Class .
+ethics:Footnote a rdfs:Class .
+ethics:Explanation a rdfs:Class .
+
+# Hierarchy predicates  
+ethics:partOf a rdf:Property ;
+    rdfs:comment "X is part of Y (hierarchical containment)" .
+
+ethics:containsSection a rdf:Property ;
+    rdfs:comment "Part contains section (definitions, axioms, propositions)" .
+
+ethics:containsElement a rdf:Property ;
+    rdfs:comment "Section contains individual elements" .
+
+# Element type classification predicates
+ethics:isDefinition a rdf:Property ;
+    rdfs:comment "Element is a definition" .
+
+ethics:isAxiom a rdf:Property ;
+    rdfs:comment "Element is an axiom" .
+
+ethics:isProposition a rdf:Property ;
+    rdfs:comment "Element is a proposition" .
+
+ethics:isProof a rdf:Property ;
+    rdfs:comment "Element is a proof" .
+
+ethics:isCorollary a rdf:Property ;
+    rdfs:comment "Element is a corollary" .
+
+ethics:isNote a rdf:Property ;
+    rdfs:comment "Element is a note/explanation" .
+
+ethics:isFootnote a rdf:Property ;
+    rdfs:comment "Element is a footnote" .
+
+ethics:isExplanation a rdf:Property ;
+    rdfs:comment "Element is an explanation" .
+
+ethics:topic a rdf:Property ;
+    rdfs:comment "Topic or theme of explanation" .
+
+# Structural relationship predicates
+ethics:hasProof a rdf:Property ;
+    rdfs:comment "Proposition has associated proof" .
+
+ethics:hasCorollaryElement a rdf:Property ;
+    rdfs:comment "Element has corollary" .
+
+ethics:hasNote a rdf:Property ;
+    rdfs:comment "Element has note/explanation" .
+
+ethics:proofOf a rdf:Property ;
+    rdfs:comment "Proof demonstrates proposition" .
+
+ethics:corollaryOf a rdf:Property ;
+    rdfs:comment "Corollary derives from element" .
+
+ethics:noteOn a rdf:Property ;
+    rdfs:comment "Note explains element" .
+
+# Ordering predicates
+ethics:partNumber a rdf:Property ;
+    rdfs:comment "Which part (I, II, III, IV, V)" .
+
+ethics:number a rdf:Property ;
+    rdfs:comment "Sequential number within type (Def. 3, Prop. 7, etc.)" .
+
+ethics:precedesInOrder a rdf:Property ;
+    rdfs:comment "Element X precedes element Y in document order" .
+
+# ============================================================================
+# HIGH-LEVEL DOCUMENT STRUCTURE
+# Centralized overview of Part I organization (macro-structure)
+# Individual elements also have partOf relationships (micro-structure)
+# ============================================================================
+ethics:I
+    ethics:containsSection ethics:I.definitions, ethics:I.axioms, ethics:I.propositions, ethics:I.appendix .
+
+ethics:I.definitions 
+    ethics:containsElement ethics:I.def.1, ethics:I.def.2, ethics:I.def.3, ethics:I.def.4, ethics:I.def.5, ethics:I.def.6, ethics:I.def.7, ethics:I.def.8 .
+
+ethics:I.axioms
+    ethics:containsElement ethics:I.ax.1, ethics:I.ax.2, ethics:I.ax.3, ethics:I.ax.4, ethics:I.ax.5, ethics:I.ax.6, ethics:I.ax.7 .
+
+ethics:I.propositions
+    ethics:containsElement ethics:I.prop.1, ethics:I.prop.2, ethics:I.prop.3, ethics:I.prop.4, ethics:I.prop.5, ethics:I.prop.6, ethics:I.prop.7, ethics:I.prop.8, ethics:I.prop.9, ethics:I.prop.10, ethics:I.prop.11, ethics:I.prop.12, ethics:I.prop.13, ethics:I.prop.14, ethics:I.prop.15, ethics:I.prop.16, ethics:I.prop.17, ethics:I.prop.18, ethics:I.prop.19, ethics:I.prop.20, ethics:I.prop.21, ethics:I.prop.22, ethics:I.prop.23, ethics:I.prop.24, ethics:I.prop.25, ethics:I.prop.26, ethics:I.prop.27, ethics:I.prop.28, ethics:I.prop.29, ethics:I.prop.30, ethics:I.prop.31, ethics:I.prop.32, ethics:I.prop.33, ethics:I.prop.34, ethics:I.prop.35, ethics:I.prop.36 .
+
+ethics:I.appendix
+    ethics:containsElement ethics:I.appendix.introduction, ethics:I.appendix.teleological, ethics:I.appendix.good_and_bad .
+
+# ============================================================================
+# SAMPLE INFERENCE RULES (N3 Logic - commented for N3.js compatibility)
+# ============================================================================
+
+# NOTE: These rules use N3 Logic syntax, not supported by all parsers
+# Uncomment when using an N3 reasoner like EYE or cwm
+
+# Active transitivity rules for EYE-js reasoning
+{ ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z } 
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+{ ?x ethics:necessarilyFollows ?y . ?y ethics:necessarilyFollows ?z }
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+# Mixed relationship transitivity
+{ ?x ethics:necessarilyFollows ?y . ?y ethics:appliesResultFrom ?z }
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+{ ?x ethics:clearlyfollowsFrom ?y . ?y ethics:appliesResultFrom ?z }
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+{ ?x ethics:appliesResultFrom ?y . ?y ethics:necessarilyFollows ?z }
+    => { ?x ethics:transitivelyDependsOn ?z } .
+
+# Citation implies dependency
+{ ?x ethics:cites ?y }
+    => { ?x ethics:dependsUpon ?y } .
+
+{ ?x ethics:refersTo ?y }
+    => { ?x ethics:dependsUpon ?y } .
+
+# Proof relationships imply dependency
+{ ?x ethics:provedBy ?y }
+    => { ?x ethics:dependsUpon ?y } .
+
+{ ?x ethics:demonstratedBy ?y }
+    => { ?x ethics:dependsUpon ?y } .
+
+{ ?x ethics:groundedIn ?y }
+    => { ?x ethics:dependsUpon ?y } .
+
+# Absurdity detection
+{ ?x ethics:refutedByAbsurdity ?y . ?y ethics:refutedByAbsurdity ?x }
+    => { ?x ethics:circularArgument ?y } .
+
+# Structural relationships
+{ ?x ethics:hasCorollary ?y }
+    => { ?y ethics:derivedFrom ?x } .
+
+{ ?x ethics:hasNote ?y }
+    => { ?y ethics:explainsElement ?x } .
+
+# ============================================================================
+# PART I STRUCTURAL DEFINITIONS AND RELATIONSHIPS
+# ============================================================================
+
+# ============================================================================
+# PART I STRUCTURAL DEFINITIONS
+# ============================================================================
+
+# Part I 
+ethics:I a ethics:Part ;
+    ethics:partNumber 1 ;
+    rdfs:label "Concerning God" .
+
+# Sections
+ethics:I.definitions a ethics:Section ;
+    ethics:partOf ethics:I ;
+    rdfs:label "Definitions" .
+
+ethics:I.axioms a ethics:Section ;
+    ethics:partOf ethics:I ;
+    rdfs:label "Axioms" .
+
+ethics:I.propositions a ethics:Section ;
+    ethics:partOf ethics:I ;
+    rdfs:label "Propositions" .
+
+ethics:I.appendix a ethics:Appendix ;
+    ethics:partOf ethics:I ;
+    rdfs:label "Appendix" .
+
+# Definitions - with hierarchy and classification
+ethics:I.def.1 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 1 .
+
+ethics:I.def.2 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 2 .
+
+ethics:I.def.3 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 3 .
+
+ethics:I.def.4 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 4 .
+
+ethics:I.def.5 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 5 .
+
+ethics:I.def.6 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 6 .
+
+ethics:I.def.7 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 7 .
+
+ethics:I.def.8 a ethics:Definition ;
+    ethics:partOf ethics:I.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 1 ;
+    ethics:number 8 .
+
+# Axioms - with hierarchy and classification
+ethics:I.ax.1 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 1 .
+
+ethics:I.ax.2 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 2 .
+
+ethics:I.ax.3 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 3 .
+
+ethics:I.ax.4 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 4 .
+
+ethics:I.ax.5 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 5 .
+
+ethics:I.ax.6 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 6 .
+
+ethics:I.ax.7 a ethics:Axiom ;
+    ethics:partOf ethics:I.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 1 ;
+    ethics:number 7 .
+
+# Propositions - with hierarchy and classification (sample)
+ethics:I.prop.1 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 1 .
+
+ethics:I.prop.2 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 2 .
+
+ethics:I.prop.3 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 3 .
+
+ethics:I.prop.4 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 4 .
+
+# ============================================================================
+# COMPLETE PART I CITATION MAPPINGS
+# ============================================================================
+
+# PROPOSITION I-IV - Citations moved to respective proof elements to maintain normalized structure
+
+# PROPOSITION V - "There cannot exist in the universe two or more substances having the same nature or attribute"
+ethics:I.prop.5 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 5 .
+
+# PROPOSITION VI - "One substance cannot be produced by another substance"
+ethics:I.prop.6 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 6 .
+
+# PROPOSITION VII - "Existence belongs to the nature of substance"  
+ethics:I.prop.7 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 7 ;
+    ethics:hasProof ethics:I.prop.7.proof ;
+    ethics:hasCorollaryElement ethics:I.prop.7.corollary .
+
+ethics:I.prop.7.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.7 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.7 .
+
+ethics:I.prop.7.corollary a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.7 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.7 ;
+    # Physical references
+    ethics:cites ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5, ethics:I.prop.6, ethics:I.ax.4, ethics:I.def.3 ;
+    # Semantic relationships
+    ethics:necessarilyFollows ethics:I.prop.7 ;
+    ethics:groundedIn ethics:I.ax.1 ;
+    ethics:appliesResultFrom ethics:I.prop.6 .
+
+# PROPOSITION VIII - "Every substance is necessarily infinite"
+ethics:I.prop.8 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 8  ;
+    ethics:hasNote ethics:I.prop.8.note1, ethics:I.prop.8.note2 ;
+    ethics:refutedByAbsurdity ethics:I.prop.5 .
+
+ethics:I.prop.8.note1 a ethics:Note ;
+    ethics:partOf ethics:I.prop.8 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.8 ;
+    # Physical references
+    ethics:cites ethics:I.prop.7 ;
+    # Semantic relationships
+    ethics:necessarilyFollows ethics:I.prop.7 .
+
+# PROPOSITION IX - "The more reality or being a thing has, the greater the number of its attributes"
+ethics:I.prop.9 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 9 .
+
+# PROPOSITION X - "Each particular attribute of substance must be conceived through itself"  
+ethics:I.prop.10 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 10 .
+
+# PROPOSITION XI - "God, or substance, consisting of infinite attributes...necessarily exists"
+ethics:I.prop.11 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 11  ;
+    ethics:hasProof ethics:I.prop.11.proof1, ethics:I.prop.11.proof2, ethics:I.prop.11.proof3 ;
+    ethics:refutedByAbsurdity ethics:I.prop.7 .
+
+ethics:I.prop.11.proof1 a ethics:Proof ;
+    ethics:partOf ethics:I.prop.11 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.11 ;
+    # Physical references
+    ethics:cites ethics:I.prop.7 ;
+    # Semantic relationships
+    ethics:refutedByAbsurdity ethics:I.prop.7 .
+
+ethics:I.prop.11.proof2 a ethics:Proof ;
+    ethics:partOf ethics:I.prop.11 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.11 ;
+    # Physical references  
+    ethics:cites ethics:I.ax.1, ethics:I.prop.7, ethics:I.def.6 ;
+    # Semantic relationships
+    ethics:groundedIn ethics:I.ax.1 ;
+    ethics:appliesResultFrom ethics:I.prop.7 .
+
+ethics:I.prop.11.proof3 a ethics:Proof ;
+    ethics:partOf ethics:I.prop.11 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.11 ;
+    # Physical references
+    ethics:cites ethics:I.prop.2 ;
+    # Semantic relationships
+    ethics:groundedIn ethics:I.prop.2 .
+
+# PROPOSITION XII - "No attribute of substance can be conceived from which it would follow that substance can be divided"
+ethics:I.prop.12 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 12  ;
+    ethics:refutedByAbsurdity ethics:I.prop.6, ethics:I.prop.2, ethics:I.prop.7 .
+
+# PROPOSITION XIII - "Substance absolutely infinite is indivisible"
+ethics:I.prop.13 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 13  ;
+    ethics:hasCorollaryElement ethics:I.prop.13.corollary ;
+    ethics:hasNote ethics:I.prop.13.note ;
+    ethics:refutedByAbsurdity ethics:I.prop.5, ethics:I.prop.7, ethics:I.prop.11 .
+
+ethics:I.prop.13.corollary a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.13 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.13 ;
+    # Semantic relationships
+    ethics:necessarilyFollows ethics:I.prop.13 .
+
+ethics:I.prop.13.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.13 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.13 ;
+    # Physical references
+    ethics:cites ethics:I.prop.8 ;
+    # Semantic relationships
+    ethics:groundedIn ethics:I.prop.8 .
+
+# PROPOSITION XIV - "Besides God no substance can be granted or conceived"
+ethics:I.prop.14 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 14  ;
+    ethics:hasCorollaryElement ethics:I.prop.14.corollary1, ethics:I.prop.14.corollary2 ;
+    ethics:refutedByAbsurdity ethics:I.prop.5 .
+
+ethics:I.prop.14.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.14 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.14 ;
+    # Physical references
+    ethics:cites ethics:I.def.6, ethics:I.prop.10.note ;
+    # Semantic relationships
+    ethics:clearlyfollowsFrom ethics:I.prop.14 ;
+    ethics:groundedIn ethics:I.def.6 .
+
+ethics:I.prop.14.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.14 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.14 ;
+    # Physical references
+    ethics:cites ethics:I.ax.1 ;
+    # Semantic relationships
+    ethics:necessarilyFollows ethics:I.prop.14 ;
+    ethics:groundedIn ethics:I.ax.1 .
+
+
+# PROPOSITION XV - "Whatsoever is, is in God, and without God nothing can be, or be conceived"
+ethics:I.prop.15 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 15  ;
+    ethics:hasNote ethics:I.prop.15.note .
+
+ethics:I.prop.15.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.15 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.15 ;
+    ethics:cites ethics:I.prop.6.corollary, ethics:I.prop.8.note2, ethics:I.prop.14, ethics:I.prop.12, ethics:I.prop.13.corollary ;
+    ethics:groundedIn ethics:I.prop.6.corollary, ethics:I.prop.8.note2 ;
+    ethics:demonstratedBy ethics:I.prop.14 .
+
+# PROPOSITION XVI - "From the necessity of the divine nature must follow an infinite number of things"
+ethics:I.prop.16 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 16  ;
+    ethics:hasCorollaryElement ethics:I.prop.16.corollary1, ethics:I.prop.16.corollary2, ethics:I.prop.16.corollary3 .
+
+ethics:I.prop.16.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.16 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.16 ;
+    ethics:necessarilyFollows ethics:I.prop.16 .
+
+# PROPOSITION XVII - "God acts solely by the laws of his own nature"
+ethics:I.prop.17 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 17  ;
+    ethics:hasCorollaryElement ethics:I.prop.17.corollary1, ethics:I.prop.17.corollary2 ;
+    ethics:hasNote ethics:I.prop.17.note ;
+    ethics:demonstratedBy ethics:I.prop.16 ;
+    ethics:provedBy ethics:I.prop.15 .
+
+ethics:I.prop.17.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.17 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.17 ;
+    ethics:cites ethics:I.prop.11, ethics:I.prop.14.corollary1, ethics:I.def.7 ;
+    ethics:necessarilyFollows ethics:I.prop.17 ;
+    ethics:groundedIn ethics:I.prop.11, ethics:I.prop.14.corollary1, ethics:I.def.7 .
+
+# PROPOSITION XVIII - "God is the indwelling and not the transient cause of all things"
+ethics:I.prop.18 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 18  ;
+    ethics:provedBy ethics:I.prop.14 .
+
+# PROPOSITION XIX - "God, and all the attributes of God, are eternal"
+ethics:I.prop.19 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 19 .
+
+# PROPOSITION XX - "The existence of God and his essence are one and the same"
+ethics:I.prop.20 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 20  ;
+    ethics:hasCorollaryElement ethics:I.prop.20.corollary1, ethics:I.prop.20.corollary2 ;
+    ethics:appliesResultFrom ethics:I.prop.19 .
+
+# PROPOSITION XXI - "All things which follow from the absolute nature of any attribute of God must always exist"
+ethics:I.prop.21 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 21 .
+
+# PROPOSITION XXII - "Whatsoever follows from any attribute of God must also exist necessarily"
+ethics:I.prop.22 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 22  ;
+    ethics:refersTo ethics:I.prop.21 ;
+    ethics:appliesResultFrom ethics:I.prop.21 .
+
+# PROPOSITION XXIII - "Every mode must necessarily follow either from the absolute nature of some attribute"
+ethics:I.prop.23 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 23 .
+
+# PROPOSITION XXIV - "The essence of things produced by God does not involve existence"
+ethics:I.prop.24 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 24  ;
+    ethics:hasCorollaryElement ethics:I.prop.24.corollary .
+
+ethics:I.prop.24.corollary a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.24 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.24 ;
+    ethics:cites ethics:I.prop.14.corollary1 ;
+    ethics:necessarilyFollows ethics:I.prop.24 ;
+    ethics:groundedIn ethics:I.prop.14.corollary1 .
+
+# PROPOSITION XXV - "God is the efficient cause not only of the existence of things, but also of their essence"
+ethics:I.prop.25 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 25  ;
+    ethics:hasNote ethics:I.prop.25.note ;
+    ethics:hasCorollaryElement ethics:I.prop.25.corollary ;
+    ethics:refutedByAbsurdity ethics:I.ax.4 .
+
+ethics:I.prop.25.corollary a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.25 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.25 ;
+    ethics:cites ethics:I.prop.15, ethics:I.def.5 ;
+    ethics:groundedIn ethics:I.prop.15, ethics:I.def.5 .
+
+# PROPOSITION XXVI - "A thing which is conditioned to act has necessarily been thus conditioned by God"
+ethics:I.prop.26 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 26 .
+
+# PROPOSITION XXVII - "A thing conditioned by God to act cannot render itself unconditioned"
+ethics:I.prop.27 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 27 .
+
+# PROPOSITION XXVIII - "Every individual thing cannot exist unless it be conditioned by another cause"
+ethics:I.prop.28 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 28  ;
+    ethics:hasNote ethics:I.prop.28.note .
+
+# PROPOSITION XXIX - "Nothing in the universe is contingent, but all things are conditioned by the necessity of the divine nature"
+ethics:I.prop.29 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 29  ;
+    ethics:hasNote ethics:I.prop.29.note .
+
+# PROPOSITION XXX - "Intellect must comprehend the attributes of God and the modifications of God"
+ethics:I.prop.30 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 30 .
+
+# PROPOSITION XXXI - "The intellect in function should be referred to passive nature and not to active nature"
+ethics:I.prop.31 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 31  ;
+    ethics:hasNote ethics:I.prop.31.note .
+
+# PROPOSITION XXXII - "Will cannot be called a free cause, but only a necessary cause"
+ethics:I.prop.32 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 32  ;
+    ethics:hasCorollaryElement ethics:I.prop.32.corollary1, ethics:I.prop.32.corollary2 .
+
+ethics:I.prop.32.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.32 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.32 ;
+    ethics:cites ethics:I.prop.29 ;
+    ethics:necessarilyFollows ethics:I.prop.32 ;
+    ethics:groundedIn ethics:I.prop.29 .
+
+# PROPOSITION XXXIII - "Things could not have been brought into being by God in any manner different from that which has obtained"
+ethics:I.prop.33 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 33  ;
+    ethics:hasNote ethics:I.prop.33.note1, ethics:I.prop.33.note2 ;
+    ethics:refutedByAbsurdity ethics:I.prop.14.corollary1 .
+
+# PROPOSITION XXXIV - "God's power is identical with his essence"
+ethics:I.prop.34 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 34 .
+
+# PROPOSITION XXXV - "Whatsoever we conceive to be in the power of God, necessarily exists"
+ethics:I.prop.35 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 35  ;
+    ethics:refersTo ethics:I.prop.34 ;
+    ethics:appliesResultFrom ethics:I.prop.34 .
+
+# PROPOSITION XXXVI - "There is no cause from whose nature some effect does not follow"
+ethics:I.prop.36 a ethics:Proposition ;
+    ethics:partOf ethics:I.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 1 ;
+    ethics:number 36 .
+
+# ============================================================================
+# APPENDIX - Detailed Philosophical Arguments
+# ============================================================================
+
+ethics:I.appendix.introduction a ethics:Note ;
+    ethics:partOf ethics:I.appendix ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.appendix ;
+    rdfs:label "Introduction" .
+
+ethics:I.appendix.teleological a ethics:Note ;
+    ethics:partOf ethics:I.appendix ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.appendix ;
+    rdfs:label "Origin of Teleological Thinking" ;
+    ethics:topic "origin_of_teleological_thinking" ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.32.corollary1, ethics:I.prop.21, ethics:I.prop.22, ethics:I.prop.23 ;
+    ethics:demonstratedBy ethics:I.prop.16, ethics:I.prop.32.corollary1 ;
+    ethics:groundedIn ethics:I.prop.21, ethics:I.prop.22, ethics:I.prop.23 .
+
+ethics:I.appendix.good_and_bad a ethics:Note ;
+    ethics:partOf ethics:I.appendix ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.appendix ;
+    rdfs:label "Good and Bad" ;
+    ethics:topic "good_and_bad" ;
+    ethics:refutes ethics:I.appendix.teleological ;
+    ethics:buildsUpon ethics:I.appendix.teleological .
+
+# ============================================================================
+# MISSING ELEMENTS FOR PART I
+# Adding all elements that exist in XML but missing from N3
+
+# ============================================================================
+# MISSING PROOFS
+# ============================================================================
+
+ethics:I.prop.1.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.1 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.1 ;
+    ethics:cites ethics:I.def.3, ethics:I.def.5 ;
+    ethics:clearlyfollowsFrom ethics:I.def.3, ethics:I.def.5 .
+
+ethics:I.prop.2.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.2 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.2 ;
+    ethics:cites ethics:I.def.3 ;
+    ethics:evidentFrom ethics:I.def.3 .
+
+ethics:I.prop.3.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.3 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.3 ;
+    ethics:cites ethics:I.ax.5, ethics:I.ax.4 ;
+    ethics:necessarilyFollows ethics:I.ax.5 ;
+    ethics:groundedIn ethics:I.ax.4 .
+
+ethics:I.prop.4.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.4 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.4 ;
+    ethics:cites ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.4 ;
+    ethics:groundedIn ethics:I.ax.1 ;
+    ethics:buildsUpon ethics:I.def.3, ethics:I.def.5 .
+
+ethics:I.prop.5.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.5 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.5 ;
+    ethics:cites ethics:I.prop.4, ethics:I.def.3, ethics:I.def.6, ethics:I.prop.4 ;
+    ethics:buildsUpon ethics:I.prop.4 ;
+    ethics:groundedIn ethics:I.def.3, ethics:I.def.6 .
+
+ethics:I.prop.6.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.6 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.6 ;
+    ethics:cites ethics:I.prop.2, ethics:I.prop.3 ;
+    ethics:necessarilyFollows ethics:I.prop.2 ;
+    ethics:groundedIn ethics:I.prop.3 .
+
+ethics:I.prop.8.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.8 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.8 ;
+    ethics:cites ethics:I.prop.7, ethics:I.def.2, ethics:I.prop.7, ethics:I.prop.5 ;
+    ethics:necessarilyFollows ethics:I.prop.7 ;
+    ethics:refutedByAbsurdity ethics:I.prop.5 .
+
+ethics:I.prop.10.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.10 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.10 ;
+    ethics:cites ethics:I.def.4, ethics:I.def.3 ;
+    ethics:clearlyfollowsFrom ethics:I.def.4 ;
+    ethics:groundedIn ethics:I.def.3 .
+
+ethics:I.prop.12.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.12 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.12 ;
+    ethics:cites ethics:I.prop.8, ethics:I.prop.6, ethics:I.prop.5, ethics:I.prop.2, ethics:I.def.4, ethics:I.prop.10, ethics:I.prop.7 ;
+    ethics:necessarilyFollows ethics:I.prop.8 ;
+    ethics:groundedIn ethics:I.prop.6, ethics:I.prop.5 ;
+    ethics:refutedByAbsurdity ethics:I.prop.6, ethics:I.prop.2, ethics:I.prop.7 .
+
+ethics:I.prop.13.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.13 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.13 ;
+    ethics:cites ethics:I.prop.5, ethics:I.prop.7, ethics:I.prop.11 ;
+    ethics:refutedByAbsurdity ethics:I.prop.5, ethics:I.prop.7, ethics:I.prop.11 .
+
+ethics:I.prop.14.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.14 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.14 ;
+    ethics:cites ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.5 ;
+    ethics:groundedIn ethics:I.def.6, ethics:I.prop.11 ;
+    ethics:refutedByAbsurdity ethics:I.prop.5 .
+
+ethics:I.prop.15.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.15 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.15 ;
+    ethics:cites ethics:I.prop.14, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.1 ;
+    ethics:groundedIn ethics:I.prop.14, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.1 .
+
+ethics:I.prop.16.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.16 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.16 ;
+    ethics:cites ethics:I.def.6 ;
+    ethics:necessarilyFollows ethics:I.def.6 .
+
+ethics:I.prop.17.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.17 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.17 ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.15 ;
+    ethics:demonstratedBy ethics:I.prop.16 ;
+    ethics:provedBy ethics:I.prop.15 .
+
+ethics:I.prop.18.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.18 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.18 ;
+    ethics:cites ethics:I.prop.15, ethics:I.prop.16.corollary1, ethics:I.prop.14 ;
+    ethics:groundedIn ethics:I.prop.15 ;
+    ethics:necessarilyFollows ethics:I.prop.16.corollary1 ;
+    ethics:provedBy ethics:I.prop.14 .
+
+ethics:I.prop.19.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.19 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.19 ;
+    ethics:cites ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.7, ethics:I.def.8, ethics:I.def.4, ethics:I.prop.7 ;
+    ethics:groundedIn ethics:I.def.6, ethics:I.prop.11, ethics:I.prop.7 ;
+    ethics:necessarilyFollows ethics:I.def.8, ethics:I.def.4 .
+
+ethics:I.prop.20.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.20 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.20 ;
+    ethics:cites ethics:I.prop.19, ethics:I.def.8 ;
+    ethics:appliesResultFrom ethics:I.prop.19 ;
+    ethics:groundedIn ethics:I.def.8 .
+
+ethics:I.prop.21.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.21 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.21 ;
+    ethics:cites ethics:I.prop.11, ethics:I.def.2, ethics:I.prop.11, ethics:I.prop.20.corollary2, ethics:I.def.8 ;
+    ethics:necessarilyFollows ethics:I.prop.11 ;
+    ethics:groundedIn ethics:I.def.2 ;
+    ethics:buildsUpon ethics:I.prop.20.corollary2, ethics:I.def.8 .
+
+ethics:I.prop.22.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.22 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.22 ;
+    ethics:refersTo ethics:I.prop.21 ;
+    ethics:appliesResultFrom ethics:I.prop.21 .
+
+ethics:I.prop.23.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.23 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.23 ;
+    ethics:cites ethics:I.def.5, ethics:I.prop.15, ethics:I.def.8, ethics:I.prop.21, ethics:I.prop.22 ;
+    ethics:groundedIn ethics:I.def.5, ethics:I.prop.15, ethics:I.def.8 ;
+    ethics:necessarilyFollows ethics:I.prop.21, ethics:I.prop.22 .
+
+ethics:I.prop.24.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.24 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.24 ;
+    ethics:cites ethics:I.def.1 ;
+    ethics:evidentFrom ethics:I.def.1 .
+
+ethics:I.prop.25.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.25 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.25 ;
+    ethics:cites ethics:I.ax.4, ethics:I.prop.15 ;
+    ethics:refutedByAbsurdity ethics:I.ax.4 ;
+    ethics:groundedIn ethics:I.prop.15 .
+
+ethics:I.prop.26.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.26 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.26 ;
+    ethics:cites ethics:I.prop.26, ethics:I.prop.24.corollary ;
+    ethics:necessarilyFollows ethics:I.prop.25, ethics:I.prop.16 .
+
+ethics:I.prop.27.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.27 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.27 ;
+    ethics:cites ethics:I.ax.3 ;
+    ethics:evidentFrom ethics:I.ax.3 .
+
+ethics:I.prop.28.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.28 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.28 ;
+    ethics:cites ethics:I.prop.26, ethics:I.prop.24.corollary, ethics:I.prop.21, ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5 ;
+    ethics:groundedIn ethics:I.prop.26, ethics:I.prop.24.corollary ;
+    ethics:necessarilyFollows ethics:I.prop.21 ;
+    ethics:buildsUpon ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5 .
+
+ethics:I.prop.29.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.29 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.29 ;
+    ethics:cites ethics:I.prop.15, ethics:I.prop.11, ethics:I.prop.16, ethics:I.prop.27, ethics:I.prop.24.corollary, ethics:I.prop.26 ;
+    ethics:groundedIn ethics:I.prop.15, ethics:I.prop.11 ;
+    ethics:necessarilyFollows ethics:I.prop.16, ethics:I.prop.27 ;
+    ethics:buildsUpon ethics:I.prop.24.corollary, ethics:I.prop.26 .
+
+ethics:I.prop.30.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.30 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.30 ;
+    ethics:cites ethics:I.ax.6, ethics:I.prop.14.corollary1, ethics:I.prop.15 ;
+    ethics:groundedIn ethics:I.ax.6 ;
+    ethics:necessarilyFollows ethics:I.prop.14.corollary1, ethics:I.prop.15 .
+
+ethics:I.prop.31.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.31 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.31 ;
+    ethics:cites ethics:I.def.5, ethics:I.prop.15, ethics:I.def.6 ;
+    ethics:necessarilyFollows ethics:I.def.5 ;
+    ethics:groundedIn ethics:I.prop.15, ethics:I.def.6 .
+
+ethics:I.prop.32.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.32 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.32 ;
+    ethics:cites ethics:I.prop.28, ethics:I.prop.23, ethics:I.def.7 ;
+    ethics:necessarilyFollows ethics:I.prop.28, ethics:I.prop.23 ;
+    ethics:groundedIn ethics:I.def.7 .
+
+ethics:I.prop.33.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.33 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.33 ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.29, ethics:I.prop.11, ethics:I.prop.14.corollary1 ;
+    ethics:necessarilyFollows ethics:I.prop.16, ethics:I.prop.29 ;
+    ethics:groundedIn ethics:I.prop.11 ;
+    ethics:refutedByAbsurdity ethics:I.prop.14.corollary1 .
+
+ethics:I.prop.34.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.34 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.34 ;
+    ethics:cites ethics:I.prop.11, ethics:I.prop.16, ethics:I.prop.16.corollary1 ;
+    ethics:necessarilyFollows ethics:I.prop.11 ;
+    ethics:groundedIn ethics:I.prop.16, ethics:I.prop.16.corollary1 .
+
+ethics:I.prop.35.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.35 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.35 ;
+    ethics:refersTo ethics:I.prop.34 ;
+    ethics:appliesResultFrom ethics:I.prop.34 .
+
+ethics:I.prop.36.proof a ethics:Proof ;
+    ethics:partOf ethics:I.prop.36 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:I.prop.36 ;
+    ethics:cites ethics:I.prop.25.corollary, ethics:I.prop.34, ethics:I.prop.16 ;
+    ethics:groundedIn ethics:I.prop.25.corollary, ethics:I.prop.34 ;
+    ethics:necessarilyFollows ethics:I.prop.16 .
+
+# ============================================================================
+# MISSING COROLLARIES
+# ============================================================================
+
+ethics:I.prop.6.corollary a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.6 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.6 ;
+    ethics:cites ethics:I.ax.1, ethics:I.def.3, ethics:I.def.5, ethics:I.ax.4, ethics:I.def.3 ;
+    ethics:necessarilyFollows ethics:I.prop.6 ;
+    ethics:groundedIn ethics:I.ax.1 ;
+    ethics:appliesResultFrom ethics:I.prop.6 .
+
+ethics:I.prop.16.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.16 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.16 ;
+    ethics:necessarilyFollows ethics:I.prop.16 .
+
+ethics:I.prop.16.corollary3 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.16 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.16 ;
+    ethics:necessarilyFollows ethics:I.prop.16 .
+
+ethics:I.prop.17.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.17 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.17 ;
+    ethics:necessarilyFollows ethics:I.prop.17 .
+
+ethics:I.prop.20.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.20 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.20 ;
+    ethics:necessarilyFollows ethics:I.prop.20 .
+
+ethics:I.prop.20.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.20 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.20 ;
+    ethics:necessarilyFollows ethics:I.prop.20 .
+
+ethics:I.prop.32.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:I.prop.32 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:I.prop.32 ;
+    ethics:necessarilyFollows ethics:I.prop.32 .
+
+# ============================================================================
+# MISSING NOTES
+# ============================================================================
+
+ethics:I.prop.8.note2 a ethics:Note ;
+    ethics:partOf ethics:I.prop.8 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.8 ;
+    ethics:number 2 .
+
+ethics:I.prop.10.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.10 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.10 .
+
+ethics:I.prop.11.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.11 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.11 .
+
+ethics:I.prop.17.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.17 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.17 ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.16.corollary1 ;
+    ethics:demonstratedBy ethics:I.prop.16 ;
+    ethics:groundedIn ethics:I.prop.16.corollary1 .
+
+ethics:I.prop.19.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.19 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.19 ;
+    ethics:cites ethics:I.prop.11 ;
+    ethics:evidentFrom ethics:I.prop.11 .
+
+ethics:I.prop.25.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.25 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.25 ;
+    ethics:cites ethics:I.prop.16 ;
+    ethics:clearlyfollowsFrom ethics:I.prop.16 .
+
+ethics:I.prop.28.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.28 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.28 ;
+    ethics:cites ethics:I.prop.15, ethics:I.prop.24.corollary ;
+    ethics:necessarilyFollows ethics:I.prop.15 ;
+    ethics:groundedIn ethics:I.prop.24.corollary .
+
+ethics:I.prop.29.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.29 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.29 ;
+    ethics:cites ethics:I.prop.14.corollary1, ethics:I.prop.17.corollary2 ;
+    ethics:groundedIn ethics:I.prop.14.corollary1, ethics:I.prop.17.corollary2 .
+
+ethics:I.prop.31.note a ethics:Note ;
+    ethics:partOf ethics:I.prop.31 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.31 .
+
+ethics:I.prop.33.note1 a ethics:Note ;
+    ethics:partOf ethics:I.prop.33 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.33 ;
+    ethics:number 1 .
+
+ethics:I.prop.33.note2 a ethics:Note ;
+    ethics:partOf ethics:I.prop.33 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.prop.33 ;
+    ethics:number 2 ;
+    ethics:cites ethics:I.def.7, ethics:I.prop.17 ;
+    ethics:groundedIn ethics:I.def.7 ;
+    ethics:buildsUpon ethics:I.prop.17 .
+
+# ============================================================================
+# MISSING EXPLANATIONS AND FOOTNOTES
+# ============================================================================
+
+ethics:I.def.6.explanation a ethics:Note ;
+    ethics:partOf ethics:I.def.6 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.def.6 ;
+    ethics:isExplanation true .
+
+ethics:I.def.8.explanation a ethics:Note ;
+    ethics:partOf ethics:I.def.8 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.def.8 ;
+    ethics:isExplanation true .
+
+ethics:I.def.5.fn1 a ethics:Note ;
+    ethics:partOf ethics:I.def.5 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:I.def.5 ;
+    ethics:isFootnote true .
