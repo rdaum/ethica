@@ -21,7 +21,7 @@ ethics:mentions a rdf:Property ;
     rdfs:comment "Mentions without formal citation" .
 
 # ============================================================================
-# LAYER 2: SEMANTIC RELATIONSHIP TYPES  
+# LAYER 2: SEMANTIC RELATIONSHIP TYPES
 # The logical manner of connection
 # ============================================================================
 
@@ -35,7 +35,7 @@ ethics:evidentFrom a rdf:Property ;
 ethics:necessarilyFollows a rdf:Property ;
     rdfs:comment "necessarily follows from" .
 
-# Proof relationships  
+# Proof relationships
 ethics:provedBy a rdf:Property ;
     rdfs:comment "Demonstrated by formal proof" .
 
@@ -90,7 +90,7 @@ ethics:explainsElement a rdf:Property ;
 ethics:Part a rdfs:Class .
 ethics:Section a rdfs:Class .
 ethics:Definition a rdfs:Class .
-ethics:Axiom a rdfs:Class .  
+ethics:Axiom a rdfs:Class .
 ethics:Proposition a rdfs:Class .
 ethics:Proof a rdfs:Class .
 ethics:Corollary a rdfs:Class .
@@ -99,7 +99,7 @@ ethics:Appendix a rdfs:Class .
 ethics:Footnote a rdfs:Class .
 ethics:Explanation a rdfs:Class .
 
-# Hierarchy predicates  
+# Hierarchy predicates
 ethics:partOf a rdf:Property ;
     rdfs:comment "X is part of Y (hierarchical containment)" .
 
@@ -174,7 +174,7 @@ ethics:precedesInOrder a rdf:Property ;
 ethics:I
     ethics:containsSection ethics:I.definitions, ethics:I.axioms, ethics:I.propositions, ethics:I.appendix .
 
-ethics:I.definitions 
+ethics:I.definitions
     ethics:containsElement ethics:I.def.1, ethics:I.def.2, ethics:I.def.3, ethics:I.def.4, ethics:I.def.5, ethics:I.def.6, ethics:I.def.7, ethics:I.def.8 .
 
 ethics:I.axioms
@@ -194,7 +194,7 @@ ethics:I.appendix
 # Uncomment when using an N3 reasoner like EYE or cwm
 
 # Active transitivity rules for EYE-js reasoning
-{ ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z } 
+{ ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z }
     => { ?x ethics:transitivelyDependsOn ?z } .
 
 { ?x ethics:necessarilyFollows ?y . ?y ethics:necessarilyFollows ?z }
@@ -246,7 +246,7 @@ ethics:I.appendix
 # PART I STRUCTURAL DEFINITIONS
 # ============================================================================
 
-# Part I 
+# Part I
 ethics:I a ethics:Part ;
     ethics:partNumber 1 ;
     rdfs:label "Concerning God" .
@@ -405,7 +405,7 @@ ethics:I.prop.6 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 6 .
 
-# PROPOSITION VII - "Existence belongs to the nature of substance"  
+# PROPOSITION VII - "Existence belongs to the nature of substance"
 ethics:I.prop.7 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
@@ -455,7 +455,7 @@ ethics:I.prop.9 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 9 .
 
-# PROPOSITION X - "Each particular attribute of substance must be conceived through itself"  
+# PROPOSITION X - "Each particular attribute of substance must be conceived through itself"
 ethics:I.prop.10 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
@@ -484,7 +484,7 @@ ethics:I.prop.11.proof2 a ethics:Proof ;
     ethics:partOf ethics:I.prop.11 ;
     ethics:isProof true ;
     ethics:proofOf ethics:I.prop.11 ;
-    # Physical references  
+    # Physical references
     ethics:cites ethics:I.ax.1, ethics:I.prop.7, ethics:I.def.6 ;
     # Semantic relationships
     ethics:groundedIn ethics:I.ax.1 ;
