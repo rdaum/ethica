@@ -1,145 +1,147 @@
-# Spinoza Ethics Knowledge Graph
+# Spinoza's Ethics - Interactive Reader
 
-A comprehensive N3/RDF representation of Part I of Spinoza's *Ethics* (Elwes translation) with interactive exploration tools using N3.js.
+A React application for exploring Spinoza's *Ethics* using computational reasoning and knowledge graphs. Uses EYE-js for automated logical inference and N3.js for semantic querying.
 
-## 📁 Files Overview
+🌐 **[Live Application](https://rdaum.github.io/ethica/)**
 
-- **`ethica_1.xml`** - Complete XML markup of Part I with semantic structure
-- **`ethica-logic.n3`** - N3 knowledge graph with citations and logical relationships
-- **`ethics-explorer.js`** - Node.js script for command-line graph exploration
-- **`web-explorer.html`** - Interactive web interface for graph exploration
-- **`package.json`** - Node.js dependencies
+## Features
 
-## 🚀 Quick Start
+### Reading Interface
+- Attractive reader interface
+- Structured navigation through definitions, axioms, and propositions
+- Interactive elements with hover and click functionality
+- Spinoza's signet ring in header design
 
-### Command Line Exploration
+### Computational Analysis
+- EYE-js integration for automated logical inference
+- N3.js for RDF/N3 data querying
+- Hybrid architecture combining data storage with reasoning
+- Distinction between original and inferred relationships
+
+### Logical Analysis Tools
+- Weight analysis showing foundational scores and influence metrics
+- Dependency mapping with relationship breakdowns
+- Cross-navigation between text and analysis panel
+- Transitive chain discovery
+
+### Navigation
+- Click any element to explore its logical relationships
+- Relationship display with formatted predicates
+- Tooltips for analytical metrics
+- Smooth scrolling with element highlighting
+
+## Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Run the interactive explorer
-node ethics-explorer.js
+# Start development server
+npm start
+
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages
+npm run deploy
 ```
 
-### Web Interface
+## Project Structure
 
-```bash
-# Serve the files (any web server)
-python3 -m http.server 8000
-
-# Open browser to http://localhost:8000/web-explorer.html
+```
+/
+├── public/                 # Static assets and data files
+│   ├── ethica_1.xml       # XML markup of Ethics Part I
+│   ├── ethica-logic.n3    # N3 knowledge graph (data layer)
+│   ├── ethica-logic-eye.n3 # N3 reasoning rules (EYE-js layer)
+│   └── spinoza-signet.png # Spinoza's signet ring image
+├── src/
+│   ├── components/        # React components
+│   │   ├── BookView.tsx   # Text display with Roman numeral formatting
+│   │   └── ReasoningPanel.tsx # Relationship explorer
+│   ├── App.tsx           # Main application with data loading
+│   └── App.css           # Styling and typography
+├── craco.config.js       # Webpack config for Node.js polyfills
+└── package.json          # Dependencies and build scripts
 ```
 
-## 🧠 What You Can Explore
+## Analysis Capabilities
 
-### 1. Citation Analysis
-- **What does Proposition 14 cite?** → Def. 6, Prop. 11, Prop. 5
-- **Most cited elements** → Find foundational definitions and key propositions
-- **Citation chains** → Trace logical dependencies
+### Relationship Types
+- Citations - textual references between elements
+- Logical consequences - what follows from what
+- Proofs and demonstrations - argument construction
+- Foundational dependencies - conceptual building blocks
 
-### 2. Logical Relationships
-- **What necessarily follows from Definition 6?** → Multiple propositions about divine nature
-- **What is grounded in Axiom 1?** → Elements that build upon basic existence principles
-- **Reductio ad absurdum arguments** → Propositions using proof by contradiction
+### Metrics
+- Foundational Score - how fundamental an element is
+- Dependency Depth - layers of logical dependencies  
+- Transitive Influence - reach of an element's impact
+- Inferred Relationships - EYE-js discovered connections
 
-### 3. Argument Structure
-- **Propositions with multiple proofs** → Prop. 11 has 3 different proofs
-- **Semantic relationship statistics** → Count types of logical connections
-- **Document hierarchy** → Part → Sections → Elements → Sub-elements
+### Interactive Features
+- Element selection shows logical context
+- Navigation between related elements
+- Transitive chain exploration
+- Metric explanations via tooltips
 
-### 4. Advanced Queries
+## Technical Implementation
 
-```javascript
-// Find all elements that depend on Definition 3 (substance)
-const dependencies = store.getQuads(
-    null,
-    namedNode('http://spinoza.org/ethics#cites'),
-    namedNode('http://spinoza.org/ethics#I.def.3')
-);
+### Architecture
+- React 18 with TypeScript
+- Functional components with hooks
+- CSS Grid and Flexbox layout
 
-// Find elements using specific reasoning patterns
-const deductiveArgs = store.getQuads(
-    null,
-    namedNode('http://spinoza.org/ethics#necessarilyFollows'),
-    null
-);
-```
+### Data Processing
+- XML parsing for structured text extraction
+- N3 store management for relationship queries
+- EYE-js inference engine for reasoning
+- Cross-referencing between text and semantic data
 
-## 📊 Graph Statistics
+### Deployment
+- GitHub Pages hosting
+- Automated deployment from build directory
+- Webpack optimization with suggested code splitting
 
-- **1,270+ triples** capturing complete logical structure
-- **8 Definitions, 7 Axioms, 36 Propositions** with full hierarchy
-- **80+ citation relationships** mapping textual references
-- **180+ semantic relationships** classifying argument types
-- **Complete appendix structure** modeling Spinoza's refutation of teleological thinking
+## Current Status
 
-## 🎯 Use Cases
+- Part I: Concerning God - complete implementation
+- 117 elements parsed from XML structure
+- 1,270+ RDF triples capturing logical relationships
+- EYE-js inference rules active
+- Full cross-navigation implemented
 
-### Academic Research
-- **Argument analysis** - Identify patterns in Spinoza's reasoning
-- **Dependency mapping** - Understand foundational vs. derived concepts
-- **Cross-reference validation** - Verify citation accuracy and completeness
+## Future Work
 
-### Educational Tools
-- **Interactive learning** - Explore philosophical arguments step-by-step
-- **Visual navigation** - Follow logical pathways through the text
-- **Concept mapping** - See relationships between ideas
+### Content
+- Parts II-V of the *Ethics*
+- Cross-part relationship analysis
+- Latin text integration
 
-### Digital Humanities
-- **Computational philosophy** - Apply graph analysis to philosophical texts
-- **Structural analysis** - Compare argument patterns across works
-- **Knowledge representation** - Model complex philosophical systems
+### Features  
+- Search functionality
+- Export capabilities
+- User annotations
+- Translation comparisons
 
-## 🏗️ N3 Graph Structure
+### Analysis
+- Graph visualization
+- Argument strength quantification
+- Reasoning pattern recognition
 
-### Two-Layer Architecture
-1. **Physical References** - Exact textual citations (`ethics:cites`)
-2. **Semantic Relationships** - Types of logical connections (`ethics:necessarilyFollows`, `ethics:groundedIn`, etc.)
+## Text Attribution
 
-### Hierarchy Modeling
-- **Macro-structure** - Part I → Sections → Elements
-- **Micro-structure** - Elements → Proofs → Corollaries → Notes
+Uses the English translation by R.H.M. Elwes (1883) from [Project Gutenberg #3800](https://www.gutenberg.org/files/3800/3800-h/3800-h.htm). Original text is public domain.
 
-### Semantic Predicates
-- `ethics:clearlyfollowsFrom` - "This is clear from..."
-- `ethics:necessarilyFollows` - "necessarily follows"
-- `ethics:refutedByAbsurdity` - Reductio ad absurdum
-- `ethics:appliesResultFrom` - "by the last Prop"
-- `ethics:demonstratedBy` - "as demonstrated by..."
+## Technologies
 
-## 🔮 Future Extensions
-
-### Multi-Part Coverage
-- Extend to Parts II-V of the Ethics
-- Cross-part citation analysis
-- Complete argument pathway tracing
-
-### Multi-Language Support
-- Latin original text alignment
-- Multiple English translations comparison
-- Cross-linguistic concept mapping
-
-### Advanced Analytics
-- Graph theory analysis (centrality, clustering)
-- Machine learning on argument patterns
-- Automated consistency checking
-
-### Visualization Tools
-- Interactive network graphs
-- Argument pathway diagrams
-- Hierarchical concept maps
-
-## 📚 Technical Details
-
-- **Format**: N3 (Notation3) / Turtle RDF
-- **Ontology**: Custom ethics vocabulary with standard RDF predicates
-- **Library**: N3.js for JavaScript parsing and querying
-- **Validation**: Custom syntax and semantic validators included
-
-## 🤝 Contributing
-
-This project demonstrates formal knowledge representation for philosophical texts. Extensions, improvements, and applications to other philosophical works are welcome!
+- React 18
+- TypeScript  
+- EYE-js (Euler Yet another proof Engine)
+- N3.js (RDF/N3 processing)
+- fast-xml-parser
+- CRACO (Create React App Configuration Override)
+- GitHub Pages
 
 ---
 
