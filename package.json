@@ -4,8 +4,9 @@
   "description": "Interactive exploration of Spinoza's Ethics logical structure using N3.js",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "node test.js"
+    "start": "node index.js", 
+    "test": "node test.js",
+    "deploy": "cd spinoza-reader && npm run build && cd .. && gh-pages -d spinoza-reader/build"
   },
   "dependencies": {
     "n3": "^1.17.2",
@@ -19,5 +20,16 @@
     "knowledge-graph"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rdaum/ethica.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rdaum/ethica/issues"
+  },
+  "homepage": "https://github.com/rdaum/ethica#readme"
 }
