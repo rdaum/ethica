@@ -1,0 +1,295 @@
+/* Import Charter font for book-like typography */
+@import url('https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Charter', 'Times New Roman', serif;
+  background-color: #f8f9fa;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: #5d6d7e;
+}
+
+.loading-message h2 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+  color: #34495e;
+}
+
+.loading-message p {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  color: white;
+  padding: 1.5rem 2rem 1rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.signet-container {
+  flex-shrink: 0;
+}
+
+.spinoza-signet {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: invert(1) brightness(0.95);
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.spinoza-signet:hover {
+  opacity: 1;
+}
+
+.title-section {
+  text-align: left;
+}
+
+.app-header h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 0 0 0.25rem;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.subtitle {
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+
+.translation-info {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.translation-credit {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.gutenberg-link {
+  color: #bdc3c7;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(189, 195, 199, 0.5);
+  transition: all 0.2s ease;
+}
+
+.gutenberg-link:hover {
+  color: white;
+  border-bottom-color: white;
+}
+
+.app-main {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+/* Typography enhancements */
+.app {
+  font-feature-settings: "liga", "kern", "onum";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .title-section {
+    text-align: center;
+  }
+  
+  .spinoza-signet {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  
+  .app-main {
+    flex-direction: column;
+  }
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+.app-footer {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 2rem 0 1rem;
+  margin-top: 3rem;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 2rem;
+}
+
+.footer-content h4 {
+  color: #3498db;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.footer-content p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  color: #bdc3c7;
+}
+
+.footer-content a {
+  color: #3498db;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-bottom-color 0.2s ease;
+}
+
+.footer-content a:hover {
+  border-bottom-color: #3498db;
+}
+
+.tech-stack {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #95a5a6 !important;
+}
+
+.footer-links {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  text-align: center;
+  border-top: 1px solid #34495e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #95a5a6;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #3498db;
+}
+
+.separator {
+  color: #7f8c8d;
+  font-weight: bold;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .footer-links {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .separator {
+    display: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .app-header {
+    background: none;
+    color: black;
+    padding: 1rem;
+    box-shadow: none;
+  }
+  
+  .app-main {
+    display: block;
+  }
+  
+  .app-footer {
+    display: none;
+  }
+}

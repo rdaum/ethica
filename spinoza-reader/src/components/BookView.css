@@ -1,0 +1,224 @@
+.book-view {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  font-family: 'Charter', 'Times New Roman', serif;
+  line-height: 1.7;
+  color: #2c3e50;
+}
+
+.book-content {
+  background: #fefefe;
+  padding: 2rem 2rem;
+  border-radius: 0;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  margin: 1.5rem 0;
+}
+
+.part-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 3px double #34495e;
+}
+
+.part-title {
+  font-family: 'Charter', 'Times New Roman', serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: #2c3e50;
+  margin: 0;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-family: 'Charter', 'Times New Roman', serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #1a252f;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e8e8e8;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.element {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  border-left: 4px solid transparent;
+}
+
+.element:hover,
+.element.hovered {
+  background-color: rgba(52, 152, 219, 0.05);
+  border-left-color: #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+}
+
+.element.selected {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-left-color: #2980b9;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+}
+
+.element.navigation-highlight {
+  background-color: rgba(241, 196, 15, 0.2);
+  border-left-color: #f39c12;
+  box-shadow: 0 4px 16px rgba(243, 156, 18, 0.3);
+  animation: highlight-pulse 2s ease-out;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    background-color: rgba(241, 196, 15, 0.4);
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.5);
+  }
+  100% {
+    background-color: rgba(241, 196, 15, 0.2);
+    box-shadow: 0 4px 16px rgba(243, 156, 18, 0.3);
+  }
+}
+
+.element-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.element-type {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  background-color: #ecf0f1;
+  color: #34495e;
+}
+
+.element-definition .element-type {
+  background-color: #e8f5e8;
+  color: #27ae60;
+}
+
+.element-axiom .element-type {
+  background-color: #fef9e7;
+  color: #f39c12;
+}
+
+.element-proposition .element-type {
+  background-color: #e3f2fd;
+  color: #2196f3;
+}
+
+.element-proof .element-type {
+  background-color: #f3e5f5;
+  color: #9c27b0;
+}
+
+.element-corollary .element-type {
+  background-color: #fff3e0;
+  color: #ff9800;
+}
+
+.element-note .element-type {
+  background-color: #fafafa;
+  color: #607d8b;
+}
+
+.element-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Charter', 'Times New Roman', serif;
+}
+
+.element-text {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  text-align: justify;
+  hyphens: auto;
+  color: #2c3e50;
+}
+
+.sub-elements {
+  margin-left: 2rem;
+  margin-top: 1rem;
+  padding-left: 2rem;
+  border-left: 2px solid #ecf0f1;
+}
+
+.sub-elements .element {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  font-size: 0.95rem;
+  background-color: #fbfbfb;
+}
+
+.sub-elements .element-text {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Typography refinements */
+@import url('https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400&display=swap');
+
+.book-view {
+  font-feature-settings: "liga", "kern", "onum";
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .book-view {
+    padding: 0 0.5rem;
+  }
+  
+  .book-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .part-title {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+  
+  .sub-elements {
+    margin-left: 1rem;
+    padding-left: 1rem;
+  }
+  
+  .element-text {
+    font-size: 1rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .book-view {
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  .element {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: none;
+    box-shadow: none;
+  }
+  
+  .element-header {
+    font-size: 10pt;
+  }
+}
