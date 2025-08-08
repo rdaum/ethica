@@ -1,0 +1,62 @@
+EXTRACTED CITATIONS FROM PART I
+
+Physical Text References (What cites what):
+
+PROPOSITIONS CITING DEFINITIONS:
+- I.prop.1 cites "Deff. iii. and v."
+- I.prop.2 cites "Def. iii." 
+- I.prop.4 cites "Deff. iii. and v.", "Ax. iv."
+- I.prop.5 cites "Prop. iv.", "Deff. iii. and vi.", "Prop. iv."
+- I.prop.7.corollary cites "Ax. i. and Deff. iii. and v.", "Ax. iv.", "Def. iii."
+- I.prop.8 cites "Prop. vii.", "Def. ii.", "Prop. vii.", "Prop. v."
+- I.prop.8.note1 cites "Prop. vii."
+- I.prop.10 cites "Def. iv."
+- I.prop.11.proof1 cites "Prop. vii."
+- I.prop.11.proof2 cites "Axiom. i. and Prop. vii.", "Def. vi."
+- I.prop.11.proof2 cites "Prop. vi."
+- I.prop.12 cites "Prop. viii.", "Prop. vi.", "Prop. v.", "Prop. vi.", "Prop. ii.", "Def. iv. and Prop. x.", "Prop. vii."
+- I.prop.13 cites "Prop. v.", "Prop. vii.", "Prop. xi."
+- I.prop.13.note cites "Prop. viii"
+- I.prop.14 cites "Def. vi.", "Prop. xi.", "Prop. v."
+- I.prop.14.corollary1 cites "Def. vi.", "Prop. x."
+- I.prop.14.corollary2 cites "Ax. i."
+- I.prop.15 cites "Prop. xiv.", "Def. iii.", "Def. v.", "Ax. i."
+- I.prop.15.note cites "Coroll. Prop. vi, and note 2, Prop. viii.", "Prop. xiv.", "Prop. xii., and Coroll. Prop. xiii.", "Props. viii., v., xii.", "Prop. xiv."
+- I.prop.16 cites "Def. vi."
+- I.prop.17 cites "Prop. xvi.", "Prop. xv."
+- I.prop.17.corollary2 cites "Prop. xi. and Prop. xiv., Coroll. i.", "Def. vii."
+- I.prop.17.note cites "Prop. xvi.", "Prop. xvi., Coroll. i."
+- I.prop.18 cites "Prop. xv.", "Prop. xvi., Coroll. i.", "Prop. xiv."
+- I.prop.19 cites "Def. vi.", "Prop. xi.", "Prop. vii.", "Def. viii.", "Def. iv.", "Prop. vii."
+- I.prop.20 cites "Def. viii."
+- I.prop.21 cites "Prop. xi.", "Def. ii.", "Prop. xi.", "Prop. xi., and Prop. xx., Coroll. ii.", "Def. viii."
+- I.prop.22 cites "Def. v.", "Prop. xv.", "Def. viii.", "Prop. xxi.", "Prop. xxii."
+- I.prop.24 cites "Def. i."
+- I.prop.25 cites "Ax. iv.", "Prop. xv."
+- I.prop.25.corollary cites "Prop. xv. and Def. v."
+- I.prop.26 cites "Prop. xxvi. and Prop. xxiv., Coroll.", "Prop. xxi.", "Ax. i. and Def. iii., v."
+
+AXIOMS REFERENCED:
+- Ax. i. (Everything exists in itself or something else)
+- Ax. iv. (Knowledge depends on knowledge of cause)  
+- Ax. v. (Things with nothing in common cannot be apprehended through each other)
+
+REFERENCE PATTERNS:
+1. Direct citations: "(by Prop. vii.)", "(Def. iii.)", "(Ax. i.)"
+2. Multiple citations: "(Deff. iii. and v.)", "(Prop. xi. and Prop. xiv., Coroll. i.)"
+3. Parenthetical references: "(see Ax. iv.)", "(as appears from Ax. i.)"
+4. Indirect references: "by the last Prop.", "the first part of this proof"
+5. Forward references: "as I will shortly show", "I will show below"
+
+LOGICAL CONNECTIVES IDENTIFIED:
+- "This is clear from..."
+- "Also evident from..."  
+- "necessarily follows"
+- "it follows that..."
+- "Hence it follows..."
+- "as demonstrated by..."
+- "as appears from..."
+- "by the last Prop."
+- "Therefore..."
+- "Q.E.D." (concluding proofs)
+- "which is absurd" (reductio ad absurdum)
