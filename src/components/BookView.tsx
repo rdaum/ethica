@@ -89,7 +89,7 @@ const BookView: React.FC<BookViewProps> = ({
         className={className}
         onMouseEnter={() => onElementHover(element.id)}
         onMouseLeave={() => onElementHover(null)}
-        onClick={() => onElementSelect(element.id)}
+        onClick={() => onElementSelect(selectedElement === element.id ? null : element.id)}
         data-element-id={element.id}
       >
         <div className="element-header">
