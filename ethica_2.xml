@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part id="II" number="2" title="ON THE NATURE AND ORIGIN OF THE MIND">
+  
+  <section type="preface" id="II.preface">
+    <text>I now pass on to explaining the results, which must necessarily follow from the essence of God, or of the eternal and infinite being; not, indeed, all of them (for we proved in Part i., Prop. xvi., that an infinite number must follow in an infinite number of ways), but only those which are able to lead us, as it were by the hand, to the knowledge of the human mind and its highest blessedness.</text>
+  </section>
+
+  <section type="definitions" id="II.definitions">
+    <header>DEFINITIONS</header>
+    
+    <def id="II.def.1" number="1">
+      <text>I. By body I mean a mode which expresses in a certain determinate manner the essence of God, in so far as he is considered as an extended thing. (See Pt. i., Prop. xxv., Coroll.)</text>
+    </def>
+    
+    <def id="II.def.2" number="2">
+      <text>II. I consider as belonging to the essence of a thing that, which being given, the thing is necessarily given also, and, which being removed, the thing is necessarily removed also; in other words, that without which the thing, and which itself without the thing, can neither be nor be conceived.</text>
+    </def>
+    
+    <def id="II.def.3" number="3">
+      <text>III. By idea, I mean the mental conception which is formed by the mind as a thinking thing.</text>
+      <explanation id="II.def.3.explanation">
+        <text>Explanation.—I say conception rather than perception, because the word perception seems to imply that the mind is passive in respect to the object; whereas conception seems to express an activity of the mind.</text>
+      </explanation>
+    </def>
+    
+    <def id="II.def.4" number="4">
+      <text>IV. By an adequate idea, I mean an idea which, in so far as it is considered in itself, without relation to the object, has all the properties or intrinsic marks of a true idea.</text>
+      <explanation id="II.def.4.explanation">
+        <text>Explanation.—I say intrinsic, in order to exclude that mark which is extrinsic, namely, the agreement between the idea and its object (ideatum).</text>
+      </explanation>
+    </def>
+    
+    <def id="II.def.5" number="5">
+      <text>V. Duration is the indefinite continuance of existing.</text>
+      <explanation id="II.def.5.explanation">
+        <text>Explanation.—I say indefinite, because it cannot be determined through the existence itself of the existing thing, or by its efficient cause, which necessarily gives the existence of the thing, but does not take it away.</text>
+      </explanation>
+    </def>
+    
+    <def id="II.def.6" number="6">
+      <text>VI. Reality and perfection I use as synonymous terms.</text>
+    </def>
+    
+    <def id="II.def.7" number="7">
+      <text>VII. By particular things, I mean things which are finite and have a conditioned existence; but if several individual things concur in one action, so as to be all simultaneously the effect of one cause, I consider them all, so far, as one particular thing.</text>
+    </def>
+  </section>
+
+  <section type="axioms" id="II.axioms">
+    <header>AXIOMS</header>
+    
+    <axiom id="II.ax.1" number="1">
+      <text>I. The essence of man does not involve necessary existence, that is, it may, in the order of nature, come to pass that this or that man does or does not exist.</text>
+    </axiom>
+    
+    <axiom id="II.ax.2" number="2">
+      <text>II. Man thinks.</text>
+    </axiom>
+    
+    <axiom id="II.ax.3" number="3">
+      <text>III. Modes of thinking, such as love, desire, or any other of the passions, do not take place, unless there be in the same individual an idea of the thing loved, desired, &c. But the idea can exist without the presence of any other mode of thinking.</text>
+    </axiom>
+    
+    <axiom id="II.ax.4" number="4">
+      <text>IV. We perceive that a certain body is affected in many ways.</text>
+    </axiom>
+    
+    <axiom id="II.ax.5" number="5">
+      <text>V. We feel and perceive no particular things, save bodies and modes of thought.</text>
+    </axiom>
+    
+    <note id="II.axioms.note">
+      <text>N.B. The Postulates are given after the conclusion of Prop. xiii.</text>
+    </note>
+  </section>
+
+  <section type="propositions" id="II.propositions">
+    <header>PROPOSITIONS</header>
+    
+    <prop id="II.prop.1" number="1">
+      <text>PROP. I. Thought is an attribute of God, or God is a thinking thing.</text>
+      <proof id="II.prop.1.proof">
+        <text>Proof.—Particular thoughts, or this and that thought, are modes which, in a certain conditioned manner, express the nature of God (Pt. i., Prop. xxv., Coroll.). God therefore possesses the attribute (Pt. i., Def. v.) of which the concept is involved in all particular thoughts, which latter are conceived thereby. Thought, therefore, is one of the infinite attributes of God, which express God's eternal and infinite essence (Pt. i., Def. vi.). In other words, God is a thinking thing. Q.E.D.</text>
+      </proof>
+      <note id="II.prop.1.note">
+        <text>Note.—This proposition is also evident from the fact, that we are able to conceive an infinite thinking being. For, in proportion as a thinking being is conceived as thinking more thoughts, so is it conceived as containing more reality or perfection. Therefore a being, which can think an infinite number of things in an infinite number of ways, is, necessarily, in respect of thinking, infinite. As, therefore, from the consideration of thought alone, we conceive an infinite being, thought is necessarily (Pt. i., Deff. iv. and vi.) one of the infinite attributes of God, as we were desirous of showing.</text>
+      </note>
+    </prop>
+    
+    <prop id="II.prop.2" number="2">
+      <text>PROP. II. Extension is an attribute of God, or God is an extended thing.</text>
+      <proof id="II.prop.2.proof">
+        <text>Proof.—The proof of this proposition is similar to that of the last.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.3" number="3">
+      <text>PROP. III. In God there is necessarily the idea not only of his essence, but also of all things which necessarily follow from his essence.</text>
+      <proof id="II.prop.3.proof">
+        <text>Proof.—God (by the first Prop. of this Part) can think an infinite number of things in infinite ways, or (what is the same thing, by Prop. xvi., Part i.) can form the idea of his essence, and of all things which necessarily follow therefrom. Now all that is in the power of God necessarily is (Pt. i., Prop. xxxv.). Therefore, such an idea as we are considering necessarily is, and in God alone. Q.E.D. (Part i., Prop. xv.)</text>
+      </proof>
+      <note id="II.prop.3.note">
+        <text>Note.—The multitude understand by the power of God the free will of God, and the right over all things that exist, which latter are accordingly generally considered as contingent. For it is said that God has the power to destroy all things, and to reduce them to nothing. Further, the power of God is very often likened to the power of kings. But this doctrine we have refuted (Pt. i., Prop. xxxii., Corolls. i. and ii.), and we have shown (Part i., Prop. xvi.) that God acts by the same necessity, as that by which he understands himself; in other words, as it follows from the necessity of the divine nature (as all admit), that God understands himself, so also does it follow by the same necessity, that God performs infinite acts in infinite ways. We further showed (Part i., Prop. xxxiv.), that God's power is identical with God's essence in action; therefore it is as impossible for us to conceive God as not acting, as to conceive him as non—existent. If we might pursue the subject further, I could point out, that the power which is commonly attributed to God is not only human (as showing that God is conceived by the multitude as a man, or in the likeness of a man), but involves a negation of power. However, I am unwilling to go over the same ground so often. I would only beg the reader again and again, to turn over frequently in his mind what I have said in Part I from Prop. xvi. to the end. No one will be able to follow my meaning, unless he is scrupulously careful not to confound the power of God with the human power and right of kings.</text>
+      </note>
+    </prop>
+    
+    <prop id="II.prop.7" number="7">
+      <text>PROP. VII. The order and connection of ideas is the same as the order and connection of things.</text>
+      <proof id="II.prop.7.proof">
+        <text>Proof.—This proposition is evident from Part i., Ax. iv. For the idea of everything that is caused depends on a knowledge of the cause, whereof it is an effect.</text>
+      </proof>
+      <corollary id="II.prop.7.corollary">
+        <text>Corollary.—Hence God's power of thinking is equal to his realized power of action—that is, whatsoever follows from the infinite nature of God in the world of extension (formaliter), follows without exception in the same order and connection from the idea of God in the world of thought (objective).</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.11" number="11">
+      <text>PROP. XI. The first element, which constitutes the actual being of the human mind, is the idea of some particular thing actually existing.</text>
+      <proof id="II.prop.11.proof">
+        <text>Proof.—The essence of man (by the Coroll. of the last Prop.) is constituted by certain modes of the attributes of God, namely (by II. Ax. ii.), by the modes of thinking, of all which (by II. Ax. iii.) the idea is prior in nature, and, when the idea is given, the other modes (namely, those of which the idea is prior in nature) must be in the same individual (by the same Axiom). Therefore an idea is the first element constituting the human mind. But not the idea of a non—existent thing, for then (II. viii. Coroll.) the idea itself cannot be said to exist; it must therefore be the idea of something actually existing. But not of an infinite thing. For an infinite thing (I. xxi., xxii.), must always necessarily exist; this would (by II. Ax. i.) involve an absurdity. Therefore the first element, which constitutes the actual being of the human mind, is the idea of something actually existing. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.13" number="13">
+      <text>PROP. XIII. The object of the idea constituting the human mind is the body, in other words a certain mode of extension which actually exists, and nothing else.</text>
+      <proof id="II.prop.13.proof">
+        <text>Proof.—If indeed the body were not the object of the human mind, the ideas of the modifications of the body would not be in God (II. ix. Coroll.) in virtue of his constituting our mind, but in virtue of his constituting the mind of something else; that is (II. xi. Coroll.) the ideas of the modifications of the body would not be in our mind: now (by II. Ax. iv.) we do possess the idea of the modifications of the body. Therefore the object of the idea constituting the human mind is the body, and the body as it actually exists (II. xi.). Further, if there were any other object of the idea constituting the mind besides body, then, as nothing can exist from which some effect does not follow (I. xxxvi.) there would necessarily have to be in our mind an idea, which would be the effect of that other object (II. xi.); but (I. Ax. v.) there is no such idea. Wherefore the object of our mind is the body as it exists, and nothing else. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.4" number="4">
+      <text>PROP. IV. The idea of God, from which an infinite number of things follow in infinite ways, can only be one.</text>
+      <proof id="II.prop.4.proof">
+        <text>Proof.—Infinite intellect comprehends nothing save the attributes of God and his modifications (Part i., Prop. xxx.). Now God is one (Part i., Prop. xiv., Coroll.). Therefore the idea of God, wherefrom an infinite number of things follow in infinite ways, can only be one. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.5" number="5">
+      <text>PROP. V. The actual being of ideas owns God as its cause, only in so far as he is considered as a thinking thing, not in so far as he is unfolded in any other attribute; that is, the ideas both of the attributes of God and of particular things do not own as their efficient cause their objects (ideata) or the things perceived, but God himself in so far as he is a thinking thing.</text>
+      <proof id="II.prop.5.proof">
+        <text>Proof.—This proposition is evident from Prop. iii. of this Part. We there drew the conclusion, that God can form the idea of his essence, and of all things which follow necessarily therefrom, solely because he is a thinking thing, and not because he is the object of his own idea. Wherefore the actual being of ideas owns for cause God, in so far as he is a thinking thing. It may be differently proved as follows: the actual being of ideas is (obviously) a mode of thought, that is (Part i., Prop. xxv., Coroll.) a mode which expresses in a certain manner the nature of God, in so far as he is a thinking thing, and therefore (Part i., Prop. x.) involves the conception of no other attribute of God, and consequently (by Part i., Ax. iv.) is not the effect of any attribute save thought. Therefore the actual being of ideas owns God as its cause, in so far as he is considered as a thinking thing, &c. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.6" number="6">
+      <text>PROP. VI. The modes of any given attribute are caused by God, in so far as he is considered through the attribute of which they are modes, and not in so far as he is considered through any other attribute.</text>
+      <proof id="II.prop.6.proof">
+        <text>Proof.—Each attribute is conceived through itself, without any other (Part i., Prop. x.); wherefore the modes of each attribute involve the conception of that attribute, but not of any other. Thus (Part i., Ax. iv.) they are caused by God, only in so far as he is considered through the attribute whose modes they are, and not in so far as he is considered through any other. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.6.corollary">
+        <text>Corollary.—Hence the actual being of things, which are not modes of thought, does not follow from the divine nature, because that nature has prior knowledge of the things. Things represented in ideas follow, and are derived from their particular attribute, in the same manner, and with the same necessity as ideas follow (according to what we have shown) from the attribute of thought.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.8" number="8">
+      <text>PROP. VIII. The ideas of particular things, or of modes, that do not exist, must be comprehended in the infinite idea of God, in the same way as the formal essences of particular things or modes are contained in the attributes of God.</text>
+      <proof id="II.prop.8.proof">
+        <text>Proof.—This proposition is evident from the last; it is understood more clearly from the preceding note.</text>
+      </proof>
+      <corollary id="II.prop.8.corollary">
+        <text>Corollary.—Hence, so long as particular things do not exist, except in so far as they are comprehended in the attributes of God, their representations in thought or ideas do not exist, except in so far as the infinite idea of God exists; and when particular things are said to exist, not only in so far as they are involved in the attributes of God, but also in so far as they are said to continue, their ideas will also involve existence, through which they are said to continue.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.9" number="9">
+      <text>PROP. IX. The idea of an individual thing actually existing is caused by God, not in so far as he is infinite, but in so far as he is considered as affected by another idea of a thing actually existing, of which he is the cause, in so far as he is affected by a third idea, and so on to infinity.</text>
+      <proof id="II.prop.9.proof">
+        <text>Proof.—The idea of an individual thing actually existing is an individual mode of thinking, and is distinct from other modes (by the Corollary and note to Prop. viii. of this part); thus (by Prop. vi. of this part) it is caused by God, in so far only as he is a thinking thing. But not (by Prop. xxviii. of Part i.) in so far as he is a thing thinking absolutely, only in so far as he is considered as affected by another mode of thinking; and he is the cause of this latter, as being affected by a third, and so on to infinity. Now, the order and connection of ideas is (by Prop. vii. of this book) the same as the order and connection of causes. Therefore of a given individual idea another individual idea, or God, in so far as he is considered as modified by that idea, is the cause; and of this second idea God is the cause, in so far as he is affected by another idea, and so on to infinity. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.9.corollary">
+        <text>Corollary.—Whatsoever takes place in the individual object of any idea, the knowledge thereof is in God, in so far only as he has the idea of the object.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.10" number="10">
+      <text>PROP. X. The being of substance does not appertain to the essence of man—in other words, substance does not constitute the actual being of man.</text>
+      <proof id="II.prop.10.proof">
+        <text>Proof.—The being of substance involves necessary existence (Part i., Prop. vii.). If, therefore, the being of substance appertains to the essence of man, substance being granted, man would necessarily be granted also (II. Def. ii.), and, consequently, man would necessarily exist, which is absurd (II. Ax. i.). Therefore, &c. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.10.corollary">
+        <text>Corollary.—Hence it follows, that the essence of man is constituted by certain modifications of the attributes of God. For (by the last Prop.) the being of substance does not belong to the essence of man. That essence therefore (by i. 15) is something which is in God, and which without God can neither be nor be conceived, whether it be a modification (i. 25. Coroll.), or a mode which expresses God's nature in a certain conditioned manner.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.12" number="12">
+      <text>PROP. XII. Whatsoever comes to pass in the object of the idea, which constitutes the human mind, must be perceived by the human mind, or there will necessarily be an idea in the human mind of the said occurrence. That is, if the object of the idea constituting the human mind be a body, nothing can take place in that body without being perceived by the mind.</text>
+      <proof id="II.prop.12.proof">
+        <text>Proof.—Whatsoever comes to pass in the object of any idea, the knowledge thereof is necessarily in God (II. ix. Coroll.), in so far as he is considered as affected by the idea of the said object, that is (II. xi.), in so far as he constitutes the mind of anything. Therefore, whatsoever takes place in the object constituting the idea of the human mind, the knowledge thereof is necessarily in God, in so far as he constitutes the essence of the human mind; that is (by II. xi. Coroll.) the knowledge of the said thing will necessarily be in the mind, in other words the mind perceives it.</text>
+      </proof>
+    </prop>
+    
+    <!-- Physical/Mathematical Content after Prop XIII -->
+    <section type="physical_axioms" id="II.physical_axioms">
+      <header>AXIOMS FOR PHYSICAL THEORY</header>
+      
+      <axiom id="II.phys_ax.1" number="1">
+        <text>AXIOM I. All bodies are either in motion or at rest.</text>
+      </axiom>
+      
+      <axiom id="II.phys_ax.2" number="2">
+        <text>AXIOM II. Every body is moved sometimes more slowly, sometimes more quickly.</text>
+      </axiom>
+    </section>
+    
+    <section type="lemmas" id="II.lemmas">
+      <header>LEMMAS</header>
+      
+      <lemma id="II.lemma.1" number="1">
+        <text>LEMMA I. Bodies are distinguished from one another in respect of motion and rest, quickness and slowness, and not in respect of substance.</text>
+        <proof id="II.lemma.1.proof">
+          <text>Proof.—The first part of this proposition is, I take it, self—evident. That bodies are not distinguished in respect of substance, is plain both from I. v. and I. viii. It is brought out still more clearly from I. xv, note.</text>
+        </proof>
+      </lemma>
+      
+      <lemma id="II.lemma.2" number="2">
+        <text>LEMMA II. All bodies agree in certain respects.</text>
+        <proof id="II.lemma.2.proof">
+          <text>Proof.—All bodies agree in the fact, that they involve the conception of one and the same attribute (II., Def. i.). Further, in the fact that they may be moved less or more quickly, and may be absolutely in motion or at rest.</text>
+        </proof>
+      </lemma>
+      
+      <lemma id="II.lemma.3" number="3">
+        <text>LEMMA III. A body in motion or at rest must be determined to motion or rest by another body, which other body has been determined to motion or rest by a third body, and that third again by a fourth, and so on to infinity.</text>
+        <proof id="II.lemma.3.proof">
+          <text>Proof.—Bodies are individual things (II., Def. i.), which (Lemma I.) are distinguished one from the other in respect to motion and rest; thus (I. xxviii.) each must necessarily be determined to motion or rest by another individual thing, namely (II. vi.), by another body, which other body is also (Ax. i.) in motion or at rest. And this body again can only have been set in motion or caused to rest by being determined by a third body to motion or rest. This third body again by a fourth, and so on to infinity. Q.E.D.</text>
+        </proof>
+        <corollary id="II.lemma.3.corollary">
+          <text>Corollary.—Hence it follows, that a body in motion keeps in motion, until it is determined to a state of rest by some other body; and a body at rest remains so, until it is determined to a state of motion by some other body.</text>
+        </corollary>
+      </lemma>
+      
+      <lemma id="II.lemma.4" number="4">
+        <text>LEMMA IV. If from a body or individual, compounded of several bodies, certain bodies be separated, and if, at the same time, an equal number of other bodies of the same nature take their place, the individual will preserve its nature as before, without any change in its actuality (forma).</text>
+        <proof id="II.lemma.4.proof">
+          <text>Proof.—Bodies (Lemma i.) are not distinguished in respect of substance; that, which constitutes the actuality of an individual consists (by the Def. before Lemma iv.) in a union of bodies; but this union, although there is a continual change of bodies, will (by our hypothesis) be maintained; the individual, therefore, will retain its nature as before, both in respect of substance and in respect of mode. Q.E.D.</text>
+        </proof>
+      </lemma>
+      
+      <lemma id="II.lemma.5" number="5">
+        <text>LEMMA V. If the parts composing an individual become greater or less, but in such proportion, that they all preserve the same mutual relations of motion and rest, the individual will still preserve its original nature, and its actuality will not be changed.</text>
+        <proof id="II.lemma.5.proof">
+          <text>Proof.—The same as for the last Lemma.</text>
+        </proof>
+      </lemma>
+      
+      <lemma id="II.lemma.6" number="6">
+        <text>LEMMA VI. If certain bodies composing an individual be compelled to change the motion, which they have in one direction, for motion in another direction, but in such a manner, that they be able to continue their motions and their mutual communication in the same relations as before, the individual will retain its own nature without any change of its actuality.</text>
+        <proof id="II.lemma.6.proof">
+          <text>Proof.—This proposition is self—evident, for the individual is supposed to retain all that, which, in its definition, we said constituted its actuality.</text>
+        </proof>
+      </lemma>
+      
+      <lemma id="II.lemma.7" number="7">
+        <text>LEMMA VII. Furthermore, the individual thus composed preserves its nature, whether it be, as a whole, in motion or at rest, whether it be moved in this or that direction; so long as each part retains its motion, and preserves its communication with other parts as before.</text>
+        <proof id="II.lemma.7.proof">
+          <text>Proof.—This proposition is evident from the definition of an individual prefixed to Lemma iv.</text>
+        </proof>
+      </lemma>
+    </section>
+    
+    <section type="postulates" id="II.postulates">
+      <header>POSTULATES</header>
+      
+      <postulate id="II.post.1" number="1">
+        <text>I. The human body is composed of a number of individual parts, of diverse nature, each one of which is in itself extremely complex.</text>
+      </postulate>
+      
+      <postulate id="II.post.2" number="2">
+        <text>II. Of the individual parts composing the human body some are fluid, some soft, some hard.</text>
+      </postulate>
+      
+      <postulate id="II.post.3" number="3">
+        <text>III. The individual parts composing the human body, and consequently the human body itself, are affected in a variety of ways by external bodies.</text>
+      </postulate>
+      
+      <postulate id="II.post.4" number="4">
+        <text>IV. The human body stands in need for its preservation of a number of other bodies, by which it is continually, so to speak, regenerated.</text>
+      </postulate>
+      
+      <postulate id="II.post.5" number="5">
+        <text>V. When the fluid part of the human body is determined by an external body to impinge often on another soft part, it changes the surface of the latter, and, as it were, leaves the impression thereupon of the external body which impels it.</text>
+      </postulate>
+      
+      <postulate id="II.post.6" number="6">
+        <text>VI. The human body can move external bodies, and arrange them in a variety of ways.</text>
+      </postulate>
+    </section>
+    
+    <!-- Continue with remaining propositions XIV-XLIX -->
+    <prop id="II.prop.14" number="14">
+      <text>PROP. XIV. The human mind is capable of perceiving a great number of things, and is so in proportion as its body is capable of receiving a great number of impressions.</text>
+      <proof id="II.prop.14.proof">
+        <text>Proof.—The human body (by Post. iii. and vi.) is affected in very many ways by external bodies, and is capable in very many ways of affecting external bodies. But (II. xii.) the human mind must perceive all that takes place in the human body; the human mind is, therefore, capable of perceiving a great number of things, and is so in proportion, &c. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.15" number="15">
+      <text>PROP. XV. The idea, which constitutes the actual being of the human mind, is not simple, but compounded of a great number of ideas.</text>
+      <proof id="II.prop.15.proof">
+        <text>Proof.—The idea constituting the actual being of the human mind is the idea of the body (II. xiii.), which (Post. i.) is composed of a great number of complex individual parts. But there is necessarily in God the idea of each individual part whereof the body is composed (II. viii. Coroll.); therefore (II. vii.), the idea of the human body is composed of these numerous ideas of its component parts. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.16" number="16">
+      <text>PROP. XVI. The idea of every mode, in which the human body is affected by external bodies, must involve the nature of the human body, and also the nature of the external body.</text>
+      <proof id="II.prop.16.proof">
+        <text>Proof.—All the modes, in which any given body is affected, follow from the nature of the body affected, and also from the nature of the affecting body (by Ax. i., after the Coroll. of Lemma iii.), wherefore their idea also necessarily (by I. Ax. iv.) involves the nature of both bodies; therefore, the idea of every mode, in which the human body is affected by external bodies, involves the nature of the human body and of the external body. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.16.corollary1" number="1">
+        <text>Corollary I.—Hence it follows, first, that the human mind perceives the nature of a variety of bodies, together with the nature of its own.</text>
+      </corollary>
+      <corollary id="II.prop.16.corollary2" number="2">
+        <text>Corollary II.—It follows, secondly, that the ideas, which we have of external bodies, indicate rather the constitution of our own body than the nature of external bodies. I have amply illustrated this in the Appendix to Part I.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.17" number="17">
+      <text>PROP. XVII. If the human body is affected in a manner which involves the nature of any external body, the human mind will regard the said external body as actually existing, or as present to itself, until the human body be affected in such a way, as to exclude the existence or the presence of the said external body.</text>
+      <proof id="II.prop.17.proof">
+        <text>Proof.—This proposition is self—evident, for so long as the human body continues to be thus affected, so long will the human mind (II. xii.) regard this modification of the body—that is (by the last Prop.), it will have the idea of the mode as actually existing, and this idea involves the nature of the external body. In other words, it will have the idea which does not exclude, but postulates the existence or presence of the nature of the external body; therefore the mind (by II. xvi., Coroll. i.) will regard the external body as actually existing, until it is affected, &c. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.17.corollary">
+        <text>Corollary.—The mind is able to regard as present external bodies, by which the human body has once been affected, even though they be no longer in existence or present.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.18" number="18">
+      <text>PROP. XVIII. If the human body has once been affected by two or more bodies at the same time, when the mind afterwards imagines any of them, it will straightway remember the others also.</text>
+      <proof id="II.prop.18.proof">
+        <text>Proof.—The mind (II. xvii. Coroll.) imagines any given body, because the human body is affected and disposed by the impressions from an external body, in the same manner as it is affected when certain of its parts are acted on by the said external body; but (by our hypothesis) the body was then so disposed, that the mind imagined two bodies at once; therefore, it will also in the second case imagine two bodies at once, and the mind, when it imagines one, will straightway remember the other. Q.E.D.</text>
+      </proof>
+      <note id="II.prop.18.note">
+        <text>Note.—We now clearly see what Memory is. It is simply a certain association of ideas involving the nature of things outside the human body, which association arises in the mind according to the order and association of the modifications (affectiones) of the human body. I say, first, it is an association of those ideas only, which involve the nature of things outside the human body: not of ideas which answer to the nature of the said things: ideas of the modifications of the human body are, strictly speaking (II. xvi.), those which involve the nature both of the human body and of external bodies. I say, secondly, that this association arises according to the order and association of the modifications of the human body, in order to distinguish it from that association of ideas, which arises from the order of the intellect, whereby the mind perceives things through their primary causes, and which is in all men the same. And hence we can further clearly understand, why the mind from the thought of one thing, should straightway arrive at the thought of another thing, which has no similarity with the first; for instance, from the thought of the word pomum (an apple), a Roman would straightway arrive at the thought of the fruit apple, which has no similitude with the articulate sound in question, nor anything in common with it, except that the body of the man has often been affected by these two things; that is, that the man has often heard the word pomum, while he was looking at the fruit; similarly every man will go on from one thought to another, according as his habit has ordered the images of things in his body. For a soldier, for instance, when he sees the tracks of a horse in sand, will at once pass from the thought of a horse to the thought of a horseman, and thence to the thought of war, &c.; while a countryman will proceed from the thought of a horse to the thought of a plough, a field, &c. Thus every man will follow this or that train of thought, according as he has been in the habit of conjoining and associating the mental images of things in this or that manner.</text>
+      </note>
+    </prop>
+    
+    <prop id="II.prop.19" number="19">
+      <text>PROP. XIX. The human mind has no knowledge of the body, and does not know it to exist, save through the ideas of the modifications whereby the body is affected.</text>
+      <proof id="II.prop.19.proof">
+        <text>Proof.—The human mind is the very idea or knowledge of the human body (II. xiii.), which (II. ix.) is in God, in so far as he is regarded as affected by another idea of a particular thing actually existing: or, inasmuch as (Post. iv.) the human body stands in need of very many bodies whereby it is, as it were, continually regenerated; and the order and connection of ideas is the same as the order and connection of causes (II. vii.); this idea will therefore be in God, in so far as he is regarded as affected by the ideas of very many particular things. Thus God has the idea of the human body, or knows the human body, in so far as he is affected by very many other ideas, and not in so far as he constitutes the nature of the human mind; that is (by II. xi. Coroll.), the human mind does not know the human body. But the ideas of the modifications of body are in God, in so far as he constitutes the nature of the human mind, or the human mind perceives those modifications (II. xii.), and consequently (II. xvi.) the human body itself, and as actually existing; therefore the mind perceives thus far only the human body. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.20" number="20">
+      <text>PROP. XX. The idea or knowledge of the human mind is also in God, following in God in the same manner, and being referred to God in the same manner, as the idea or knowledge of the human body.</text>
+      <proof id="II.prop.20.proof">
+        <text>Proof.—Thought is an attribute of God (II. i.); therefore (II. iii.) there must necessarily be in God the idea both of thought itself and of all its modifications, consequently also of the human mind (II. xi.). Further, this idea or knowledge of the mind does not follow from God, in so far as he is infinite, but in so far as he is affected by another idea of an individual thing (II. ix.). But (II. vii.) the order and connection of ideas is the same as the order and connection of causes; therefore this idea or knowledge of the mind is in God and is referred to God, in the same manner as the idea or knowledge of the body. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.21" number="21">
+      <text>PROP. XXI. This idea of the mind is united to the mind in the same way as the mind is united to the body.</text>
+      <proof id="II.prop.21.proof">
+        <text>Proof.—That the mind is united to the body we have shown from the fact, that the body is the object of the mind (II. xii. and xiii.); and so for the same reason the idea of the mind must be united with its object, that is, with the mind in the same manner as the mind is united to the body. Q.E.D.</text>
+      </proof>
+      <note id="II.prop.21.note">
+        <text>Note.—This proposition is comprehended much more clearly from what we have said in the note to II. vii. We there showed that the idea of body and body, that is, mind and body (II. xiii.), are one and the same individual conceived now under the attribute of thought, now under the attribute of extension; wherefore the idea of the mind and the mind itself are one and the same thing, which is conceived under one and the same attribute, namely, thought. The idea of the mind, I repeat, and the mind itself are in God by the same necessity and follow from him from the same power of thinking. Strictly speaking, the idea of the mind, that is, the idea of an idea, is nothing but the distinctive quality (forma) of the idea in so far as it is conceived as a mode of thought without reference to the object; if a man knows anything, he, by that very fact, knows that he knows it, and at the same time knows that he knows that he knows it, and so on to infinity. But I will treat of this hereafter.</text>
+      </note>
+    </prop>
+    
+    <prop id="II.prop.22" number="22">
+      <text>PROP. XXII. The human mind perceives not only the modifications of the body, but also the ideas of such modifications.</text>
+      <proof id="II.prop.22.proof">
+        <text>Proof.—The ideas of the ideas of modifications follow in God in the same manner, and are referred to God in the same manner, as the ideas of the said modifications. This is proved in the same way as II. xx. But the ideas of the modifications of the body are in the human mind (II. xii.), that is, in God, in so far as he constitutes the essence of the human mind; therefore the ideas of these ideas will be in God, in so far as he has the knowledge or idea of the human mind, that is (II. xxi.), they will be in the human mind itself, which therefore perceives not only the modifications of the body, but also the ideas of such modifications. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.23" number="23">
+      <text>PROP. XXIII. The mind does not know itself, except in so far as it perceives the ideas of the modifications of the body.</text>
+      <proof id="II.prop.23.proof">
+        <text>Proof.—The idea or knowledge of the mind (II. xx.) follows in God in the same manner, and is referred to God in the same manner, as the idea or knowledge of the body. But since (II. xix.) the human mind does not know the human body itself, that is (II. xi. Coroll.), since the knowledge of the human body is not referred to God, in so far as he constitutes the nature of the human mind; therefore, neither is the knowledge of the mind referred to God, in so far as he constitutes the essence of the human mind; therefore (by the same Coroll. II. xi.), the human mind thus far has no knowledge of itself. Further the ideas of the modifications, whereby the body is affected, involve the nature of the human body itself (II. xvi.), that is (II. xiii.), they agree with the nature of the mind; wherefore the knowledge of these ideas necessarily involves knowledge of the mind; but (by the last Prop.) the knowledge of these ideas is in the human mind itself; wherefore the human mind thus far only has knowledge of itself. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.24" number="24">
+      <text>PROP. XXIV. The human mind does not involve an adequate knowledge of the parts composing the human body.</text>
+      <proof id="II.prop.24.proof">
+        <text>Proof.—The parts composing the human body do not belong to the essence of that body, except in so far as they communicate their motions to one another in a certain fixed relation (Def. after Lemma iii.), not in so far as they can be regarded as individuals without relation to the human body. The parts of the human body are highly complex individuals (Post. i.), whose parts (Lemma iv.) can be separated from the human body without in any way destroying the nature and distinctive quality of the latter, and they can communicate their motions (Ax. i., after Lemma iii.) to other bodies in another relation; therefore (II. iii.) the idea or knowledge of each part will be in God, inasmuch (II. ix.) as he is regarded as affected by another idea of a particular thing, which particular thing is prior in the order of nature to the aforesaid part (II. vii.). We may affirm the same thing of each part of each individual composing the human body; therefore, the knowledge of each part composing the human body is in God, in so far as he is affected by very many ideas of things, and not in so far as he has the idea of the human body only, in other words, the idea which constitutes the nature of the human mind (II. xiii); therefore (II. xi. Coroll.), the human mind does not involve an adequate knowledge of the human body. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.25" number="25">
+      <text>PROP. XXV. The idea of each modification of the human body does not involve an adequate knowledge of the external body.</text>
+      <proof id="II.prop.25.proof">
+        <text>Proof.—We have shown that the idea of a modification of the human body involves the nature of an external body, in so far as that external body conditions the human body in a given manner. But, in so far as the external body is an individual, which has no reference to the human body, the knowledge or idea thereof is in God (II. ix.), in so far as God is regarded as affected by the idea of a further thing, which (II. vii.) is naturally prior to the said external body. Wherefore an adequate knowledge of the external body is not in God, in so far as he has the idea of the modification of the human body; in other words, the idea of the modification of the human body does not involve an adequate knowledge of the external body. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.26" number="26">
+      <text>PROP. XXVI. The human mind does not perceive any external body as actually existing, except through the ideas of the modifications of its own body.</text>
+      <proof id="II.prop.26.proof">
+        <text>Proof.—If the human body is in no way affected by a given external body, then (II. vii.) neither is the idea of the human body, in other words, the human mind, affected in any way by the idea of the existence of the said external body, nor does it in any manner perceive its existence. But, in so far as the human body is affected in any way by a given external body, thus far (II. xvi. and Coroll.) it perceives that external body. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.26.corollary">
+        <text>Corollary.—In so far as the human mind imagines an external body, it has not an adequate knowledge thereof.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.27" number="27">
+      <text>PROP. XXVII. The idea of each modification of the human body does not involve an adequate knowledge of the human body itself.</text>
+      <proof id="II.prop.27.proof">
+        <text>Proof.—Every idea of a modification of the human body involves the nature of the human body, in so far as the human body is regarded as affected in a given manner (II. xvi.). But, inasmuch as the human body is an individual which may be affected in many other ways, the idea of the said modification, &c. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.28" number="28">
+      <text>PROP. XXVIII. The ideas of the modifications of the human body, in so far as they have reference only to the human mind, are not clear and distinct, but confused.</text>
+      <proof id="II.prop.28.proof">
+        <text>Proof.—The ideas of the modifications of the human body involve the nature both of the human body and of external bodies (II. xvi.); they must involve the nature not only of the human body but also of its parts; for the modifications are modes (Post. iii.), whereby the parts of the human body, and, consequently, the human body as a whole are affected. But (by II. xxiv., xxv.) the adequate knowledge of external bodies, as also of the parts composing the human body, is not in God, in so far as he is regarded as affected by the human mind, but in so far as he is regarded as affected by other ideas. These ideas of modifications, in so far as they are referred to the human mind alone, are as consequences without premisses, in other words, confused ideas. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.29" number="29">
+      <text>PROP. XXIX. The idea of the idea of each modification of the human body does not involve an adequate knowledge of the human mind.</text>
+      <proof id="II.prop.29.proof">
+        <text>Proof.—The idea of a modification of the human body (II. xxvii.) does not involve an adequate knowledge of the said body, in other words, does not adequately express its nature; that is (II. xiii.) it does not agree with the nature of the mind adequately; therefore (I. Ax. vi) the idea of this idea does not adequately express the nature of the human mind, or does not involve an adequate knowledge thereof.</text>
+      </proof>
+      <corollary id="II.prop.29.corollary">
+        <text>Corollary.—Hence it follows that the human mind, when it perceives things after the common order of nature, has not an adequate but only a confused and fragmentary knowledge of itself, of its own body, and of external bodies.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.30" number="30">
+      <text>PROP. XXX. We can only have a very inadequate knowledge of the duration of our body.</text>
+      <proof id="II.prop.30.proof">
+        <text>Proof.—The duration of our body does not depend on its essence (II. Ax. i.), nor on the absolute nature of God (I. xxi.). But (I. xxviii.) it is conditioned to exist and operate by causes, which in their turn are conditioned to exist and operate in a fixed and definite relation by other causes, these last again being conditioned by others, and so on to infinity. The duration of our body therefore depends on the common order of nature, or the constitution of things. Now, however a thing may be constituted, the adequate knowledge of that thing is in God, in so far as he has the ideas of all things, and not in so far as he has the idea of the human body only. (II. ix. Coroll.) Wherefore the knowledge of the duration of our body is in God very inadequate, in so far as he is only regarded as constituting the nature of the human mind; that is (II. xi. Coroll.), this knowledge is very inadequate to our mind. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.31" number="31">
+      <text>PROP. XXXI. We can only have a very inadequate knowledge of the duration of particular things external to ourselves.</text>
+      <proof id="II.prop.31.proof">
+        <text>Proof.—Every particular thing, like the human body, must be conditioned by another particular thing to exist and operate in a fixed and definite relation; this other particular thing must likewise be conditioned by a third, and so on to infinity. (I. xxviii.) As we have shown in the foregoing proposition, from this common property of particular things, we have only a very inadequate knowledge of the duration of our body; we must draw a similar conclusion with regard to the duration of particular things, namely, that we can only have a very inadequate knowledge of the duration thereof. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.31.corollary">
+        <text>Corollary.—Hence it follows that all particular things are contingent and perishable. For we can have no adequate idea of their duration (by the last Prop.), and this is what we must understand by the contingency and perishableness of things.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.32" number="32">
+      <text>PROP. XXXII. All ideas, in so far as they are referred to God, are true.</text>
+      <proof id="II.prop.32.proof">
+        <text>Proof.—All ideas which are in God agree in every respect with their objects (II. vii. Coroll.), therefore (I. Ax. vi.) they are all true. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.33" number="33">
+      <text>PROP. XXXIII. There is nothing positive in ideas, which causes them to be called false.</text>
+      <proof id="II.prop.33.proof">
+        <text>Proof.—If this be denied, conceive, if possible, a positive mode of thinking, which should constitute the distinctive quality of falsehood. Such a mode of thinking cannot be in God (II. xxxii.); external to God it cannot be or be conceived (I. xv.). Therefore there is nothing positive in ideas which causes them to be called false. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.34" number="34">
+      <text>PROP. XXXIV. Every idea, which in us is absolute or adequate and perfect, is true.</text>
+      <proof id="II.prop.34.proof">
+        <text>Proof.—When we say that an idea in us is adequate and perfect, we say, in other words (II. xi. Coroll.), that the idea is adequate and perfect in God, in so far as he constitutes the essence of our mind; consequently (II. xxxii.), we say that such an idea is true. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.35" number="35">
+      <text>PROP. XXXV. Falsity consists in the privation of knowledge, which inadequate, fragmentary, or confused ideas involve.</text>
+      <proof id="II.prop.35.proof">
+        <text>Proof.—There is nothing positive in ideas, which causes them to be called false (II. xxxiii.); but falsity cannot consist in simple privation (for minds, not bodies, are said to err and to be mistaken), neither can it consist in absolute ignorance, for ignorance and error are not identical; wherefore it consists in the privation of knowledge, which inadequate, fragmentary, or confused ideas involve. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.36" number="36">
+      <text>PROP. XXXVI. Inadequate and confused ideas follow by the same necessity, as adequate or clear and distinct ideas.</text>
+      <proof id="II.prop.36.proof">
+        <text>Proof.—All ideas are in God (I. xv.), and in so far as they are referred to God are true (II. xxxii.) and (II. vii. Coroll.) adequate; therefore there are no ideas confused or inadequate, except in respect to a particular mind (cf. II. xxiv. and xxviii.); therefore all ideas, whether adequate or inadequate, follow by the same necessity (II. vi.). Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.37" number="37">
+      <text>PROP. XXXVII. That which is common to all (cf. Lemma II., above), and which is equally in a part and in the whole, does not constitute the essence of any particular thing.</text>
+      <proof id="II.prop.37.proof">
+        <text>Proof.—If this be denied, conceive, if possible, that it constitutes the essence of some particular thing; for instance, the essence of B. Then (II. Def. ii.) it cannot without B either exist or be conceived; but this is against our hypothesis. Therefore it does not appertain to B's essence, nor does it constitute the essence of any particular thing. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.38" number="38">
+      <text>PROP. XXXVIII. Those things, which are common to all, and which are equally in a part and in the whole, cannot be conceived except adequately.</text>
+      <proof id="II.prop.38.proof">
+        <text>Proof.—Let A be something, which is common to all bodies, and which is equally present in the part of any given body and in the whole. I say A cannot be conceived except adequately. For the idea thereof in God will necessarily be adequate (II. vii. Coroll.), both in so far as God has the idea of the human body, and also in so far as he has the idea of the modifications of the human body, which (II. xvi., xxv., xxvii.) involve in part the nature of the human body and the nature of external bodies; that is (II. xii., xiii.), the idea in God will necessarily be adequate, both in so far as he constitutes the human mind, and in so far as he has the ideas, which are in the human mind. Therefore the mind (II. xi. Coroll.) necessarily perceives A adequately, and has this adequate perception, both in so far as it perceives itself, and in so far as it perceives its own or any external body, nor can A be conceived in any other manner. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.38.corollary">
+        <text>Corollary—Hence it follows that there are certain ideas or notions common to all men; for (by Lemma ii.) all bodies agree in certain respects, which (by the foregoing Prop.) must be adequately or clearly and distinctly perceived by all.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.39" number="39">
+      <text>PROP. XXXIX. That, which is common to and a property of the human body and such other bodies as are wont to affect the human body, and which is present equally in each part of either, or in the whole, will be represented by an adequate idea in the mind.</text>
+      <proof id="II.prop.39.proof">
+        <text>Proof.—If A be that, which is common to and a property of the human body and external bodies, and equally present in the human body and in the said external bodies, in each part of each external body and in the whole, there will be an adequate idea of A in God (II. vii. Coroll.), both in so far as he has the idea of the human body, and in so far as he has the ideas of the given external bodies. Let it now be granted, that the human body is affected by an external body through that, which it has in common therewith, namely, A; the idea of this modification will involve the property A (II. xvi.), and therefore (II. vii. Coroll.) the idea of this modification, in so far as it involves the property A, will be adequate in God, in so far as God is affected by the idea of the human body; that is (II. xiii.), in so far as he constitutes the nature of the human mind; therefore (II. xi. Coroll.) this idea is also adequate in the human mind. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.39.corollary">
+        <text>Corollary.—Hence it follows that the mind is fitted to perceive adequately more things, in proportion as its body has more in common with other bodies.</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.40" number="40">
+      <text>PROP. XL. Whatsoever ideas in the mind follow from ideas which are therein adequate, are also themselves adequate.</text>
+      <proof id="II.prop.40.proof">
+        <text>Proof.—This proposition is self—evident. For when we say that an idea in the human mind follows from ideas which are therein adequate, we say, in other words (II. xi. Coroll.), that an idea is in the divine intellect, whereof God is the cause, not in so far as he is infinite, nor in so far as he is affected by the ideas of very many particular things, but only in so far as he constitutes the essence of the human mind.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.41" number="41">
+      <text>PROP. XLI. Knowledge of the first kind is the only source of falsity, knowledge of the second and third kinds is necessarily true.</text>
+      <proof id="II.prop.41.proof">
+        <text>Proof.—To knowledge of the first kind we have (in the foregoing note) assigned all those ideas, which are inadequate and confused; therefore this kind of knowledge is the only source of falsity (II. xxxv.). Furthermore, we assigned to the second and third kinds of knowledge those ideas which are adequate; therefore these kinds are necessarily true (II. xxxiv.). Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.42" number="42">
+      <text>PROP. XLII. Knowledge of the second and third kinds, not knowledge of the first kind, teaches us to distinguish the true from the false.</text>
+      <proof id="II.prop.42.proof">
+        <text>Proof.—This proposition is self—evident. He, who knows how to distinguish between true and false, must have an adequate idea of true and false. That is (II. xl., note ii.), he must know the true and the false by the second or third kind of knowledge.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.43" number="43">
+      <text>PROP. XLIII. He, who has a true idea, simultaneously knows that he has a true idea, and cannot doubt of the truth of the thing perceived.</text>
+      <proof id="II.prop.43.proof">
+        <text>Proof.—A true idea in us is an idea which is adequate in God, in so far as he is displayed through the nature of the human mind (II. xi. Coroll.). Let us suppose that there is in God, in so far as he is displayed through the human mind, an adequate idea, A. The idea of this idea must also necessarily be in God, and be referred to him in the same way as the idea A (by II. xx., whereof the proof is of universal application). But the idea A is supposed to be referred to God, in so far as he is displayed through the human mind; therefore, the idea of the idea A must be referred to God in the same manner; that is (by II. xi. Coroll.), the adequate idea of the idea A will be in the mind, which has the adequate idea A; therefore he, who has an adequate idea or knows a thing truly (II. xxxiv.), must at the same time have an adequate idea or true knowledge of his knowledge; that is, obviously, he must be assured. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.44" number="44">
+      <text>PROP. XLIV. It is not in the nature of reason to regard things as contingent, but as necessary.</text>
+      <proof id="II.prop.44.proof">
+        <text>Proof.—It is in the nature of reason to perceive things truly (II. xli.), namely (I. Ax. vi.), as they are in themselves—that is (I. xxix.), not as contingent, but as necessary. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.44.corollary1" number="1">
+        <text>Corollary I.—Hence it follows, that it is only through our imagination that we consider things, whether in respect to the future or the past, as contingent.</text>
+      </corollary>
+      <corollary id="II.prop.44.corollary2" number="2">
+        <text>Corollary II.—It is in the nature of reason to perceive things under a certain form of eternity (sub quâdam æternitatis specie).</text>
+      </corollary>
+    </prop>
+    
+    <prop id="II.prop.45" number="45">
+      <text>PROP. XLV. Every idea of every body, or of every particular thing actually existing, necessarily involves the eternal and infinite essence of God.</text>
+      <proof id="II.prop.45.proof">
+        <text>Proof.—The idea of a particular thing actually existing necessarily involves both the existence and the essence of the said thing (II. viii.). Now particular things cannot be conceived without God (I. xv.); but, inasmuch as (II. vi.) they have God for their cause, in so far as he is regarded under the attribute of which the things in question are modes, their ideas must necessarily involve (I. Ax. iv.) the conception of the attributes of those ideas—that is (I. vi.), the eternal and infinite essence of God. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.46" number="46">
+      <text>PROP. XLVI. The knowledge of the eternal and infinite essence of God which every idea involves is adequate and perfect.</text>
+      <proof id="II.prop.46.proof">
+        <text>Proof.—The proof of the last proposition is universal; and whether a thing be considered as a part or a whole, the idea thereof, whether of the whole or of a part (by the last Prop.), will involve God's eternal and infinite essence. Wherefore, that, which gives knowledge of the eternal and infinite essence of God, is common to all, and is equally in the part and in the whole; therefore (II. xxxviii.) this knowledge will be adequate. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.47" number="47">
+      <text>PROP. XLVII. The human mind has an adequate knowledge of the eternal and infinite essence of God.</text>
+      <proof id="II.prop.47.proof">
+        <text>Proof.—The human mind has ideas (II. xxii.), from which (II. xxiii.) it perceives itself and its own body (II. xix.) and external bodies (II. xvi. Coroll. i. and II. xvii.) as actually existing; therefore (II. xlv. and xlvi.) it has an adequate knowledge of the eternal and infinite essence of God. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.48" number="48">
+      <text>PROP. XLVIII. In the mind there is no absolute or free will; but the mind is determined to wish this or that by a cause, which has also been determined by another cause, and this last by another cause, and so on to infinity.</text>
+      <proof id="II.prop.48.proof">
+        <text>Proof.—The mind is a fixed and definite mode of thought (II. xi.), therefore it cannot be the free cause of its actions (I. xvii. Coroll. ii.); in other words, it cannot have an absolute faculty of positive or negative volition; but (by I. xxviii.) it must be determined by a cause, which has also been determined by another cause, and this last by another, &c. Q.E.D.</text>
+      </proof>
+    </prop>
+    
+    <prop id="II.prop.49" number="49">
+      <text>PROP. XLIX. There is in the mind no volition or affirmation and negation, save that which an idea, inasmuch as it is an idea, involves.</text>
+      <proof id="II.prop.49.proof">
+        <text>Proof.—There is in the mind no absolute faculty of positive or negative volition, but only particular volitions, namely, this or that affirmation, and this or that negation. Now let us conceive a particular volition, namely, the mode of thinking whereby the mind affirms, that the three interior angles of a triangle are equal to two right angles. This affirmation involves the conception or idea of a triangle, that is, without the idea of a triangle it cannot be conceived. It is the same thing to say, that the concept A must involve the concept B, as it is to say, that A cannot be conceived without B. Further, this affirmation cannot be made (II. Ax. iii.) without the idea of a triangle. Therefore, this affirmation can neither be nor be conceived, without the idea of a triangle. Again, this idea of a triangle must involve this same affirmation, namely, that its three interior angles are equal to two right angles. Wherefore, and vice versâ, this idea of a triangle can neither be nor be conceived without this affirmation, therefore, this affirmation belongs to the essence of the idea of a triangle, and is nothing besides. What we have said of this volition (inasmuch as we have selected it at random) may be said of any other volition, namely, that it is nothing but an idea. Q.E.D.</text>
+      </proof>
+      <corollary id="II.prop.49.corollary">
+        <text>Corollary.—Will and understanding are one and the same.</text>
+      </corollary>
+    </prop>
+    
+  </section>
+
+</part>
