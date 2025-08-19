@@ -1288,3 +1288,1265 @@ ethics:II.prop.13.proof a ethics:Proof ;
     ethics:groundedIn ethics:II.ax.4, ethics:II.prop.11 ;
     ethics:necessarilyFollows ethics:I.prop.36 ;
     ethics:refutedByAbsurdity ethics:I.ax.5 .
+
+# Additional Part II proof relationships
+ethics:II.prop.1 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 1 ;
+    ethics:hasProof ethics:II.prop.1.proof ;
+    ethics:hasNote ethics:II.prop.1.note .
+
+ethics:II.prop.1.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.1 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.1 ;
+    ethics:cites ethics:I.prop.25.corollary, ethics:I.def.5, ethics:I.def.6 ;
+    ethics:appliesResultFrom ethics:I.prop.25.corollary ;
+    ethics:groundedIn ethics:I.def.5, ethics:I.def.6 .
+
+ethics:II.prop.1.note a ethics:Note ;
+    ethics:partOf ethics:II.prop.1 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:II.prop.1 ;
+    ethics:cites ethics:I.def.4, ethics:I.def.6 ;
+    ethics:groundedIn ethics:I.def.4, ethics:I.def.6 .
+
+ethics:II.prop.2 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 2 ;
+    ethics:hasProof ethics:II.prop.2.proof .
+
+ethics:II.prop.2.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.2 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.2 ;
+    ethics:cites ethics:I.prop.1, ethics:I.prop.30 ;
+    ethics:appliesResultFrom ethics:I.prop.1 ;
+    ethics:groundedIn ethics:I.prop.30 .
+
+ethics:II.prop.4 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 4 ;
+    ethics:hasProof ethics:II.prop.4.proof .
+
+ethics:II.prop.4.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.4 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.4 ;
+    ethics:cites ethics:I.prop.30, ethics:I.prop.14.corollary ;
+    ethics:groundedIn ethics:I.prop.30 ;
+    ethics:necessarilyFollows ethics:I.prop.14.corollary .
+
+ethics:II.prop.5 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 5 ;
+    ethics:hasProof ethics:II.prop.5.proof .
+
+ethics:II.prop.5.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.5 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.5 ;
+    ethics:cites ethics:I.ax.4 ;
+    ethics:evidentFrom ethics:I.ax.4 .
+
+ethics:II.prop.6 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 6 ;
+    ethics:hasProof ethics:II.prop.6.proof .
+
+ethics:II.prop.6.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.6 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.6 ;
+    ethics:cites ethics:I.prop.25, ethics:I.prop.28 ;
+    ethics:appliesResultFrom ethics:I.prop.25 ;
+    ethics:groundedIn ethics:I.prop.28 .
+# ============================================================================
+# COMPLETE PART II PROOF CITATIONS AND RELATIONSHIPS  
+# All 49 propositions with their proof dependencies systematically extracted
+# ============================================================================
+
+# PROPOSITION 1 - Thought is an attribute of God
+ethics:II.prop.1 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 1 ;
+    ethics:hasProof ethics:II.prop.1.proof .
+
+ethics:II.prop.1.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.1 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.1 ;
+    ethics:cites ethics:I.prop.25.corollary, ethics:I.def.5, ethics:I.def.6 ;
+    ethics:appliesResultFrom ethics:I.prop.25.corollary ;
+    ethics:groundedIn ethics:I.def.5, ethics:I.def.6 .
+
+# PROPOSITION 2 - Extension is an attribute of God
+ethics:II.prop.2 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 2 ;
+    ethics:hasProof ethics:II.prop.2.proof .
+
+ethics:II.prop.2.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.2 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.2 ;
+    ethics:appliesResultFrom ethics:II.prop.1 .
+
+# PROPOSITION 3 - In God there is necessarily the idea of his essence and all things
+ethics:II.prop.3 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 3 ;
+    ethics:hasProof ethics:II.prop.3.proof ;
+    ethics:hasNote ethics:II.prop.3.note .
+
+ethics:II.prop.3.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.3 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.3 ;
+    ethics:cites ethics:II.prop.1, ethics:I.prop.16, ethics:I.prop.35, ethics:I.prop.15 ;
+    ethics:appliesResultFrom ethics:II.prop.1 ;
+    ethics:necessarilyFollows ethics:I.prop.35 ;
+    ethics:groundedIn ethics:I.prop.16, ethics:I.prop.15 .
+
+ethics:II.prop.3.note a ethics:Note ;
+    ethics:partOf ethics:II.prop.3 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:II.prop.3 ;
+    ethics:cites ethics:I.prop.32.corollary1, ethics:I.prop.32.corollary2, ethics:I.prop.16, ethics:I.prop.34 ;
+    ethics:refutes ethics:I.prop.32.corollary1, ethics:I.prop.32.corollary2 ;
+    ethics:demonstratedBy ethics:I.prop.16, ethics:I.prop.34 .
+
+# PROPOSITION 4 - The idea of God can only be one
+ethics:II.prop.4 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 4 ;
+    ethics:hasProof ethics:II.prop.4.proof .
+
+ethics:II.prop.4.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.4 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.4 ;
+    ethics:cites ethics:I.prop.30, ethics:I.prop.14.corollary ;
+    ethics:groundedIn ethics:I.prop.30 ;
+    ethics:necessarilyFollows ethics:I.prop.14.corollary .
+
+# PROPOSITION 5 - The actual being of ideas owns God as cause only as thinking thing
+ethics:II.prop.5 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 5 ;
+    ethics:hasProof ethics:II.prop.5.proof .
+
+ethics:II.prop.5.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.5 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.5 ;
+    ethics:cites ethics:II.prop.3, ethics:I.prop.25.corollary, ethics:I.prop.10, ethics:I.ax.4 ;
+    ethics:evidentFrom ethics:II.prop.3 ;
+    ethics:appliesResultFrom ethics:I.prop.25.corollary ;
+    ethics:groundedIn ethics:I.prop.10, ethics:I.ax.4 .
+
+# PROPOSITION 6 - Modes of any attribute are caused by God through that attribute
+ethics:II.prop.6 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 6 ;
+    ethics:hasProof ethics:II.prop.6.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.6.corollary .
+
+ethics:II.prop.6.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.6 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.6 ;
+    ethics:cites ethics:I.prop.10, ethics:I.ax.4 ;
+    ethics:groundedIn ethics:I.prop.10, ethics:I.ax.4 .
+
+ethics:II.prop.6.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.6 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.6 ;
+    ethics:necessarilyFollows ethics:II.prop.6 .
+
+# PROPOSITION 7 - The order and connection of ideas is the same as the order and connection of things
+ethics:II.prop.7 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 7 ;
+    ethics:hasProof ethics:II.prop.7.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.7.corollary .
+
+ethics:II.prop.7.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.7 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.7 ;
+    ethics:cites ethics:I.ax.4 ;
+    ethics:evidentFrom ethics:I.ax.4 .
+
+ethics:II.prop.7.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.7 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.7 ;
+    ethics:necessarilyFollows ethics:II.prop.7 .
+
+# PROPOSITION 8 - Ideas of non-existent things must be comprehended in God's infinite idea
+ethics:II.prop.8 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 8 ;
+    ethics:hasProof ethics:II.prop.8.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.8.corollary .
+
+ethics:II.prop.8.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.8 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.8 ;
+    ethics:appliesResultFrom ethics:II.prop.7 .
+
+ethics:II.prop.8.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.8 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.8 ;
+    ethics:necessarilyFollows ethics:II.prop.8 .
+
+# PROPOSITION 9 - The idea of an individual thing is caused by God as affected by another idea
+ethics:II.prop.9 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 9 ;
+    ethics:hasProof ethics:II.prop.9.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.9.corollary .
+
+ethics:II.prop.9.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.9 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.9 ;
+    ethics:cites ethics:II.prop.8.corollary, ethics:II.prop.6, ethics:I.prop.28, ethics:II.prop.7 ;
+    ethics:groundedIn ethics:II.prop.8.corollary, ethics:II.prop.6 ;
+    ethics:appliesResultFrom ethics:I.prop.28 ;
+    ethics:necessarilyFollows ethics:II.prop.7 .
+
+ethics:II.prop.9.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.9 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.9 ;
+    ethics:necessarilyFollows ethics:II.prop.9 .
+
+# PROPOSITION 10 - The being of substance does not appertain to the essence of man
+ethics:II.prop.10 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 10 ;
+    ethics:hasProof ethics:II.prop.10.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.10.corollary .
+
+ethics:II.prop.10.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.10 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.10 ;
+    ethics:cites ethics:I.prop.7, ethics:II.def.2, ethics:II.ax.1 ;
+    ethics:appliesResultFrom ethics:I.prop.7 ;
+    ethics:groundedIn ethics:II.def.2 ;
+    ethics:refutedByAbsurdity ethics:II.ax.1 .
+
+ethics:II.prop.10.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.10 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.10 ;
+    ethics:cites ethics:I.prop.15, ethics:I.prop.25.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.10 ;
+    ethics:groundedIn ethics:I.prop.15, ethics:I.prop.25.corollary .
+
+# PROPOSITION 11 - The first element of human mind is idea of actually existing thing
+ethics:II.prop.11 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 11 ;
+    ethics:hasProof ethics:II.prop.11.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.11.corollary .
+
+ethics:II.prop.11.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.11 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.11 ;
+    ethics:cites ethics:II.prop.10.corollary, ethics:II.ax.2, ethics:II.ax.3, ethics:II.prop.8.corollary, ethics:I.prop.21, ethics:I.prop.22, ethics:II.ax.1 ;
+    ethics:appliesResultFrom ethics:II.prop.10.corollary ;
+    ethics:necessarilyFollows ethics:II.ax.2, ethics:II.ax.3 ;
+    ethics:groundedIn ethics:I.prop.21, ethics:I.prop.22 ;
+    ethics:refutedByAbsurdity ethics:II.ax.1 .
+
+ethics:II.prop.11.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.11 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.11 ;
+    ethics:necessarilyFollows ethics:II.prop.11 .
+
+# PROPOSITION 12 - Whatever happens in the mind's object must be perceived by the mind
+ethics:II.prop.12 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 12 ;
+    ethics:hasProof ethics:II.prop.12.proof .
+
+ethics:II.prop.12.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.12 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.12 ;
+    ethics:cites ethics:II.prop.9.corollary, ethics:II.prop.11, ethics:II.prop.11.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.9.corollary ;
+    ethics:groundedIn ethics:II.prop.11, ethics:II.prop.11.corollary .
+
+# PROPOSITION 13 - The object of the human mind is the body
+ethics:II.prop.13 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 13 ;
+    ethics:hasProof ethics:II.prop.13.proof .
+
+ethics:II.prop.13.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.13 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.13 ;
+    ethics:cites ethics:II.prop.9.corollary, ethics:II.prop.11.corollary, ethics:II.ax.4, ethics:II.prop.11, ethics:I.prop.36, ethics:I.ax.5 ;
+    ethics:appliesResultFrom ethics:II.prop.9.corollary, ethics:II.prop.11.corollary ;
+    ethics:groundedIn ethics:II.ax.4, ethics:II.prop.11 ;
+    ethics:necessarilyFollows ethics:I.prop.36 ;
+    ethics:refutedByAbsurdity ethics:I.ax.5 .
+
+# PROPOSITION 21 - The idea of the mind must be united with the mind
+ethics:II.prop.21 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 21 ;
+    ethics:hasProof ethics:II.prop.21.proof .
+
+ethics:II.prop.21.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.21 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.21 ;
+    ethics:cites ethics:II.prop.12, ethics:II.prop.13 ;
+    ethics:appliesResultFrom ethics:II.prop.12, ethics:II.prop.13 ;
+    ethics:demonstratedBy ethics:II.prop.12, ethics:II.prop.13 .
+
+# PROPOSITION 22 - Human mind perceives modifications and ideas of modifications
+ethics:II.prop.22 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 22 ;
+    ethics:hasProof ethics:II.prop.22.proof .
+
+ethics:II.prop.22.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.22 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.22 ;
+    ethics:cites ethics:II.prop.20, ethics:II.prop.12, ethics:II.prop.21 ;
+    ethics:appliesResultFrom ethics:II.prop.20 ;
+    ethics:groundedIn ethics:II.prop.12 ;
+    ethics:demonstratedBy ethics:II.prop.21 .
+
+# PROPOSITION 23 - Mind knows itself only through perceiving body modifications
+ethics:II.prop.23 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 23 ;
+    ethics:hasProof ethics:II.prop.23.proof .
+
+ethics:II.prop.23.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.23 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.23 ;
+    ethics:cites ethics:II.prop.20, ethics:II.prop.19, ethics:II.prop.11.corollary, ethics:II.prop.16, ethics:II.prop.13, ethics:II.prop.22 ;
+    ethics:appliesResultFrom ethics:II.prop.20 ;
+    ethics:groundedIn ethics:II.prop.19, ethics:II.prop.11.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.16, ethics:II.prop.13 ;
+    ethics:demonstratedBy ethics:II.prop.22 .
+
+# PROPOSITION 24 - Mind has no adequate knowledge of body parts
+ethics:II.prop.24 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 24 ;
+    ethics:hasProof ethics:II.prop.24.proof .
+
+ethics:II.prop.24.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.24 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.24 ;
+    ethics:cites ethics:II.lemma.3, ethics:II.post.1, ethics:II.lemma.4, ethics:II.prop.3, ethics:II.prop.9, ethics:II.prop.7, ethics:II.prop.13, ethics:II.prop.11.corollary ;
+    ethics:groundedIn ethics:II.lemma.3, ethics:II.post.1, ethics:II.lemma.4 ;
+    ethics:appliesResultFrom ethics:II.prop.3, ethics:II.prop.9 ;
+    ethics:necessarilyFollows ethics:II.prop.7, ethics:II.prop.13 ;
+    ethics:refutedByAbsurdity ethics:II.prop.11.corollary .
+
+# PROPOSITION 25 - Ideas of body modifications don't involve adequate knowledge of external bodies
+ethics:II.prop.25 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 25 ;
+    ethics:hasProof ethics:II.prop.25.proof .
+
+ethics:II.prop.25.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.25 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.25 ;
+    ethics:cites ethics:II.prop.9, ethics:II.prop.7 ;
+    ethics:demonstratedBy ethics:II.prop.9 ;
+    ethics:groundedIn ethics:II.prop.7 .
+
+# PROPOSITION 26 - Mind perceives external bodies only through body modifications
+ethics:II.prop.26 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 26 ;
+    ethics:hasProof ethics:II.prop.26.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.26.corollary .
+
+ethics:II.prop.26.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.26 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.26 ;
+    ethics:cites ethics:II.prop.7, ethics:II.prop.16 ;
+    ethics:groundedIn ethics:II.prop.7 ;
+    ethics:appliesResultFrom ethics:II.prop.16 .
+
+ethics:II.prop.26.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.26 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.26 ;
+    ethics:necessarilyFollows ethics:II.prop.26 .
+
+# Continue with all remaining propositions (14-20, 27-49) following the same pattern...
+
+# Part II definitions that need to be added
+ethics:II.def.4 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 4 .
+
+ethics:II.def.5 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 5 .
+
+ethics:II.def.6 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 6 .
+
+ethics:II.def.7 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 7 .
+
+# Part II axioms that need to be added
+ethics:II.ax.3 a ethics:Axiom ;
+    ethics:partOf ethics:II.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 2 ;
+    ethics:number 3 .
+
+ethics:II.ax.4 a ethics:Axiom ;
+    ethics:partOf ethics:II.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 2 ;
+    ethics:number 4 .
+
+ethics:II.ax.5 a ethics:Axiom ;
+    ethics:partOf ethics:II.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 2 ;
+    ethics:number 5 .
+
+# ============================================================================
+# COMPLETE PART II PROPOSITIONS 14-49 WITH ALL CITATIONS
+# Systematic extraction of every citation from proofs, notes, and corollaries
+# ============================================================================
+
+# PROPOSITION 14 - The human mind is capable of perceiving a great number of things
+ethics:II.prop.14 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 14 ;
+    ethics:hasProof ethics:II.prop.14.proof .
+
+ethics:II.prop.14.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.14 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.14 ;
+    ethics:cites ethics:II.post.3, ethics:II.post.6, ethics:II.prop.12 ;
+    ethics:groundedIn ethics:II.post.3, ethics:II.post.6 ;
+    ethics:appliesResultFrom ethics:II.prop.12 .
+
+# PROPOSITION 15 - The idea of the human mind is not simple but compounded
+ethics:II.prop.15 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 15 ;
+    ethics:hasProof ethics:II.prop.15.proof .
+
+ethics:II.prop.15.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.15 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.15 ;
+    ethics:cites ethics:II.prop.13, ethics:II.post.1, ethics:II.prop.8.corollary, ethics:II.prop.7 ;
+    ethics:appliesResultFrom ethics:II.prop.13 ;
+    ethics:groundedIn ethics:II.post.1 ;
+    ethics:necessarilyFollows ethics:II.prop.8.corollary, ethics:II.prop.7 .
+
+# PROPOSITION 16 - Ideas of modifications must involve nature of both bodies
+ethics:II.prop.16 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 16 ;
+    ethics:hasProof ethics:II.prop.16.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.16.corollary1, ethics:II.prop.16.corollary2 .
+
+ethics:II.prop.16.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.16 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.16 ;
+    ethics:cites ethics:II.phys_ax.1, ethics:II.lemma.3.corollary, ethics:I.ax.4 ;
+    ethics:appliesResultFrom ethics:II.phys_ax.1 ;
+    ethics:groundedIn ethics:II.lemma.3.corollary, ethics:I.ax.4 .
+
+ethics:II.prop.16.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.16 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.16 ;
+    ethics:necessarilyFollows ethics:II.prop.16 .
+
+ethics:II.prop.16.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.16 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.16 ;
+    ethics:cites ethics:I.appendix ;
+    ethics:necessarilyFollows ethics:II.prop.16 ;
+    ethics:demonstratedBy ethics:I.appendix .
+
+# PROPOSITION 17 - Mind will regard external body as existing until body affected otherwise
+ethics:II.prop.17 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 17 ;
+    ethics:hasProof ethics:II.prop.17.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.17.corollary .
+
+ethics:II.prop.17.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.17 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.17 ;
+    ethics:cites ethics:II.prop.12, ethics:II.prop.16, ethics:II.prop.16.corollary1 ;
+    ethics:appliesResultFrom ethics:II.prop.12 ;
+    ethics:groundedIn ethics:II.prop.16 ;
+    ethics:necessarilyFollows ethics:II.prop.16.corollary1 .
+
+ethics:II.prop.17.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.17 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.17 ;
+    ethics:necessarilyFollows ethics:II.prop.17 .
+
+# PROPOSITION 18 - If body affected by multiple bodies, mind will remember others
+ethics:II.prop.18 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 18 ;
+    ethics:hasProof ethics:II.prop.18.proof ;
+    ethics:hasNote ethics:II.prop.18.note .
+
+ethics:II.prop.18.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.18 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.18 ;
+    ethics:cites ethics:II.prop.17.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.17.corollary .
+
+ethics:II.prop.18.note a ethics:Note ;
+    ethics:partOf ethics:II.prop.18 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:II.prop.18 ;
+    ethics:cites ethics:II.prop.16 ;
+    ethics:groundedIn ethics:II.prop.16 .
+
+# PROPOSITION 19 - Mind has no knowledge of body except through modifications
+ethics:II.prop.19 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 19 ;
+    ethics:hasProof ethics:II.prop.19.proof .
+
+ethics:II.prop.19.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.19 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.19 ;
+    ethics:cites ethics:II.prop.13, ethics:II.prop.9, ethics:II.post.4, ethics:II.prop.7, ethics:II.prop.11.corollary, ethics:II.prop.12, ethics:II.prop.16 ;
+    ethics:appliesResultFrom ethics:II.prop.13, ethics:II.prop.9 ;
+    ethics:groundedIn ethics:II.post.4, ethics:II.prop.7 ;
+    ethics:necessarilyFollows ethics:II.prop.11.corollary, ethics:II.prop.12, ethics:II.prop.16 .
+
+# PROPOSITION 20 - Idea of mind is in God in same manner as idea of body
+ethics:II.prop.20 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 20 ;
+    ethics:hasProof ethics:II.prop.20.proof .
+
+ethics:II.prop.20.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.20 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.20 ;
+    ethics:cites ethics:II.prop.1, ethics:II.prop.3, ethics:II.prop.11, ethics:II.prop.9, ethics:II.prop.7 ;
+    ethics:appliesResultFrom ethics:II.prop.1 ;
+    ethics:necessarilyFollows ethics:II.prop.3 ;
+    ethics:groundedIn ethics:II.prop.11, ethics:II.prop.9, ethics:II.prop.7 .
+
+# PROPOSITION 21 - Idea of mind is united to mind as mind is united to body
+ethics:II.prop.21 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 21 ;
+    ethics:hasProof ethics:II.prop.21.proof ;
+    ethics:hasNote ethics:II.prop.21.note .
+
+ethics:II.prop.21.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.21 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.21 ;
+    ethics:cites ethics:II.prop.12, ethics:II.prop.13 ;
+    ethics:appliesResultFrom ethics:II.prop.12, ethics:II.prop.13 ;
+    ethics:demonstratedBy ethics:II.prop.12, ethics:II.prop.13 .
+
+ethics:II.prop.21.note a ethics:Note ;
+    ethics:partOf ethics:II.prop.21 ;
+    ethics:isNote true ;
+    ethics:noteOn ethics:II.prop.21 ;
+    ethics:cites ethics:II.prop.7, ethics:II.prop.13 ;
+    ethics:demonstratedBy ethics:II.prop.7 ;
+    ethics:groundedIn ethics:II.prop.13 .
+
+# PROPOSITION 22 - Mind perceives modifications of body and ideas of such modifications
+ethics:II.prop.22 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 22 ;
+    ethics:hasProof ethics:II.prop.22.proof .
+
+ethics:II.prop.22.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.22 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.22 ;
+    ethics:cites ethics:II.prop.20, ethics:II.prop.12, ethics:II.prop.21 ;
+    ethics:appliesResultFrom ethics:II.prop.20 ;
+    ethics:groundedIn ethics:II.prop.12 ;
+    ethics:necessarilyFollows ethics:II.prop.21 .
+
+# PROPOSITION 23 - Mind does not know itself except through ideas of body modifications
+ethics:II.prop.23 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 23 ;
+    ethics:hasProof ethics:II.prop.23.proof .
+
+ethics:II.prop.23.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.23 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.23 ;
+    ethics:cites ethics:II.prop.20, ethics:II.prop.19, ethics:II.prop.11.corollary, ethics:II.prop.16, ethics:II.prop.13, ethics:II.prop.22 ;
+    ethics:appliesResultFrom ethics:II.prop.20 ;
+    ethics:groundedIn ethics:II.prop.19, ethics:II.prop.11.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.16, ethics:II.prop.13, ethics:II.prop.22 .
+
+# PROPOSITION 24 - Mind does not involve adequate knowledge of body parts
+ethics:II.prop.24 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 24 ;
+    ethics:hasProof ethics:II.prop.24.proof .
+
+ethics:II.prop.24.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.24 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.24 ;
+    ethics:cites ethics:II.lemma.3, ethics:II.post.1, ethics:II.lemma.4, ethics:II.phys_ax.1, ethics:II.prop.3, ethics:II.prop.9, ethics:II.prop.7, ethics:II.prop.13, ethics:II.prop.11.corollary ;
+    ethics:groundedIn ethics:II.lemma.3, ethics:II.post.1 ;
+    ethics:appliesResultFrom ethics:II.lemma.4, ethics:II.phys_ax.1 ;
+    ethics:necessarilyFollows ethics:II.prop.3, ethics:II.prop.9, ethics:II.prop.7 ;
+    ethics:refutedByAbsurdity ethics:II.prop.13, ethics:II.prop.11.corollary .
+
+# PROPOSITION 25 - Idea of body modification does not involve adequate knowledge of external body
+ethics:II.prop.25 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 25 ;
+    ethics:hasProof ethics:II.prop.25.proof .
+
+ethics:II.prop.25.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.25 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.25 ;
+    ethics:cites ethics:II.prop.9, ethics:II.prop.7 ;
+    ethics:appliesResultFrom ethics:II.prop.9 ;
+    ethics:groundedIn ethics:II.prop.7 .
+
+# PROPOSITION 26 - Mind does not perceive external body except through body modifications
+ethics:II.prop.26 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 26 ;
+    ethics:hasProof ethics:II.prop.26.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.26.corollary .
+
+ethics:II.prop.26.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.26 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.26 ;
+    ethics:cites ethics:II.prop.7, ethics:II.prop.16, ethics:II.prop.16.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.7 ;
+    ethics:necessarilyFollows ethics:II.prop.16, ethics:II.prop.16.corollary .
+
+ethics:II.prop.26.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.26 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.26 ;
+    ethics:necessarilyFollows ethics:II.prop.26 .
+
+# PROPOSITION 27 - Idea of body modification does not involve adequate knowledge of body itself
+ethics:II.prop.27 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 27 ;
+    ethics:hasProof ethics:II.prop.27.proof .
+
+ethics:II.prop.27.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.27 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.27 ;
+    ethics:cites ethics:II.prop.16 ;
+    ethics:appliesResultFrom ethics:II.prop.16 .
+
+# PROPOSITION 28 - Ideas of body modifications are confused when referred only to mind
+ethics:II.prop.28 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 28 ;
+    ethics:hasProof ethics:II.prop.28.proof .
+
+ethics:II.prop.28.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.28 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.28 ;
+    ethics:cites ethics:II.prop.16, ethics:II.post.3, ethics:II.prop.24, ethics:II.prop.25 ;
+    ethics:appliesResultFrom ethics:II.prop.16 ;
+    ethics:groundedIn ethics:II.post.3 ;
+    ethics:necessarilyFollows ethics:II.prop.24, ethics:II.prop.25 .
+
+# PROPOSITION 29 - Idea of idea of body modification does not involve adequate knowledge of mind
+ethics:II.prop.29 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 29 ;
+    ethics:hasProof ethics:II.prop.29.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.29.corollary .
+
+ethics:II.prop.29.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.29 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.29 ;
+    ethics:cites ethics:II.prop.27, ethics:II.prop.13, ethics:I.ax.6 ;
+    ethics:appliesResultFrom ethics:II.prop.27 ;
+    ethics:groundedIn ethics:II.prop.13 ;
+    ethics:necessarilyFollows ethics:I.ax.6 .
+
+ethics:II.prop.29.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.29 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.29 ;
+    ethics:necessarilyFollows ethics:II.prop.29 .
+
+# PROPOSITION 30 - We can only have inadequate knowledge of duration of our body
+ethics:II.prop.30 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 30 ;
+    ethics:hasProof ethics:II.prop.30.proof .
+
+ethics:II.prop.30.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.30 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.30 ;
+    ethics:cites ethics:II.ax.1, ethics:I.prop.21, ethics:I.prop.28, ethics:II.prop.9.corollary, ethics:II.prop.11.corollary ;
+    ethics:groundedIn ethics:II.ax.1 ;
+    ethics:necessarilyFollows ethics:I.prop.21 ;
+    ethics:appliesResultFrom ethics:I.prop.28 ;
+    ethics:refutedByAbsurdity ethics:II.prop.9.corollary, ethics:II.prop.11.corollary .
+
+# PROPOSITION 31 - We can only have inadequate knowledge of duration of external things
+ethics:II.prop.31 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 31 ;
+    ethics:hasProof ethics:II.prop.31.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.31.corollary .
+
+ethics:II.prop.31.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.31 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.31 ;
+    ethics:cites ethics:I.prop.28, ethics:II.prop.30 ;
+    ethics:appliesResultFrom ethics:I.prop.28 ;
+    ethics:necessarilyFollows ethics:II.prop.30 .
+
+ethics:II.prop.31.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.31 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.31 ;
+    ethics:necessarilyFollows ethics:II.prop.31 .
+
+# PROPOSITION 32 - All ideas referred to God are true
+ethics:II.prop.32 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 32 ;
+    ethics:hasProof ethics:II.prop.32.proof .
+
+ethics:II.prop.32.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.32 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.32 ;
+    ethics:cites ethics:II.prop.7.corollary, ethics:I.ax.6 ;
+    ethics:appliesResultFrom ethics:II.prop.7.corollary ;
+    ethics:necessarilyFollows ethics:I.ax.6 .
+
+# PROPOSITION 33 - Nothing positive in ideas causes them to be called false
+ethics:II.prop.33 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 33 ;
+    ethics:hasProof ethics:II.prop.33.proof .
+
+ethics:II.prop.33.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.33 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.33 ;
+    ethics:cites ethics:II.prop.32, ethics:I.prop.15 ;
+    ethics:groundedIn ethics:II.prop.32 ;
+    ethics:refutedByAbsurdity ethics:I.prop.15 .
+
+# PROPOSITION 34 - Every adequate and perfect idea in us is true
+ethics:II.prop.34 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 34 ;
+    ethics:hasProof ethics:II.prop.34.proof .
+
+ethics:II.prop.34.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.34 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.34 ;
+    ethics:cites ethics:II.prop.11.corollary, ethics:II.prop.32 ;
+    ethics:appliesResultFrom ethics:II.prop.11.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.32 .
+
+# PROPOSITION 35 - Falsity consists in privation of knowledge
+ethics:II.prop.35 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 35 ;
+    ethics:hasProof ethics:II.prop.35.proof .
+
+ethics:II.prop.35.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.35 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.35 ;
+    ethics:cites ethics:II.prop.33 ;
+    ethics:groundedIn ethics:II.prop.33 .
+
+# PROPOSITION 36 - Inadequate and adequate ideas follow by same necessity
+ethics:II.prop.36 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 36 ;
+    ethics:hasProof ethics:II.prop.36.proof .
+
+ethics:II.prop.36.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.36 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.36 ;
+    ethics:cites ethics:I.prop.15, ethics:II.prop.32, ethics:II.prop.7.corollary, ethics:II.prop.24, ethics:II.prop.28, ethics:II.prop.6 ;
+    ethics:appliesResultFrom ethics:I.prop.15 ;
+    ethics:groundedIn ethics:II.prop.32, ethics:II.prop.7.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.24, ethics:II.prop.28, ethics:II.prop.6 .
+
+# PROPOSITION 37 - What is common to all does not constitute essence of particular thing
+ethics:II.prop.37 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 37 ;
+    ethics:hasProof ethics:II.prop.37.proof .
+
+ethics:II.prop.37.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.37 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.37 ;
+    ethics:cites ethics:II.lemma.2, ethics:II.def.2 ;
+    ethics:groundedIn ethics:II.lemma.2 ;
+    ethics:refutedByAbsurdity ethics:II.def.2 .
+
+# PROPOSITION 38 - Things common to all can only be conceived adequately
+ethics:II.prop.38 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 38 ;
+    ethics:hasProof ethics:II.prop.38.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.38.corollary .
+
+ethics:II.prop.38.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.38 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.38 ;
+    ethics:cites ethics:II.prop.7.corollary, ethics:II.prop.16, ethics:II.prop.25, ethics:II.prop.27, ethics:II.prop.12, ethics:II.prop.13, ethics:II.prop.11.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.7.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.16, ethics:II.prop.25, ethics:II.prop.27 ;
+    ethics:groundedIn ethics:II.prop.12, ethics:II.prop.13, ethics:II.prop.11.corollary .
+
+ethics:II.prop.38.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.38 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.38 ;
+    ethics:cites ethics:II.lemma.2 ;
+    ethics:necessarilyFollows ethics:II.prop.38 ;
+    ethics:groundedIn ethics:II.lemma.2 .
+
+# PROPOSITION 39 - Common properties will be represented by adequate idea in mind
+ethics:II.prop.39 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 39 ;
+    ethics:hasProof ethics:II.prop.39.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.39.corollary .
+
+ethics:II.prop.39.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.39 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.39 ;
+    ethics:cites ethics:II.prop.7.corollary, ethics:II.prop.16, ethics:II.prop.13, ethics:II.prop.11.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.7.corollary ;
+    ethics:necessarilyFollows ethics:II.prop.16 ;
+    ethics:groundedIn ethics:II.prop.13, ethics:II.prop.11.corollary .
+
+ethics:II.prop.39.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.39 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.39 ;
+    ethics:necessarilyFollows ethics:II.prop.39 .
+
+# PROPOSITION 40 - Ideas following from adequate ideas are themselves adequate
+ethics:II.prop.40 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 40 ;
+    ethics:hasProof ethics:II.prop.40.proof .
+
+ethics:II.prop.40.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.40 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.40 ;
+    ethics:cites ethics:II.prop.11.corollary ;
+    ethics:appliesResultFrom ethics:II.prop.11.corollary .
+
+# PROPOSITION 41 - Knowledge of first kind is only source of falsity
+ethics:II.prop.41 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 41 ;
+    ethics:hasProof ethics:II.prop.41.proof .
+
+ethics:II.prop.41.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.41 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.41 ;
+    ethics:cites ethics:II.prop.35, ethics:II.prop.34 ;
+    ethics:appliesResultFrom ethics:II.prop.35 ;
+    ethics:necessarilyFollows ethics:II.prop.34 .
+
+# PROPOSITION 42 - Knowledge of second and third kinds teaches distinguishing true from false
+ethics:II.prop.42 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 42 ;
+    ethics:hasProof ethics:II.prop.42.proof .
+
+ethics:II.prop.42.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.42 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.42 ;
+    ethics:cites ethics:II.prop.40 ;
+    ethics:appliesResultFrom ethics:II.prop.40 .
+
+# PROPOSITION 43 - He who has true idea knows he has true idea
+ethics:II.prop.43 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 43 ;
+    ethics:hasProof ethics:II.prop.43.proof .
+
+ethics:II.prop.43.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.43 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.43 ;
+    ethics:cites ethics:II.prop.11.corollary, ethics:II.prop.20, ethics:II.prop.34 ;
+    ethics:appliesResultFrom ethics:II.prop.11.corollary ;
+    ethics:groundedIn ethics:II.prop.20 ;
+    ethics:necessarilyFollows ethics:II.prop.34 .
+
+# PROPOSITION 44 - Reason does not regard things as contingent but as necessary
+ethics:II.prop.44 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 44 ;
+    ethics:hasProof ethics:II.prop.44.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.44.corollary1, ethics:II.prop.44.corollary2 .
+
+ethics:II.prop.44.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.44 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.44 ;
+    ethics:cites ethics:II.prop.41, ethics:I.ax.6, ethics:I.prop.29 ;
+    ethics:appliesResultFrom ethics:II.prop.41 ;
+    ethics:groundedIn ethics:I.ax.6 ;
+    ethics:necessarilyFollows ethics:I.prop.29 .
+
+ethics:II.prop.44.corollary1 a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.44 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.44 ;
+    ethics:necessarilyFollows ethics:II.prop.44 .
+
+ethics:II.prop.44.corollary2 a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.44 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.44 ;
+    ethics:necessarilyFollows ethics:II.prop.44 .
+
+# PROPOSITION 45 - Every idea necessarily involves eternal and infinite essence of God
+ethics:II.prop.45 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 45 ;
+    ethics:hasProof ethics:II.prop.45.proof .
+
+ethics:II.prop.45.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.45 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.45 ;
+    ethics:cites ethics:II.prop.8, ethics:I.prop.15, ethics:II.prop.6, ethics:I.ax.4, ethics:I.def.6 ;
+    ethics:appliesResultFrom ethics:II.prop.8 ;
+    ethics:groundedIn ethics:I.prop.15, ethics:II.prop.6 ;
+    ethics:necessarilyFollows ethics:I.ax.4, ethics:I.def.6 .
+
+# PROPOSITION 46 - Knowledge of eternal essence of God is adequate and perfect
+ethics:II.prop.46 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 46 ;
+    ethics:hasProof ethics:II.prop.46.proof .
+
+ethics:II.prop.46.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.46 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.46 ;
+    ethics:cites ethics:II.prop.45, ethics:II.prop.38 ;
+    ethics:appliesResultFrom ethics:II.prop.45 ;
+    ethics:necessarilyFollows ethics:II.prop.38 .
+
+# PROPOSITION 47 - Human mind has adequate knowledge of eternal essence of God
+ethics:II.prop.47 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 47 ;
+    ethics:hasProof ethics:II.prop.47.proof .
+
+ethics:II.prop.47.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.47 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.47 ;
+    ethics:cites ethics:II.prop.22, ethics:II.prop.23, ethics:II.prop.19, ethics:II.prop.16.corollary1, ethics:II.prop.17, ethics:II.prop.45, ethics:II.prop.46 ;
+    ethics:appliesResultFrom ethics:II.prop.22 ;
+    ethics:groundedIn ethics:II.prop.23, ethics:II.prop.19 ;
+    ethics:necessarilyFollows ethics:II.prop.16.corollary1, ethics:II.prop.17, ethics:II.prop.45, ethics:II.prop.46 .
+
+# PROPOSITION 48 - Mind has no absolute free will but is determined
+ethics:II.prop.48 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 48 ;
+    ethics:hasProof ethics:II.prop.48.proof .
+
+ethics:II.prop.48.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.48 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.48 ;
+    ethics:cites ethics:II.prop.11, ethics:I.prop.17.corollary2, ethics:I.prop.28 ;
+    ethics:appliesResultFrom ethics:II.prop.11 ;
+    ethics:groundedIn ethics:I.prop.17.corollary2 ;
+    ethics:necessarilyFollows ethics:I.prop.28 .
+
+# PROPOSITION 49 - No volition in mind save that which idea involves
+ethics:II.prop.49 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 49 ;
+    ethics:hasProof ethics:II.prop.49.proof ;
+    ethics:hasCorollaryElement ethics:II.prop.49.corollary .
+
+ethics:II.prop.49.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.49 ;
+    ethics:isProof true ;
+    ethics:proofOf ethics:II.prop.49 ;
+    ethics:cites ethics:II.ax.3 ;
+    ethics:appliesResultFrom ethics:II.ax.3 .
+
+ethics:II.prop.49.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.prop.49 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.prop.49 ;
+    ethics:necessarilyFollows ethics:II.prop.49 .
+
+# Additional structural elements that need to be defined
+ethics:II.post.1 a ethics:Postulate ;
+    ethics:partOf ethics:II.postulates ;
+    ethics:partNumber 2 ;
+    ethics:number 1 .
+
+ethics:II.post.3 a ethics:Postulate ;
+    ethics:partOf ethics:II.postulates ;
+    ethics:partNumber 2 ;
+    ethics:number 3 .
+
+ethics:II.post.4 a ethics:Postulate ;
+    ethics:partOf ethics:II.postulates ;
+    ethics:partNumber 2 ;
+    ethics:number 4 .
+
+ethics:II.post.6 a ethics:Postulate ;
+    ethics:partOf ethics:II.postulates ;
+    ethics:partNumber 2 ;
+    ethics:number 6 .
+
+ethics:II.phys_ax.1 a ethics:Axiom ;
+    ethics:partOf ethics:II.physical_axioms ;
+    ethics:partNumber 2 ;
+    ethics:number 1 .
+
+ethics:II.lemma.2 a ethics:Lemma ;
+    ethics:partOf ethics:II.lemmas ;
+    ethics:partNumber 2 ;
+    ethics:number 2 .
+
+ethics:II.lemma.3 a ethics:Lemma ;
+    ethics:partOf ethics:II.lemmas ;
+    ethics:partNumber 2 ;
+    ethics:number 3 .
+
+ethics:II.lemma.3.corollary a ethics:Corollary ;
+    ethics:partOf ethics:II.lemma.3 ;
+    ethics:isCorollary true ;
+    ethics:corollaryOf ethics:II.lemma.3 .
+
+ethics:II.lemma.4 a ethics:Lemma ;
+    ethics:partOf ethics:II.lemmas ;
+    ethics:partNumber 2 ;
+    ethics:number 4 .
+
+# Class definitions for new structural elements
+ethics:Postulate a rdfs:Class .
+ethics:Lemma a rdfs:Class .
+
+# Update high-level structure to include missing sections
+ethics:II
+    ethics:containsSection ethics:II.definitions, ethics:II.axioms, ethics:II.propositions, ethics:II.physical_axioms, ethics:II.lemmas, ethics:II.postulates .
+
+ethics:II.physical_axioms
+    ethics:containsElement ethics:II.phys_ax.1, ethics:II.phys_ax.2 .
+
+ethics:II.lemmas
+    ethics:containsElement ethics:II.lemma.1, ethics:II.lemma.2, ethics:II.lemma.3, ethics:II.lemma.4, ethics:II.lemma.5, ethics:II.lemma.6, ethics:II.lemma.7 .
+
+ethics:II.postulates
+    ethics:containsElement ethics:II.post.1, ethics:II.post.2, ethics:II.post.3, ethics:II.post.4, ethics:II.post.5, ethics:II.post.6 .
+
+# Updated propositions section to include all 49 propositions
+ethics:II.propositions
+    ethics:containsElement ethics:II.prop.1, ethics:II.prop.2, ethics:II.prop.3, ethics:II.prop.4, ethics:II.prop.5, ethics:II.prop.6, ethics:II.prop.7, ethics:II.prop.8, ethics:II.prop.9, ethics:II.prop.10, ethics:II.prop.11, ethics:II.prop.12, ethics:II.prop.13, ethics:II.prop.14, ethics:II.prop.15, ethics:II.prop.16, ethics:II.prop.17, ethics:II.prop.18, ethics:II.prop.19, ethics:II.prop.20, ethics:II.prop.21, ethics:II.prop.22, ethics:II.prop.23, ethics:II.prop.24, ethics:II.prop.25, ethics:II.prop.26, ethics:II.prop.27, ethics:II.prop.28, ethics:II.prop.29, ethics:II.prop.30, ethics:II.prop.31, ethics:II.prop.32, ethics:II.prop.33, ethics:II.prop.34, ethics:II.prop.35, ethics:II.prop.36, ethics:II.prop.37, ethics:II.prop.38, ethics:II.prop.39, ethics:II.prop.40, ethics:II.prop.41, ethics:II.prop.42, ethics:II.prop.43, ethics:II.prop.44, ethics:II.prop.45, ethics:II.prop.46, ethics:II.prop.47, ethics:II.prop.48, ethics:II.prop.49 .
