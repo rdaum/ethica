@@ -3,7 +3,7 @@ import './BookView.css';
 
 interface SpinozaElement {
   id: string;
-  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note';
+  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note' | 'lemma' | 'postulate' | 'explanation';
   number?: string;
   text: string;
   parentId?: string;
@@ -15,6 +15,8 @@ interface BookViewProps {
   onElementSelect: (elementId: string | null) => void;
   selectedElement: string | null;
   hoveredElement: string | null;
+  currentPart: number;
+  partTitle: string;
 }
 
 const BookView: React.FC<BookViewProps> = ({
@@ -22,7 +24,9 @@ const BookView: React.FC<BookViewProps> = ({
   onElementHover,
   onElementSelect,
   selectedElement,
-  hoveredElement
+  hoveredElement,
+  currentPart,
+  partTitle
 }) => {
   const formatElementLabel = (elementId: string): string => {
     // Convert technical IDs like "I.prop.17.proof" to readable labels like "Proposition XVII"
@@ -60,6 +64,12 @@ const BookView: React.FC<BookViewProps> = ({
         break;
       case 'prop':
         baseLabel = `Proposition ${romanNumber}`;
+        break;
+      case 'lemma':
+        baseLabel = `Lemma ${romanNumber}`;
+        break;
+      case 'post':
+        baseLabel = `Postulate ${romanNumber}`;
         break;
       default:
         baseLabel = `${type.charAt(0).toUpperCase() + type.slice(1)} ${romanNumber}`;
@@ -150,10 +160,12 @@ const BookView: React.FC<BookViewProps> = ({
     <div className="book-view">
       <div className="book-content">
         <div className="part-header">
-          <h1 className="part-title">Part I: Concerning God</h1>
+          <h1 className="part-title">Part {currentPart}: {partTitle}</h1>
         </div>
         {renderSection('Definitions', 'definition')}
         {renderSection('Axioms', 'axiom')}
+        {currentPart === 2 && renderSection('Lemmas', 'lemma')}
+        {currentPart === 2 && renderSection('Postulates', 'postulate')}
         {renderSection('Propositions', 'proposition')}
       </div>
     </div>

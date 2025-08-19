@@ -21,7 +21,7 @@ ethics:mentions a rdf:Property ;
     rdfs:comment "Mentions without formal citation" .
 
 # ============================================================================
-# LAYER 2: SEMANTIC RELATIONSHIP TYPES  
+# LAYER 2: SEMANTIC RELATIONSHIP TYPES
 # The logical manner of connection
 # ============================================================================
 
@@ -35,7 +35,7 @@ ethics:evidentFrom a rdf:Property ;
 ethics:necessarilyFollows a rdf:Property ;
     rdfs:comment "necessarily follows from" .
 
-# Proof relationships  
+# Proof relationships
 ethics:provedBy a rdf:Property ;
     rdfs:comment "Demonstrated by formal proof" .
 
@@ -74,7 +74,7 @@ ethics:contradicts a rdf:Property ;
 ethics:Part a rdfs:Class .
 ethics:Section a rdfs:Class .
 ethics:Definition a rdfs:Class .
-ethics:Axiom a rdfs:Class .  
+ethics:Axiom a rdfs:Class .
 ethics:Proposition a rdfs:Class .
 ethics:Proof a rdfs:Class .
 ethics:Corollary a rdfs:Class .
@@ -83,7 +83,7 @@ ethics:Appendix a rdfs:Class .
 ethics:Footnote a rdfs:Class .
 ethics:Explanation a rdfs:Class .
 
-# Hierarchy predicates  
+# Hierarchy predicates
 ethics:partOf a rdf:Property ;
     rdfs:comment "X is part of Y (hierarchical containment)" .
 
@@ -158,14 +158,35 @@ ethics:precedesInOrder a rdf:Property ;
 ethics:I
     ethics:containsSection ethics:I.definitions, ethics:I.axioms, ethics:I.propositions, ethics:I.appendix .
 
-ethics:I.definitions 
+ethics:II
+    ethics:containsSection ethics:II.definitions, ethics:II.axioms, ethics:II.propositions, ethics:II.physical_axioms, ethics:II.lemmas, ethics:II.postulates .
+
+ethics:I.definitions
     ethics:containsElement ethics:I.def.1, ethics:I.def.2, ethics:I.def.3, ethics:I.def.4, ethics:I.def.5, ethics:I.def.6, ethics:I.def.7, ethics:I.def.8 .
+
+ethics:II.definitions
+    ethics:containsElement ethics:II.def.1, ethics:II.def.2, ethics:II.def.3, ethics:II.def.4, ethics:II.def.5, ethics:II.def.6, ethics:II.def.7 .
 
 ethics:I.axioms
     ethics:containsElement ethics:I.ax.1, ethics:I.ax.2, ethics:I.ax.3, ethics:I.ax.4, ethics:I.ax.5, ethics:I.ax.6, ethics:I.ax.7 .
 
+ethics:II.axioms
+    ethics:containsElement ethics:II.ax.1, ethics:II.ax.2, ethics:II.ax.3, ethics:II.ax.4, ethics:II.ax.5 .
+
 ethics:I.propositions
     ethics:containsElement ethics:I.prop.1, ethics:I.prop.2, ethics:I.prop.3, ethics:I.prop.4, ethics:I.prop.5, ethics:I.prop.6, ethics:I.prop.7, ethics:I.prop.8, ethics:I.prop.9, ethics:I.prop.10, ethics:I.prop.11, ethics:I.prop.12, ethics:I.prop.13, ethics:I.prop.14, ethics:I.prop.15, ethics:I.prop.16, ethics:I.prop.17, ethics:I.prop.18, ethics:I.prop.19, ethics:I.prop.20, ethics:I.prop.21, ethics:I.prop.22, ethics:I.prop.23, ethics:I.prop.24, ethics:I.prop.25, ethics:I.prop.26, ethics:I.prop.27, ethics:I.prop.28, ethics:I.prop.29, ethics:I.prop.30, ethics:I.prop.31, ethics:I.prop.32, ethics:I.prop.33, ethics:I.prop.34, ethics:I.prop.35, ethics:I.prop.36 .
+
+ethics:II.propositions
+    ethics:containsElement ethics:II.prop.1, ethics:II.prop.2, ethics:II.prop.3, ethics:II.prop.4, ethics:II.prop.5, ethics:II.prop.6, ethics:II.prop.7, ethics:II.prop.8, ethics:II.prop.9, ethics:II.prop.10, ethics:II.prop.11, ethics:II.prop.12, ethics:II.prop.13, ethics:II.prop.14, ethics:II.prop.15, ethics:II.prop.16, ethics:II.prop.17, ethics:II.prop.18, ethics:II.prop.19, ethics:II.prop.20, ethics:II.prop.21, ethics:II.prop.22, ethics:II.prop.23, ethics:II.prop.24, ethics:II.prop.25, ethics:II.prop.26, ethics:II.prop.27, ethics:II.prop.28, ethics:II.prop.29, ethics:II.prop.30, ethics:II.prop.31, ethics:II.prop.32, ethics:II.prop.33, ethics:II.prop.34, ethics:II.prop.35, ethics:II.prop.36, ethics:II.prop.37, ethics:II.prop.38, ethics:II.prop.39, ethics:II.prop.40, ethics:II.prop.41, ethics:II.prop.42, ethics:II.prop.43, ethics:II.prop.44, ethics:II.prop.45, ethics:II.prop.46, ethics:II.prop.47, ethics:II.prop.48, ethics:II.prop.49 .
+
+ethics:II.physical_axioms
+    ethics:containsElement ethics:II.phys_ax.1, ethics:II.phys_ax.2 .
+
+ethics:II.lemmas
+    ethics:containsElement ethics:II.lemma.1, ethics:II.lemma.2, ethics:II.lemma.3, ethics:II.lemma.4, ethics:II.lemma.5, ethics:II.lemma.6, ethics:II.lemma.7 .
+
+ethics:II.postulates
+    ethics:containsElement ethics:II.post.1, ethics:II.post.2, ethics:II.post.3, ethics:II.post.4, ethics:II.post.5, ethics:II.post.6 .
 
 ethics:I.appendix
     ethics:containsElement ethics:I.appendix.introduction, ethics:I.appendix.teleological, ethics:I.appendix.good_and_bad .
@@ -178,7 +199,7 @@ ethics:I.appendix
 # Uncomment when using an N3 reasoner like EYE or cwm
 
 # Transitivity rules
-# { ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z } 
+# { ?x ethics:clearlyfollowsFrom ?y . ?y ethics:clearlyfollowsFrom ?z }
 #     => { ?x ethics:transitivelyDependsOn ?z } .
 
 # { ?x ethics:necessarilyFollows ?y . ?y ethics:necessarilyFollows ?z }
@@ -200,7 +221,7 @@ ethics:I.appendix
 # PART I STRUCTURAL DEFINITIONS
 # ============================================================================
 
-# Part I 
+# Part I
 ethics:I a ethics:Part ;
     ethics:partNumber 1 ;
     rdfs:label "Concerning God" .
@@ -359,7 +380,7 @@ ethics:I.prop.6 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 6 .
 
-# PROPOSITION VII - "Existence belongs to the nature of substance"  
+# PROPOSITION VII - "Existence belongs to the nature of substance"
 ethics:I.prop.7 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
@@ -409,7 +430,7 @@ ethics:I.prop.9 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 9 .
 
-# PROPOSITION X - "Each particular attribute of substance must be conceived through itself"  
+# PROPOSITION X - "Each particular attribute of substance must be conceived through itself"
 ethics:I.prop.10 a ethics:Proposition ;
     ethics:partOf ethics:I.propositions ;
     ethics:isProposition true ;
@@ -438,7 +459,7 @@ ethics:I.prop.11.proof2 a ethics:Proof ;
     ethics:partOf ethics:I.prop.11 ;
     ethics:isProof true ;
     ethics:proofOf ethics:I.prop.11 ;
-    # Physical references  
+    # Physical references
     ethics:cites ethics:I.ax.1, ethics:I.prop.7, ethics:I.def.6 ;
     # Semantic relationships
     ethics:groundedIn ethics:I.ax.1 ;

@@ -4,7 +4,7 @@ import './ReasoningPanel.css';
 
 interface SpinozaElement {
   id: string;
-  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note';
+  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note' | 'lemma' | 'postulate' | 'explanation';
   number?: string;
   text: string;
   parentId?: string;
@@ -26,6 +26,7 @@ interface ReasoningPanelProps {
   n3Store: Store;
   onNavigateToElement: (elementId: string) => void;
   onClose: () => void;
+  currentPart: number;
 }
 
 const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
@@ -36,7 +37,8 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   weightAnalysis,
   n3Store,
   onNavigateToElement,
-  onClose
+  onClose,
+  currentPart
 }) => {
   if (!selectedElement || !element) return null;
 
@@ -53,11 +55,17 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
     return `${firstTwoSentences}${firstTwoSentences.endsWith('.') ? '' : '.'} ...`;
   };
 
-  const formatElementLabel = (elementId: string): string => {
+  const isCrossPartReference = (elementId: string): boolean => {
+    const elementPart = elementId.startsWith('I.') ? 1 : elementId.startsWith('II.') ? 2 : currentPart;
+    return elementPart !== currentPart;
+  };
+
+  const formatElementLabel = (elementId: string, showPart: boolean = false): string => {
     // Convert technical IDs like "I.prop.17.proof" to readable labels like "Proposition XVII" 
     const parts = elementId.split('.');
     
     if (parts.length < 2) return elementId;
+    const partNumber = parts[0]; // "I", "II"
     const type = parts[1]; // "def", "ax", "prop"
     const number = parts[2]; // "17"
     const subElement = parts[3]; // "proof", "corollary", "note"
@@ -90,9 +98,18 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
       case 'prop':
         baseLabel = `Proposition ${romanNumber}`;
         break;
+      case 'lemma':
+        baseLabel = `Lemma ${romanNumber}`;
+        break;
+      case 'post':
+        baseLabel = `Postulate ${romanNumber}`;
+        break;
       default:
         baseLabel = `${type.charAt(0).toUpperCase() + type.slice(1)} ${romanNumber}`;
     }
+    
+    // Add part prefix if requested or if cross-part reference
+    const partPrefix = showPart ? `Part ${partNumber}: ` : '';
     
     // Add sub-element if present
     if (subElement) {
@@ -102,10 +119,10 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
                       subElement === 'explanation' ? 'Explanation' :
                       subElement.charAt(0).toUpperCase() + subElement.slice(1);
       
-      return `${baseLabel} ${subLabel}`;
+      return `${partPrefix}${baseLabel} ${subLabel}`;
     }
     
-    return baseLabel;
+    return `${partPrefix}${baseLabel}`;
   };
 
   const groupReasoningByPredicate = (reasoning: Reasoning[]) => {
@@ -216,21 +233,21 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
                           <span className="current-element">{formatElementLabel(relation.subject)}</span>
                           <span className="arrow">→</span>
                           <span 
-                            className="related-element clickable" 
+                            className={`related-element clickable ${isCrossPartReference(relation.object) ? 'cross-part' : ''}`}
                             onClick={() => onNavigateToElement(relation.object)}
-                            title={`Navigate to ${formatElementLabel(relation.object)}`}
+                            title={`Navigate to ${formatElementLabel(relation.object, isCrossPartReference(relation.object))}`}
                           >
-                            {formatElementLabel(relation.object)}
+                            {formatElementLabel(relation.object, isCrossPartReference(relation.object))}
                           </span>
                         </div>
                       ) : (
                         <div className="relationship-flow">
                           <span 
-                            className="related-element clickable" 
+                            className={`related-element clickable ${isCrossPartReference(relation.subject) ? 'cross-part' : ''}`}
                             onClick={() => onNavigateToElement(relation.subject)}
-                            title={`Navigate to ${formatElementLabel(relation.subject)}`}
+                            title={`Navigate to ${formatElementLabel(relation.subject, isCrossPartReference(relation.subject))}`}
                           >
-                            {formatElementLabel(relation.subject)}
+                            {formatElementLabel(relation.subject, isCrossPartReference(relation.subject))}
                           </span>
                           <span className="arrow">→</span>
                           <span className="current-element">{formatElementLabel(relation.object)}</span>
@@ -262,22 +279,22 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
                 {chain.path.map((step: any, stepIndex: number) => (
                   <div key={stepIndex} className="chain-step">
                     <span 
-                      className="step-element clickable" 
+                      className={`step-element clickable ${isCrossPartReference(step.from) ? 'cross-part' : ''}`}
                       onClick={() => onNavigateToElement(step.from)}
-                      title={`Navigate to ${formatElementLabel(step.from)}`}
+                      title={`Navigate to ${formatElementLabel(step.from, isCrossPartReference(step.from))}`}
                     >
-                      {formatElementLabel(step.from)}
+                      {formatElementLabel(step.from, isCrossPartReference(step.from))}
                     </span>
                     <span className="step-arrow">→</span>
                     <span className="step-relationship">{step.relationship}</span>
                     <span className="step-arrow">→</span>
                     {stepIndex === chain.path.length - 1 && (
                       <span 
-                        className="step-element final clickable" 
+                        className={`step-element final clickable ${isCrossPartReference(step.to) ? 'cross-part' : ''}`}
                         onClick={() => onNavigateToElement(step.to)}
-                        title={`Navigate to ${formatElementLabel(step.to)}`}
+                        title={`Navigate to ${formatElementLabel(step.to, isCrossPartReference(step.to))}`}
                       >
-                        {formatElementLabel(step.to)}
+                        {formatElementLabel(step.to, isCrossPartReference(step.to))}
                       </span>
                     )}
                   </div>

@@ -506,6 +506,42 @@
   }
 }
 
+/* Cross-part reference styling */
+.related-element.cross-part,
+.step-element.cross-part {
+  border: 2px solid #e67e22;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffeaa7 100%);
+  color: #d35400;
+  font-weight: 600;
+  position: relative;
+}
+
+.related-element.cross-part::before,
+.step-element.cross-part::before {
+  content: "📖";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  font-size: 0.7rem;
+  background: #e67e22;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.related-element.cross-part:hover,
+.step-element.cross-part:hover {
+  background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  border-color: #d35400;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(211, 84, 0, 0.3);
+}
+
 @media (max-width: 768px) {
   .reasoning-panel {
     width: 100%;

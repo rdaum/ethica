@@ -8,7 +8,7 @@ import './App.css';
 
 interface SpinozaElement {
   id: string;
-  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note';
+  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note' | 'lemma' | 'postulate' | 'explanation';
   number?: string;
   text: string;
   parentId?: string;
@@ -24,6 +24,7 @@ interface AppState {
   transitiveChains: any[];
   weightAnalysis: any | null;
   loading: boolean;
+  currentPart: number;
 }
 
 const App: React.FC = () => {
@@ -36,12 +37,13 @@ const App: React.FC = () => {
     reasoning: [],
     transitiveChains: [],
     weightAnalysis: null,
-    loading: true
+    loading: true,
+    currentPart: 1
   });
 
   useEffect(() => {
     loadData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.currentPart]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     try {
@@ -49,7 +51,7 @@ const App: React.FC = () => {
 
       // Load and parse XML
       const basePath = process.env.PUBLIC_URL || '.';
-      const xmlResponse = await fetch(`${basePath}/ethica_1.xml`);
+      const xmlResponse = await fetch(`${basePath}/ethica_${state.currentPart}.xml`);
       const xmlText = await xmlResponse.text();
       const elements = parseXML(xmlText);
 
@@ -122,6 +124,21 @@ const App: React.FC = () => {
               text: def.text
             });
           }
+          
+          // Handle explanations for definitions
+          if (def.explanation) {
+            const explanations = Array.isArray(def.explanation) ? def.explanation : [def.explanation];
+            explanations.forEach((exp: any) => {
+              if (exp['@_id'] && exp.text) {
+                elements.set(exp['@_id'], {
+                  id: exp['@_id'],
+                  type: 'explanation',
+                  text: exp.text,
+                  parentId: def['@_id']
+                });
+              }
+            });
+          }
         });
       }
       
@@ -134,6 +151,64 @@ const App: React.FC = () => {
               type: 'axiom',
               number: axiom['@_number'],
               text: axiom.text
+            });
+          }
+        });
+      }
+      
+      if (section['@_type'] === 'lemmas' && section.lemma) {
+        const lemmas = Array.isArray(section.lemma) ? section.lemma : [section.lemma];
+        lemmas.forEach((lemma: any) => {
+          if (lemma['@_id'] && lemma.text) {
+            elements.set(lemma['@_id'], {
+              id: lemma['@_id'],
+              type: 'lemma',
+              number: lemma['@_number'],
+              text: lemma.text
+            });
+
+            // Parse proofs for lemmas
+            if (lemma.proof) {
+              const proofs = Array.isArray(lemma.proof) ? lemma.proof : [lemma.proof];
+              proofs.forEach((proof: any) => {
+                if (proof['@_id'] && proof.text) {
+                  elements.set(proof['@_id'], {
+                    id: proof['@_id'],
+                    type: 'proof',
+                    text: proof.text,
+                    parentId: lemma['@_id']
+                  });
+                }
+              });
+            }
+
+            // Parse corollaries for lemmas
+            if (lemma.corollary) {
+              const corollaries = Array.isArray(lemma.corollary) ? lemma.corollary : [lemma.corollary];
+              corollaries.forEach((cor: any) => {
+                if (cor['@_id'] && cor.text) {
+                  elements.set(cor['@_id'], {
+                    id: cor['@_id'],
+                    type: 'corollary',
+                    text: cor.text,
+                    parentId: lemma['@_id']
+                  });
+                }
+              });
+            }
+          }
+        });
+      }
+      
+      if (section['@_type'] === 'postulates' && section.postulate) {
+        const postulates = Array.isArray(section.postulate) ? section.postulate : [section.postulate];
+        postulates.forEach((postulate: any) => {
+          if (postulate['@_id'] && postulate.text) {
+            elements.set(postulate['@_id'], {
+              id: postulate['@_id'],
+              type: 'postulate',
+              number: postulate['@_number'],
+              text: postulate.text
             });
           }
         });
@@ -238,23 +313,72 @@ const App: React.FC = () => {
   };
 
   const handleNavigateToElement = (elementId: string) => {
-    // Scroll to the element in the book view
-    const element = document.querySelector(`[data-element-id="${elementId}"]`);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center',
-        inline: 'nearest'
-      });
+    console.log(`Navigation requested for element: ${elementId}`);
+    // Determine which part this element belongs to
+    const elementPart = elementId.startsWith('I.') ? 1 : elementId.startsWith('II.') ? 2 : state.currentPart;
+    console.log(`Element belongs to part ${elementPart}, currently viewing part ${state.currentPart}`);
+    
+    // If element is in a different part, switch to that part first
+    if (elementPart !== state.currentPart) {
+      console.log(`Switching from Part ${state.currentPart} to Part ${elementPart} to navigate to ${elementId}`);
+      setState(prev => ({ 
+        ...prev, 
+        currentPart: elementPart,
+        selectedElement: null,
+        hoveredElement: null,
+        reasoning: [],
+        transitiveChains: [],
+        weightAnalysis: null
+      }));
       
-      // Temporarily highlight the element
-      element.classList.add('navigation-highlight');
-      setTimeout(() => {
-        element.classList.remove('navigation-highlight');
-      }, 2000);
+      // Wait for the new part to load, then navigate
+      const attemptNavigation = (attempts: number = 0) => {
+        const element = document.querySelector(`[data-element-id="${elementId}"]`);
+        if (element) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+          
+          // Temporarily highlight the element
+          element.classList.add('navigation-highlight');
+          setTimeout(() => {
+            element.classList.remove('navigation-highlight');
+          }, 2000);
+          
+          // Also select it for the reasoning panel
+          handleElementSelect(elementId);
+        } else if (attempts < 10) {
+          // Retry up to 10 times with increasing delays
+          setTimeout(() => attemptNavigation(attempts + 1), 50 * (attempts + 1));
+        } else {
+          console.warn(`Element ${elementId} not found after part switch and ${attempts} attempts`);
+        }
+      };
       
-      // Also select it for the reasoning panel
-      handleElementSelect(elementId);
+      setTimeout(() => attemptNavigation(), 100);
+    } else {
+      // Element is in current part, navigate directly
+      const element = document.querySelector(`[data-element-id="${elementId}"]`);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Temporarily highlight the element
+        element.classList.add('navigation-highlight');
+        setTimeout(() => {
+          element.classList.remove('navigation-highlight');
+        }, 2000);
+        
+        // Also select it for the reasoning panel
+        handleElementSelect(elementId);
+      } else {
+        console.warn(`Element ${elementId} not found in current part ${state.currentPart}`);
+      }
     }
   };
 
@@ -680,6 +804,26 @@ const App: React.FC = () => {
     }
   };
 
+  const handlePartChange = (partNumber: number) => {
+    setState(prev => ({ 
+      ...prev, 
+      currentPart: partNumber,
+      selectedElement: null,
+      hoveredElement: null,
+      reasoning: [],
+      transitiveChains: [],
+      weightAnalysis: null
+    }));
+  };
+
+  const getPartTitle = (partNumber: number): string => {
+    switch (partNumber) {
+      case 1: return "CONCERNING GOD";
+      case 2: return "ON THE NATURE AND ORIGIN OF THE MIND";
+      default: return `PART ${partNumber}`;
+    }
+  };
+
   if (state.loading) {
     return (
       <div className="app loading">
@@ -705,6 +849,23 @@ const App: React.FC = () => {
           <div className="title-section">
             <h1>The Ethics</h1>
             <p className="subtitle">by Baruch Spinoza</p>
+            <div className="part-selector">
+              <h2>Part {state.currentPart}: {getPartTitle(state.currentPart)}</h2>
+              <div className="part-buttons">
+                <button 
+                  className={`part-button ${state.currentPart === 1 ? 'active' : ''}`}
+                  onClick={() => handlePartChange(1)}
+                >
+                  Part I
+                </button>
+                <button 
+                  className={`part-button ${state.currentPart === 2 ? 'active' : ''}`}
+                  onClick={() => handlePartChange(2)}
+                >
+                  Part II
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div className="translation-info">
@@ -729,6 +890,8 @@ const App: React.FC = () => {
           onElementSelect={handleElementSelect}
           selectedElement={state.selectedElement}
           hoveredElement={state.hoveredElement}
+          currentPart={state.currentPart}
+          partTitle={getPartTitle(state.currentPart)}
         />
         
         {(state.selectedElement || state.reasoning.length > 0) && (
@@ -741,6 +904,7 @@ const App: React.FC = () => {
             n3Store={state.n3Store}
             onNavigateToElement={handleNavigateToElement}
             onClose={() => handleElementSelect(null)}
+            currentPart={state.currentPart}
           />
         )}
       </main>

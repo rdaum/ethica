@@ -186,6 +186,18 @@ ethics:I.propositions
 ethics:I.appendix
     ethics:containsElement ethics:I.appendix.introduction, ethics:I.appendix.teleological, ethics:I.appendix.good_and_bad .
 
+ethics:II
+    ethics:containsSection ethics:II.definitions, ethics:II.axioms, ethics:II.propositions .
+
+ethics:II.definitions
+    ethics:containsElement ethics:II.def.1, ethics:II.def.2, ethics:II.def.3, ethics:II.def.4, ethics:II.def.5, ethics:II.def.6, ethics:II.def.7 .
+
+ethics:II.axioms
+    ethics:containsElement ethics:II.ax.1, ethics:II.ax.2, ethics:II.ax.3, ethics:II.ax.4, ethics:II.ax.5 .
+
+ethics:II.propositions
+    ethics:containsElement ethics:II.prop.1, ethics:II.prop.2, ethics:II.prop.3, ethics:II.prop.7, ethics:II.prop.11, ethics:II.prop.13 .
+
 # ============================================================================
 # SAMPLE INFERENCE RULES (N3 Logic - commented for N3.js compatibility)
 # ============================================================================
@@ -251,6 +263,11 @@ ethics:I a ethics:Part ;
     ethics:partNumber 1 ;
     rdfs:label "Concerning God" .
 
+# Part II
+ethics:II a ethics:Part ;
+    ethics:partNumber 2 ;
+    rdfs:label "On the Nature and Origin of the Mind" .
+
 # Sections
 ethics:I.definitions a ethics:Section ;
     ethics:partOf ethics:I ;
@@ -267,6 +284,19 @@ ethics:I.propositions a ethics:Section ;
 ethics:I.appendix a ethics:Appendix ;
     ethics:partOf ethics:I ;
     rdfs:label "Appendix" .
+
+# Part II Sections
+ethics:II.definitions a ethics:Section ;
+    ethics:partOf ethics:II ;
+    rdfs:label "Definitions" .
+
+ethics:II.axioms a ethics:Section ;
+    ethics:partOf ethics:II ;
+    rdfs:label "Axioms" .
+
+ethics:II.propositions a ethics:Section ;
+    ethics:partOf ethics:II ;
+    rdfs:label "Propositions" .
 
 # Definitions - with hierarchy and classification
 ethics:I.def.1 a ethics:Definition ;
@@ -1229,3 +1259,130 @@ ethics:I.def.5.fn1 a ethics:Note ;
     ethics:isNote true ;
     ethics:noteOn ethics:I.def.5 ;
     ethics:isFootnote true .
+
+# ============================================================================
+# PART II STRUCTURAL DEFINITIONS
+# ============================================================================
+
+# Part II Definitions - with hierarchy and classification
+ethics:II.def.1 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 1 .
+
+ethics:II.def.2 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 2 .
+
+ethics:II.def.3 a ethics:Definition ;
+    ethics:partOf ethics:II.definitions ;
+    ethics:isDefinition true ;
+    ethics:partNumber 2 ;
+    ethics:number 3 .
+
+# Part II Axioms - with hierarchy and classification
+ethics:II.ax.1 a ethics:Axiom ;
+    ethics:partOf ethics:II.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 2 ;
+    ethics:number 1 .
+
+ethics:II.ax.2 a ethics:Axiom ;
+    ethics:partOf ethics:II.axioms ;
+    ethics:isAxiom true ;
+    ethics:partNumber 2 ;
+    ethics:number 2 .
+
+# Part II Propositions with key relationships
+ethics:II.prop.1 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 1 ;
+    # Citations to Part I
+    ethics:cites ethics:I.prop.25.corollary, ethics:I.def.5, ethics:I.def.6 ;
+    # Semantic relationships
+    ethics:groundedIn ethics:I.prop.25.corollary ;
+    ethics:demonstratedBy ethics:I.def.5, ethics:I.def.6 .
+
+ethics:II.prop.7 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 7 ;
+    # Citations to Part I
+    ethics:cites ethics:I.ax.4 ;
+    # Semantic relationships
+    ethics:evidentFrom ethics:I.ax.4 .
+
+ethics:II.prop.13 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 13 ;
+    # Citations show dependencies on earlier Part II propositions and Part I
+    ethics:cites ethics:II.prop.9.corollary, ethics:II.prop.11.corollary, ethics:II.ax.4, ethics:I.prop.36 ;
+    # Cross-part dependencies
+    ethics:buildsUpon ethics:II.prop.11 ;
+    ethics:groundedIn ethics:I.prop.36 .
+
+# Additional cross-part relationships from Part II to Part I
+ethics:II.prop.11.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.11 ;
+    ethics:proofOf ethics:II.prop.11 ;
+    ethics:cites ethics:I.prop.21, ethics:I.prop.22, ethics:I.prop.36 ;
+    ethics:appliesResultFrom ethics:I.prop.21, ethics:I.prop.22 ;
+    ethics:groundedIn ethics:I.prop.36 .
+
+ethics:II.prop.12.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.12 ;
+    ethics:proofOf ethics:II.prop.12 ;
+    ethics:cites ethics:I.prop.36 ;
+    ethics:appliesResultFrom ethics:I.prop.36 .
+
+ethics:II.prop.13.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.13 ;
+    ethics:proofOf ethics:II.prop.13 ;
+    ethics:cites ethics:I.prop.15 ;
+    ethics:appliesResultFrom ethics:I.prop.15 .
+
+ethics:II.prop.10.proof a ethics:Proof ;
+    ethics:partOf ethics:II.prop.10 ;
+    ethics:proofOf ethics:II.prop.10 ;
+    ethics:cites ethics:I.prop.28 ;
+    ethics:appliesResultFrom ethics:I.prop.28 .
+
+# Cross-part foundational dependencies
+ethics:II.def.1 ethics:buildsUpon ethics:I.def.3, ethics:I.def.6 .
+ethics:II.def.2 ethics:buildsUpon ethics:I.def.2 .
+ethics:II.ax.1 ethics:buildsUpon ethics:I.prop.7 .
+
+# Additional Part II detailed relationships
+ethics:II.prop.3 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 3 ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.35, ethics:I.prop.15 ;
+    ethics:necessarilyFollows ethics:I.prop.35 ;
+    ethics:groundedIn ethics:I.prop.16, ethics:I.prop.15 .
+
+ethics:II.prop.7 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 7 ;
+    ethics:cites ethics:I.ax.4 ;
+    ethics:evidentFrom ethics:I.ax.4 .
+
+ethics:II.prop.11 a ethics:Proposition ;
+    ethics:partOf ethics:II.propositions ;
+    ethics:isProposition true ;
+    ethics:partNumber 2 ;
+    ethics:number 11 ;
+    ethics:cites ethics:II.ax.2, ethics:II.ax.3, ethics:I.prop.21, ethics:I.prop.22, ethics:II.ax.1 ;
+    ethics:appliesResultFrom ethics:I.prop.21, ethics:I.prop.22 ;
+    ethics:necessarilyFollows ethics:II.ax.2, ethics:II.ax.3 .

@@ -97,6 +97,50 @@ body {
   font-style: italic;
 }
 
+.part-selector {
+  margin-top: 0.75rem;
+}
+
+.part-selector h2 {
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin: 0 0 0.5rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.part-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.part-button {
+  padding: 0.4rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.part-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.part-button.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #2c3e50;
+  border-color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
 
 .translation-info {
   margin-top: 0.75rem;
