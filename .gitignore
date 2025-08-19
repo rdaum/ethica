@@ -4,6 +4,7 @@ node_modules/
 .pnp.js
 
 # React app build output
+build/
 spinoza-reader/build/
 spinoza-reader/node_modules/
 

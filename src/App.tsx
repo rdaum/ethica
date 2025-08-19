@@ -56,25 +56,36 @@ const App: React.FC = () => {
       const elements = parseXML(xmlText);
 
       // Load and parse N3 data (use original file since N3.js can't parse reasoning rules)
+      console.log(`Loading N3 logic from: ${basePath}/ethica-logic.n3`);
       const n3Response = await fetch(`${basePath}/ethica-logic.n3`);
+      console.log(`N3 logic response status: ${n3Response.status}`);
       const n3Content = await n3Response.text();
+      console.log(`N3 logic content length: ${n3Content.length} characters`);
       const n3Store = await parseN3(n3Content);
+      console.log(`N3 store created with ${n3Store.size} triples`);
 
       // Load the EYE-js rules file and perform reasoning
       let eyeStore = new Store();
       
       try {
         // Load the file with active reasoning rules for EYE-js
+        console.log(`Loading EYE reasoning from: ${basePath}/ethica-logic-eye.n3`);
         const eyeResponse = await fetch(`${basePath}/ethica-logic-eye.n3`);
+        console.log(`EYE response status: ${eyeResponse.status}`);
         const eyeContent = await eyeResponse.text();
+        console.log(`EYE content length: ${eyeContent.length} characters`);
         
         const reasoningResults = await n3reasoner(eyeContent, undefined, {
           output: 'derivations',
           outputType: 'string'
         });
         
+        console.log(`EYE reasoning results length: ${reasoningResults.length} characters`);
         if (reasoningResults.trim()) {
           eyeStore = await parseN3(reasoningResults);
+          console.log(`EYE store created with ${eyeStore.size} triples`);
+        } else {
+          console.warn('EYE reasoning returned empty results');
         }
         
       } catch (error) {
