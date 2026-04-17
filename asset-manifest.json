@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/ethica/static/css/main.859d7c67.css",
-    "main.js": "/ethica/static/js/main.29625788.js",
+    "main.css": "/ethica/static/css/main.9cf35bc6.css",
+    "main.js": "/ethica/static/js/main.74add01f.js",
     "static/js/447.78046d2e.chunk.js": "/ethica/static/js/447.78046d2e.chunk.js",
     "static/js/453.d6407f5e.chunk.js": "/ethica/static/js/453.d6407f5e.chunk.js",
     "static/js/915.a7e48e50.chunk.js": "/ethica/static/js/915.a7e48e50.chunk.js",
     "index.html": "/ethica/index.html",
-    "main.859d7c67.css.map": "/ethica/static/css/main.859d7c67.css.map",
-    "main.29625788.js.map": "/ethica/static/js/main.29625788.js.map",
+    "main.9cf35bc6.css.map": "/ethica/static/css/main.9cf35bc6.css.map",
+    "main.74add01f.js.map": "/ethica/static/js/main.74add01f.js.map",
     "453.d6407f5e.chunk.js.map": "/ethica/static/js/453.d6407f5e.chunk.js.map",
     "915.a7e48e50.chunk.js.map": "/ethica/static/js/915.a7e48e50.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.859d7c67.css",
-    "static/js/main.29625788.js"
+    "static/css/main.9cf35bc6.css",
+    "static/js/main.74add01f.js"
   ]
 }
