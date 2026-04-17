@@ -49,11 +49,14 @@ src/
 │   ├── ethica.test.ts            # Parser-focused tests
 │   ├── readerGraph.ts            # Supplemental graph generation from parsed text
 │   └── readerGraph.test.ts       # Supplemental graph tests
-├── scripts/
-│   └── generate-corpus.mjs       # Regenerates Parts III-V XML and the explicit graph
 └── components/
     ├── BookView.tsx              # Main reading surface
     └── ReasoningPanel.tsx        # Logical analysis panel
+```
+
+```text
+scripts/
+└── generate-corpus.mjs           # Regenerates Parts I-V XML and the explicit graph
 ```
 
 ```text
@@ -100,7 +103,7 @@ The canonical graph files are regenerated from the corpus, so the XML and N3 lay
 What is in relatively good shape:
 
 - Parts I-V render in reading order
-- Parts III-V are generated into XML from `ethica.txt`
+- Parts I-V are generated into XML from `ethica.txt`
 - the explicit graph is regenerated from the corpus instead of being maintained only as ad hoc hand-edited triples
 - build, tests, and TypeScript checks pass
 - the main bundle is much smaller than before due to lazy loading of inference work
@@ -108,7 +111,6 @@ What is in relatively good shape:
 
 What is still incomplete:
 
-- the XML pipeline for Parts I-II is still partly inherited from older handcrafted files, while Parts III-V are generated from `ethica.txt`
 - the graph is much more coherent, but it is still a reader-oriented reference graph rather than a full scholarly critical apparatus
 - inference remains useful but is not yet a polished scholarly model
 - there is not yet a dedicated editorial normalization pipeline for harmonizing every source-text edge case across all five parts
@@ -117,7 +119,6 @@ What is still incomplete:
 
 The highest-value next steps are:
 
-- unify Parts I-II into the same reproducible corpus pipeline used for Parts III-V
 - improve passage-level metadata and editorial annotations
 - add better tests around navigation and analysis behavior
 - consider replacing the aging CRA/CRACO stack with a more current frontend toolchain

@@ -70,11 +70,10 @@ Corollary—An emotion therefore becomes more under our control, and the mind is
     <prop id="V.prop.8" number="8">
       <text>An emotion is stronger in proportion to the number of simultaneous concurrent causes whereby it is aroused.</text>
       <proof id="V.prop.8.proof">
-        <text>Many simultaneous causes are more powerful than a few (III. vii.): therefore (IV. v.), in proportion to the increased number of simultaneous causes whereby it is aroused, an emotion becomes stronger. Q.E.D.</text>
+        <text>Many simultaneous causes are more powerful than a few (III. vii.): therefore (IV. v.), in proportion to the increased number of simultaneous causes whereby it is aroused, an emotion becomes stronger. Q.E.D.
+
+Note—This proposition is also evident from V. Ax. ii.</text>
       </proof>
-      <note id="V.prop.8.note">
-        <text>This proposition is also evident from V. Ax. ii.</text>
-      </note>
     </prop>
     <prop id="V.prop.9" number="9">
       <text>An emotion, which is attributable to many and diverse causes which the mind regards as simultaneous with the emotion itself, is less hurtful, and we are less subject thereto and less affected towards each of its causes, than if it were a different and equally powerful emotion attributable to fewer causes or to a single cause.</text>

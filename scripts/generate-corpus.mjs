@@ -9,6 +9,14 @@ const RAW_TEXT_PATH = path.join(ROOT, 'ethica.txt');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 
 const PARTS = {
+  I: {
+    number: 1,
+    title: 'CONCERNING GOD'
+  },
+  II: {
+    number: 2,
+    title: 'ON THE NATURE AND ORIGIN OF THE MIND'
+  },
   III: {
     number: 3,
     title: 'ON THE ORIGIN AND NATURE OF THE EMOTIONS'
@@ -38,7 +46,7 @@ const GENERATED_RULES = `
 
 const main = async () => {
   const rawText = fs.readFileSync(RAW_TEXT_PATH, 'utf8').replace(/\r\n/g, '\n');
-  const generatedParts = parsePartsIIItoV(rawText);
+  const generatedParts = parseAllParts(rawText);
 
   generatedParts.forEach(part => {
     const xml = renderPartXml(part);
@@ -53,25 +61,28 @@ const main = async () => {
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic.n3'), explicitGraph);
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic-eye.n3'), `${explicitGraph}\n\n${GENERATED_RULES}\n`);
 
-  console.log('Generated Parts III-V XML and regenerated graph data for Parts I-V.');
+  console.log('Generated Parts I-V XML and regenerated graph data for Parts I-V.');
 };
 
-const parsePartsIIItoV = rawText => {
-  const start = rawText.indexOf('PART III.');
-  const end = rawText.indexOf('End of the Ethics by Benedict de Spinoza');
-  const corpus = rawText.slice(start, end).trim();
-  const partMatches = [...corpus.matchAll(/^PART (III|IV|V)(?::|\.)?$/gm)];
+const parseAllParts = rawText => {
+  const partHeadingRegex = /^PART\s+(I|II|III|IV|V)[.:](?:\s+(.*))?$/gm;
+  const partStarts = [...rawText.matchAll(partHeadingRegex)].map(match => ({
+    numeral: match[1],
+    heading: match[0],
+    index: match.index,
+    inlineTitle: match[2]?.trim() || ''
+  }));
 
-  return partMatches.map((match, index) => {
-    const numeral = match[1];
-    const segmentStart = match.index;
-    const segmentEnd = index < partMatches.length - 1 ? partMatches[index + 1].index : corpus.length;
-    const segment = corpus.slice(segmentStart, segmentEnd).trim();
-    return parsePartSegment(numeral, segment);
+  const corpusEnd = rawText.indexOf('End of the Ethics by Benedict de Spinoza');
+
+  return partStarts.map((part, index) => {
+    const nextStart = index < partStarts.length - 1 ? partStarts[index + 1].index : corpusEnd;
+    const segment = rawText.slice(part.index, nextStart).trim();
+    return parsePartSegment(part.numeral, segment, part.inlineTitle);
   });
 };
 
-const parsePartSegment = (numeral, segment) => {
+const parsePartSegment = (numeral, segment, inlineTitle = '') => {
   const metadata = PARTS[numeral];
   const lines = segment.split('\n').map(line => line.trimEnd());
 
@@ -80,11 +91,35 @@ const parsePartSegment = (numeral, segment) => {
     lines.shift();
   }
 
-  const title = lines.shift()?.trim() || metadata.title;
+  let title = inlineTitle;
+  if (!title && lines.length && !isSectionHeading(lines[0] ?? '') && !/^PROP\.\s+[IVXLCDM]+\./.test(lines[0] ?? '')) {
+    title = lines.shift()?.trim() || '';
+  }
+  if (!title) {
+    title = metadata.title;
+  }
+
   while (lines.length && !lines[0].trim()) {
     lines.shift();
   }
   const sections = [];
+
+  if (numeral === 'II') {
+    if ((lines[0] ?? '').trim() === title) {
+      lines.shift();
+      while (lines.length && !lines[0].trim()) {
+        lines.shift();
+      }
+    }
+    if (normalizeHeading(lines[0] ?? '') === 'PREFACE') {
+      lines.shift();
+    }
+    sections.push({
+      type: 'preface',
+      id: `${numeral}.preface`,
+      text: paragraphsFromLines(collectUntilNextSection(lines, 'PREFACE')).join('\n\n')
+    });
+  }
 
   if (numeral === 'III') {
     const prefaceLines = collectUntilHeading(lines, 'DEFINITIONS', false);
@@ -155,7 +190,8 @@ const parseSection = (numeral, heading, lines) => {
       id: `${numeral}.definitions_of_emotions`,
       items: parseNumberedItems(numeral, 'affect', lines, {
         itemTag: 'def',
-        sectionType: 'definitions_of_emotions'
+        sectionType: 'definitions_of_emotions',
+        markerRegex: /^(?:DEFINITION\s+)?([IVXLCDM]+)\.\s*(.*)$/i
       })
     };
   }
@@ -166,7 +202,8 @@ const parseSection = (numeral, heading, lines) => {
       id: `${numeral}.definitions`,
       items: parseNumberedItems(numeral, 'def', lines, {
         itemTag: 'def',
-        sectionType: 'definitions'
+        sectionType: 'definitions',
+        markerRegex: /^(?:DEFINITION\s+)?([IVXLCDM]+)\.\s*(.*)$/i
       })
     };
   }
@@ -238,7 +275,10 @@ const parseAppendixSection = (numeral, lines) => {
 
 const parseNumberedItems = (numeral, prefix, lines, options) => {
   const paragraphs = paragraphsFromLines(lines);
-  const blocks = splitRomanBlocks(paragraphs, options.allowImplicitFirst);
+  const blocks = splitNumberedBlocks(paragraphs, {
+    markerRegex: options.markerRegex,
+    allowImplicitFirst: options.allowImplicitFirst
+  });
 
   return blocks.map((block, index) => {
     const number = block.number ? String(romanToNumber(block.number)) : String(index + 1);
@@ -363,10 +403,10 @@ const splitChildren = (paragraphs, parentId, sectionType, allowExplanation) => {
   };
 
   paragraphs.forEach(paragraph => {
-    const proofMatch = paragraph.match(/^(Proof|Another proof)\.—\s*(.*)$/i);
-    const corollaryMatch = paragraph.match(/^Corollary(?:\s+([IVXLCDM]+))?\.—\s*(.*)$/i);
-    const noteMatch = paragraph.match(/^Note(?:\s+([IVXLCDM]+))?\.?—\s*(.*)$/i);
-    const explanationMatch = paragraph.match(/^Explanation—\s*(.*)$/i);
+    const proofMatch = paragraph.match(/^(Proof|Another proof)\.(?:—|-)?\s*(.*)$/i);
+    const corollaryMatch = paragraph.match(/^Corollary(?:\s+([IVXLCDM]+))?\.(?:—|-)?\s*(.*)$/i);
+    const noteMatch = paragraph.match(/^Note(?:\s+([IVXLCDM]+))?\.(?:—|-)?\s*(.*)$/i);
+    const explanationMatch = paragraph.match(/^Explanation\.(?:—|-)?\s*(.*)$/i) || paragraph.match(/^Explanation(?:—|-)\s*(.*)$/i);
     const nbMatch = paragraph.match(/^N\.B\.\s*(.*)$/i);
 
     if (proofMatch) {
@@ -457,11 +497,20 @@ const paragraphsFromLines = lines => {
 };
 
 const splitRomanBlocks = (paragraphs, allowImplicitFirst = false) => {
+  return splitNumberedBlocks(paragraphs, {
+    markerRegex: /^([IVXLCDM]+)\.\s*(.*)$/i,
+    allowImplicitFirst
+  });
+};
+
+const splitNumberedBlocks = (paragraphs, options = {}) => {
   const blocks = [];
   let current = null;
+  const markerRegex = options.markerRegex ?? /^([IVXLCDM]+)\.\s*(.*)$/i;
+  const allowImplicitFirst = options.allowImplicitFirst ?? false;
 
   paragraphs.forEach((paragraph, index) => {
-    const match = paragraph.match(/^([IVXLCDM]+)\.\s*(.*)$/);
+    const match = paragraph.match(markerRegex);
 
     if (match) {
       if (current) {
