@@ -1,148 +1,120 @@
-# Spinoza's Ethics - Interactive Reader
+# Ethica
 
-A React application for exploring Spinoza's *Ethics* using computational reasoning and knowledge graphs. Uses EYE-js for automated logical inference and N3.js for semantic querying.
+An interactive reader for Spinoza's *Ethics* built in React and TypeScript.
 
-🌐 **[Live Application](https://rdaum.github.io/ethica/)**
+The project combines:
 
-## Features
+- structured XML editions of the text
+- an explicit N3 graph of logical relationships
+- EYE-based inferred relationships
+- a reader UI designed for navigation, cross-reference tracing, and close reading
 
-### Reading Interface
-- Attractive reader interface
-- Structured navigation through definitions, axioms, and propositions
-- Interactive elements with hover and click functionality
-- Spinoza's signet ring in header design
+Live site: [rdaum.github.io/ethica](https://rdaum.github.io/ethica/)
 
-### Computational Analysis
-- EYE-js integration for automated logical inference
-- N3.js for RDF/N3 data querying
-- Hybrid architecture combining data storage with reasoning
-- Distinction between original and inferred relationships
+## What It Does
 
-### Logical Analysis Tools
-- Weight analysis showing foundational scores and influence metrics
-- Dependency mapping with relationship breakdowns
-- Cross-navigation between text and analysis panel
-- Transitive chain discovery
+The reader currently supports Parts I and II of the *Ethics* in the Elwes translation, with:
 
-### Navigation
-- Click any element to explore its logical relationships
-- Relationship display with formatted predicates
-- Tooltips for analytical metrics
-- Smooth scrolling with element highlighting
+- ordered reading flow rather than a flat “demo app” section dump
+- support for nested material such as physical axioms, lemmas, postulates, notes, explanations, and appendix sections
+- passage selection with logical analysis in a side panel
+- cross-navigation between cited and related passages
+- URL deep-linking to individual passages
+- part-local search
+- inferred dependency and transitive relationship display
+
+## Architecture
+
+The app has three main layers:
+
+1. Text layer
+   XML files in `public/ethica_1.xml` and `public/ethica_2.xml` are parsed into a typed in-memory reader model.
+
+2. Graph layer
+   `public/ethica-logic.n3` contains explicit graph data.
+   `public/ethica-logic-eye.n3` contains both explicit triples and rule-based inference input.
+
+3. Reader layer
+   React components render the ordered text, section navigation, search, and analysis panel.
+
+## Important Source Files
+
+```text
+src/
+├── App.tsx                       # Application shell, loading, navigation, selection state
+├── types.ts                      # Shared reader and analysis types
+├── lib/
+│   ├── ethica.ts                 # XML parsing, labels, section summaries, graph helpers
+│   ├── ethica.test.ts            # Parser-focused tests
+│   ├── readerGraph.ts            # Supplemental graph generation from parsed text
+│   └── readerGraph.test.ts       # Supplemental graph tests
+└── components/
+    ├── BookView.tsx              # Main reading surface
+    └── ReasoningPanel.tsx        # Logical analysis panel
+```
+
+```text
+public/
+├── ethica_1.xml                  # Part I markup
+├── ethica_2.xml                  # Part II markup
+├── ethica-logic.n3               # Explicit graph
+├── ethica-logic-eye.n3           # Explicit triples + inference rules
+└── spinoza-signet.png            # Reader branding asset
+```
 
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
 npm start
+```
 
-# Build for production
+Useful commands:
+
+```bash
+npx tsc --noEmit
+CI=true npm test -- --watchAll=false
 npm run build
-
-# Deploy to GitHub Pages
-npm run deploy
 ```
 
-## Project Structure
+## Data Model Notes
 
-```
-/
-├── public/                 # Static assets and data files
-│   ├── ethica_1.xml       # XML markup of Ethics Part I
-│   ├── ethica-logic.n3    # N3 knowledge graph (data layer)
-│   ├── ethica-logic-eye.n3 # N3 reasoning rules (EYE-js layer)
-│   └── spinoza-signet.png # Spinoza's signet ring image
-├── src/
-│   ├── components/        # React components
-│   │   ├── BookView.tsx   # Text display with Roman numeral formatting
-│   │   └── ReasoningPanel.tsx # Relationship explorer
-│   ├── App.tsx           # Main application with data loading
-│   └── App.css           # Styling and typography
-├── craco.config.js       # Webpack config for Node.js polyfills
-└── package.json          # Dependencies and build scripts
-```
+The reader does not rely only on the hand-authored N3 files.
 
-## Analysis Capabilities
+It also generates a supplemental graph from the parsed XML in order to provide:
 
-### Relationship Types
-- Citations - textual references between elements
-- Logical consequences - what follows from what
-- Proofs and demonstrations - argument construction
-- Foundational dependencies - conceptual building blocks
+- structural relationships such as `partOf`, `provedBy`, `hasCorollary`, and `hasNote`
+- fallback citation coverage extracted from prose references
+- better analysis behavior when the older graph files are incomplete
 
-### Metrics
-- Foundational Score - how fundamental an element is
-- Dependency Depth - layers of logical dependencies  
-- Transitive Influence - reach of an element's impact
-- Inferred Relationships - EYE-js discovered connections
+This is a pragmatic bridge, not the final scholarly data model.
 
-### Interactive Features
-- Element selection shows logical context
-- Navigation between related elements
-- Transitive chain exploration
-- Metric explanations via tooltips
+## Current State
 
-## Technical Implementation
+What is in relatively good shape:
 
-### Architecture
-- React 18 with TypeScript
-- Functional components with hooks
-- CSS Grid and Flexbox layout
+- Parts I and II render in reading order
+- build, tests, and TypeScript checks pass
+- the main bundle is much smaller than before due to lazy loading of inference work
+- the reader UI is no longer structured like a prototype shell
 
-### Data Processing
-- XML parsing for structured text extraction
-- N3 store management for relationship queries
-- EYE-js inference engine for reasoning
-- Cross-referencing between text and semantic data
+What is still incomplete:
 
-### Deployment
-- GitHub Pages hosting
-- Automated deployment from build directory
-- Webpack optimization with suggested code splitting
+- only Parts I and II are present
+- the source graph files still contain uneven coverage, especially in Part II
+- inference remains useful but is not yet a polished scholarly model
+- there is not yet a dedicated editorial pipeline for maintaining XML and N3 together
 
-## Current Status
+## Next Work
 
-- Part I: Concerning God - complete implementation
-- 117 elements parsed from XML structure
-- 1,270+ RDF triples capturing logical relationships
-- EYE-js inference rules active
-- Full cross-navigation implemented
+The highest-value next steps are:
 
-## Future Work
-
-### Content
-- Parts II-V of the *Ethics*
-- Cross-part relationship analysis
-- Latin text integration
-
-### Features  
-- Search functionality
-- Export capabilities
-- User annotations
-- Translation comparisons
-
-### Analysis
-- Graph visualization
-- Argument strength quantification
-- Reasoning pattern recognition
+- normalize and expand the source graph data instead of relying on fallback extraction
+- add Parts III-V
+- improve passage-level metadata and editorial annotations
+- add better tests around navigation and analysis behavior
+- consider replacing the aging CRA/CRACO stack with a more current frontend toolchain
 
 ## Text Attribution
 
-Uses the English translation by R.H.M. Elwes (1883) from [Project Gutenberg #3800](https://www.gutenberg.org/files/3800/3800-h/3800-h.htm). Original text is public domain.
-
-## Technologies
-
-- React 18
-- TypeScript  
-- EYE-js (Euler Yet another proof Engine)
-- N3.js (RDF/N3 processing)
-- fast-xml-parser
-- CRACO (Create React App Configuration Override)
-- GitHub Pages
-
----
-
-*"The order and connection of ideas follows the order and connection of things."* - Spinoza, Ethics Part II, Proposition 7
+Uses the English translation by R.H.M. Elwes (1883) from [Project Gutenberg #3800](https://www.gutenberg.org/files/3800/3800-h/3800-h.htm). The text is public domain.
