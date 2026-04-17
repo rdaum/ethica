@@ -1,16 +1,11 @@
 import React from 'react';
 import './BookView.css';
-
-interface SpinozaElement {
-  id: string;
-  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note' | 'lemma' | 'postulate' | 'explanation';
-  number?: string;
-  text: string;
-  parentId?: string;
-}
+import { formatElementLabel, getSectionLabel, matchesQuery } from '../lib/ethica';
+import { SpinozaElement } from '../types';
 
 interface BookViewProps {
-  elements: Map<string, SpinozaElement>;
+  elements: SpinozaElement[];
+  query: string;
   onElementHover: (elementId: string | null) => void;
   onElementSelect: (elementId: string | null) => void;
   selectedElement: string | null;
@@ -21,6 +16,7 @@ interface BookViewProps {
 
 const BookView: React.FC<BookViewProps> = ({
   elements,
+  query,
   onElementHover,
   onElementSelect,
   selectedElement,
@@ -28,148 +24,154 @@ const BookView: React.FC<BookViewProps> = ({
   currentPart,
   partTitle
 }) => {
-  const formatElementLabel = (elementId: string): string => {
-    // Convert technical IDs like "I.prop.17.proof" to readable labels like "Proposition XVII"
-    const parts = elementId.split('.');
-    
-    if (parts.length < 2) return elementId;
-    const type = parts[1]; // "def", "ax", "prop"
-    const number = parts[2]; // "17"
-    const subElement = parts[3]; // "proof", "corollary", "note"
-    
-    // Convert numbers to Roman numerals for formal presentation
-    const toRoman = (num: number): string => {
-      const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-      const symbols = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
-      let result = '';
-      
-      for (let i = 0; i < values.length; i++) {
-        while (num >= values[i]) {
-          result += symbols[i];
-          num -= values[i];
-        }
-      }
-      return result;
-    };
-    
-    let baseLabel = '';
-    const romanNumber = number ? toRoman(parseInt(number)) : '';
-    
-    switch (type) {
-      case 'def':
-        baseLabel = `Definition ${romanNumber}`;
-        break;
-      case 'ax':
-        baseLabel = `Axiom ${romanNumber}`;
-        break;
-      case 'prop':
-        baseLabel = `Proposition ${romanNumber}`;
-        break;
-      case 'lemma':
-        baseLabel = `Lemma ${romanNumber}`;
-        break;
-      case 'post':
-        baseLabel = `Postulate ${romanNumber}`;
-        break;
-      default:
-        baseLabel = `${type.charAt(0).toUpperCase() + type.slice(1)} ${romanNumber}`;
+  const childrenByParent = new Map<string, SpinozaElement[]>();
+
+  elements.forEach(element => {
+    if (!element.parentId) {
+      return;
     }
-    
-    // Add sub-element if present
-    if (subElement) {
-      const subLabel = subElement === 'corollary' ? 'Corollary' :
-                      subElement === 'note' ? 'Note' :
-                      subElement === 'proof' ? 'Proof' :
-                      subElement === 'explanation' ? 'Explanation' :
-                      subElement.charAt(0).toUpperCase() + subElement.slice(1);
-      
-      return `${baseLabel} ${subLabel}`;
+
+    const children = childrenByParent.get(element.parentId) ?? [];
+    children.push(element);
+    childrenByParent.set(element.parentId, children);
+  });
+
+  const topLevelElements = elements.filter(element => !element.parentId);
+  const visibleElements = topLevelElements.filter(topLevel => {
+    if (!query.trim()) {
+      return true;
     }
-    
-    return baseLabel;
-  };
-  const renderElement = (element: SpinozaElement) => {
-    const isSelected = selectedElement === element.id;
-    const isHovered = hoveredElement === element.id;
-    const className = `element element-${element.type} ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`;
 
-    return (
-      <div
-        key={element.id}
-        className={className}
-        onMouseEnter={() => onElementHover(element.id)}
-        onMouseLeave={() => onElementHover(null)}
-        onClick={() => onElementSelect(selectedElement === element.id ? null : element.id)}
-        data-element-id={element.id}
-      >
-        <div className="element-header">
-          <span className="element-type">{element.type}</span>
-          <span className="element-title">{formatElementLabel(element.id)}</span>
-        </div>
-        <div className="element-text">
-          {element.text}
-        </div>
-      </div>
-    );
-  };
+    if (matchesQuery(topLevel, query)) {
+      return true;
+    }
 
-  const renderSection = (title: string, type: string) => {
-    const sectionElements = Array.from(elements.values())
-      .filter(el => el.type === type && !el.parentId)
-      .sort((a, b) => {
-        const numA = parseInt(a.number || '0');
-        const numB = parseInt(b.number || '0');
-        return numA - numB;
-      });
+    return (childrenByParent.get(topLevel.id) ?? []).some(child => matchesQuery(child, query));
+  });
 
-    if (sectionElements.length === 0) return null;
-
-    return (
-      <section className={`section section-${type}`}>
-        <h2 className="section-title">{title}</h2>
-        {sectionElements.map(element => (
-          <div key={element.id}>
-            {renderElement(element)}
-            {renderSubElements(element.id)}
-          </div>
-        ))}
-      </section>
-    );
-  };
-
-  const renderSubElements = (parentId: string) => {
-    const subElements = Array.from(elements.values())
-      .filter(el => el.parentId === parentId)
-      .sort((a, b) => {
-        // Sort by type priority (proof, corollary, note) then by id
-        const typeOrder = { proof: 1, corollary: 2, note: 3 };
-        const priorityA = typeOrder[a.type as keyof typeof typeOrder] || 9;
-        const priorityB = typeOrder[b.type as keyof typeof typeOrder] || 9;
-        if (priorityA !== priorityB) return priorityA - priorityB;
-        return a.id.localeCompare(b.id);
-      });
-
-    return (
-      <div className="sub-elements">
-        {subElements.map(element => renderElement(element))}
-      </div>
-    );
-  };
+  let previousSectionKind: string | null = null;
 
   return (
-    <div className="book-view">
-      <div className="book-content">
-        <div className="part-header">
-          <h1 className="part-title">Part {currentPart}: {partTitle}</h1>
-        </div>
-        {renderSection('Definitions', 'definition')}
-        {renderSection('Axioms', 'axiom')}
-        {currentPart === 2 && renderSection('Lemmas', 'lemma')}
-        {currentPart === 2 && renderSection('Postulates', 'postulate')}
-        {renderSection('Propositions', 'proposition')}
+    <section className="book-view" aria-label={`Part ${currentPart}: ${partTitle}`}>
+      <div className="book-intro">
+        <p className="book-kicker">Part {currentPart}</p>
+        <h2>{partTitle}</h2>
       </div>
+
+      {visibleElements.length === 0 && (
+        <div className="empty-state">
+          <h3>No passages match that search.</h3>
+          <p>Try a proposition number, a key term, or a cited concept.</p>
+        </div>
+      )}
+
+      {visibleElements.map(element => {
+        const showSectionHeading = previousSectionKind !== element.sectionKind;
+        previousSectionKind = element.sectionKind;
+        const parentMatches = matchesQuery(element, query);
+
+        return (
+          <div key={element.id} data-section-kind={element.sectionKind}>
+            {showSectionHeading && (
+              <header className="section-header">
+                <p>{getSectionLabel(element.sectionKind)}</p>
+              </header>
+            )}
+
+            <article
+              className={`reader-entry entry-${element.type} ${selectedElement === element.id ? 'selected' : ''} ${hoveredElement === element.id ? 'hovered' : ''}`}
+              onMouseEnter={() => onElementHover(element.id)}
+              onMouseLeave={() => onElementHover(null)}
+              onClick={() => onElementSelect(selectedElement === element.id ? null : element.id)}
+              data-element-id={element.id}
+            >
+              <header className="entry-header">
+                <div>
+                  <p className="entry-type">{element.type}</p>
+                  <h3>{formatElementLabel(element)}</h3>
+                </div>
+                <span className="entry-id">{element.id}</span>
+              </header>
+
+              <div className="entry-body">
+                {renderParagraphs(element.text)}
+              </div>
+
+              {renderChildren(
+                element.id,
+                childrenByParent,
+                query,
+                parentMatches,
+                selectedElement,
+                hoveredElement,
+                onElementHover,
+                onElementSelect
+              )}
+            </article>
+          </div>
+        );
+      })}
+    </section>
+  );
+};
+
+const renderChildren = (
+  parentId: string,
+  childrenByParent: Map<string, SpinozaElement[]>,
+  query: string,
+  parentMatches: boolean,
+  selectedElement: string | null,
+  hoveredElement: string | null,
+  onElementHover: (elementId: string | null) => void,
+  onElementSelect: (elementId: string | null) => void
+) => {
+  const children = (childrenByParent.get(parentId) ?? []).filter(child => {
+    if (!query.trim()) {
+      return true;
+    }
+
+    return parentMatches || matchesQuery(child, query);
+  });
+
+  if (children.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="entry-children">
+      {children.map(child => (
+        <article
+          key={child.id}
+          className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''} ${hoveredElement === child.id ? 'hovered' : ''}`}
+          onMouseEnter={() => onElementHover(child.id)}
+          onMouseLeave={() => onElementHover(null)}
+          onClick={event => {
+            event.stopPropagation();
+            onElementSelect(selectedElement === child.id ? null : child.id);
+          }}
+          data-element-id={child.id}
+        >
+          <header className="entry-header child-header">
+            <div>
+              <p className="entry-type">{child.type}</p>
+              <h4>{formatElementLabel(child)}</h4>
+            </div>
+            <span className="entry-id">{child.id}</span>
+          </header>
+          <div className="entry-body compact">
+            {renderParagraphs(child.text)}
+          </div>
+        </article>
+      ))}
     </div>
   );
 };
+
+const renderParagraphs = (text: string) =>
+  text
+    .split(/\n{2,}/)
+    .map(paragraph => paragraph.trim())
+    .filter(Boolean)
+    .map((paragraph, index) => <p key={index}>{paragraph}</p>);
 
 export default BookView;

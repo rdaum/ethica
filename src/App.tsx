@@ -1,689 +1,420 @@
-import React, { useState, useEffect } from 'react';
-import { XMLParser } from 'fast-xml-parser';
-import { Store, Parser, DataFactory } from 'n3';
-import { n3reasoner } from 'eyereasoner';
+import React, { startTransition, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
+import { DataFactory, Store } from 'n3';
 import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
-
-interface SpinozaElement {
-  id: string;
-  type: 'definition' | 'axiom' | 'proposition' | 'proof' | 'corollary' | 'note' | 'lemma' | 'postulate' | 'explanation';
-  number?: string;
-  text: string;
-  parentId?: string;
-}
-
-interface AppState {
-  elements: Map<string, SpinozaElement>;
-  n3Store: Store;
-  eyeStore: Store; // Store with EYE-js inferred facts
-  selectedElement: string | null;
-  hoveredElement: string | null;
-  reasoning: any[];
-  transitiveChains: any[];
-  weightAnalysis: any | null;
-  loading: boolean;
-  currentPart: number;
-}
+import {
+  formatElementLabel,
+  matchesQuery,
+  mergeStores,
+  parseN3ToStore,
+  parseSpinozaXml,
+  PARTS,
+  stripRulesFromN3,
+  summarizeSections
+} from './lib/ethica';
+import { buildSupplementalStore } from './lib/readerGraph';
+import { ReaderSectionSummary, ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from './types';
 
 const App: React.FC = () => {
-  const [state, setState] = useState<AppState>({
-    elements: new Map(),
-    n3Store: new Store(),
-    eyeStore: new Store(),
-    selectedElement: null,
-    hoveredElement: null,
-    reasoning: [],
-    transitiveChains: [],
-    weightAnalysis: null,
-    loading: true,
-    currentPart: 1
-  });
+  const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
+  const [n3Store, setN3Store] = useState(new Store());
+  const [eyeStore, setEyeStore] = useState(new Store());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPart, setCurrentPart] = useState(1);
+  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [reasoning, setReasoning] = useState<ReasoningRelation[]>([]);
+  const [transitiveChains, setTransitiveChains] = useState<TransitiveChain[]>([]);
+  const [weightAnalysis, setWeightAnalysis] = useState<WeightAnalysis | null>(null);
+  const pendingNavigationId = useRef<string | null>(null);
+  const hashInitialized = useRef(false);
+  const deferredQuery = useDeferredValue(query);
 
+  // navigateToElement is a stable callback; this effect only needs to react when loading finishes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    loadData();
-  }, [state.currentPart]); // eslint-disable-line react-hooks/exhaustive-deps
+    let cancelled = false;
 
-  const loadData = async () => {
-    try {
-      setState(prev => ({ ...prev, loading: true }));
+    const loadPartData = async () => {
+      setLoading(true);
+      setError(null);
 
-      // Load and parse XML
-      const basePath = process.env.PUBLIC_URL || '.';
-      const xmlResponse = await fetch(`${basePath}/ethica_${state.currentPart}.xml`);
-      const xmlText = await xmlResponse.text();
-      const elements = parseXML(xmlText);
-
-      // Load and parse N3 data (use original file since N3.js can't parse reasoning rules)
-      console.log(`Loading N3 logic from: ${basePath}/ethica-logic.n3`);
-      const n3Response = await fetch(`${basePath}/ethica-logic.n3`);
-      console.log(`N3 logic response status: ${n3Response.status}`);
-      const n3Content = await n3Response.text();
-      console.log(`N3 logic content length: ${n3Content.length} characters`);
-      const n3Store = await parseN3(n3Content);
-      console.log(`N3 store created with ${n3Store.size} triples`);
-
-      // Load the EYE-js rules file and perform reasoning
-      let eyeStore = new Store();
-      
       try {
-        // Load the file with active reasoning rules for EYE-js
-        console.log(`Loading EYE reasoning from: ${basePath}/ethica-logic-eye.n3`);
-        const eyeResponse = await fetch(`${basePath}/ethica-logic-eye.n3`);
-        console.log(`EYE response status: ${eyeResponse.status}`);
-        const eyeContent = await eyeResponse.text();
-        console.log(`EYE content length: ${eyeContent.length} characters`);
-        
-        const reasoningResults = await n3reasoner(eyeContent, undefined, {
-          output: 'derivations',
-          outputType: 'string'
-        });
-        
-        console.log(`EYE reasoning results length: ${reasoningResults.length} characters`);
-        if (reasoningResults.trim()) {
-          eyeStore = await parseN3(reasoningResults);
-          console.log(`EYE store created with ${eyeStore.size} triples`);
-        } else {
-          console.warn('EYE reasoning returned empty results');
-        }
-        
-      } catch (error) {
-        console.error('EYE-js reasoning failed, continuing without inference:', error);
-        // Continue with empty eye store
-      }
+        const basePath = process.env.PUBLIC_URL || '.';
+        const [xmlResponse, n3Response, eyeResponse] = await Promise.all([
+          fetch(`${basePath}/ethica_${currentPart}.xml`),
+          fetch(`${basePath}/ethica-logic.n3`),
+          fetch(`${basePath}/ethica-logic-eye.n3`)
+        ]);
 
-      setState(prev => ({
-        ...prev,
-        elements,
-        n3Store,
-        eyeStore,
-        loading: false
-      }));
+        const [xmlText, n3Content, eyeContent] = await Promise.all([
+          xmlResponse.text(),
+          n3Response.text(),
+          eyeResponse.text()
+        ]);
 
-    } catch (error) {
-      console.error('Error loading data or performing reasoning:', error);
-      setState(prev => ({ ...prev, loading: false }));
-    }
-  };
+        const parsedElements = parseSpinozaXml(xmlText);
+        const baseStore = await parseN3ToStore(n3Content);
+        const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(eyeContent));
+        const supplementalStore = buildSupplementalStore(parsedElements);
+        const mergedStore = mergeStores(baseStore, eyeExplicitStore, supplementalStore);
 
-  const parseXML = (xmlText: string): Map<string, SpinozaElement> => {
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: '@_'
-    });
-    
-    const xmlDoc = parser.parse(xmlText);
-    console.log('Parsed XML structure:', xmlDoc);
-    const elements = new Map<string, SpinozaElement>();
+        let inferredStore = new Store();
 
-    // The XML structure is <part><section type="definitions"><def>...
-    
-    // Find all sections
-    const sections = xmlDoc.part?.section || [];
-    const sectionsArray = Array.isArray(sections) ? sections : [sections];
-    
-    sectionsArray.forEach((section: any) => {
-      if (section['@_type'] === 'definitions' && section.def) {
-        const definitions = Array.isArray(section.def) ? section.def : [section.def];
-        definitions.forEach((def: any) => {
-          if (def['@_id'] && def.text) {
-            elements.set(def['@_id'], {
-              id: def['@_id'],
-              type: 'definition',
-              number: def['@_number'],
-              text: def.text
-            });
-          }
-          
-          // Handle explanations for definitions
-          if (def.explanation) {
-            const explanations = Array.isArray(def.explanation) ? def.explanation : [def.explanation];
-            explanations.forEach((exp: any) => {
-              if (exp['@_id'] && exp.text) {
-                elements.set(exp['@_id'], {
-                  id: exp['@_id'],
-                  type: 'explanation',
-                  text: exp.text,
-                  parentId: def['@_id']
-                });
-              }
-            });
-          }
-        });
-      }
-      
-      if (section['@_type'] === 'axioms' && section.axiom) {
-        const axioms = Array.isArray(section.axiom) ? section.axiom : [section.axiom];
-        axioms.forEach((axiom: any) => {
-          if (axiom['@_id'] && axiom.text) {
-            elements.set(axiom['@_id'], {
-              id: axiom['@_id'],
-              type: 'axiom',
-              number: axiom['@_number'],
-              text: axiom.text
-            });
-          }
-        });
-      }
-      
-      if (section['@_type'] === 'lemmas' && section.lemma) {
-        const lemmas = Array.isArray(section.lemma) ? section.lemma : [section.lemma];
-        lemmas.forEach((lemma: any) => {
-          if (lemma['@_id'] && lemma.text) {
-            elements.set(lemma['@_id'], {
-              id: lemma['@_id'],
-              type: 'lemma',
-              number: lemma['@_number'],
-              text: lemma.text
-            });
-
-            // Parse proofs for lemmas
-            if (lemma.proof) {
-              const proofs = Array.isArray(lemma.proof) ? lemma.proof : [lemma.proof];
-              proofs.forEach((proof: any) => {
-                if (proof['@_id'] && proof.text) {
-                  elements.set(proof['@_id'], {
-                    id: proof['@_id'],
-                    type: 'proof',
-                    text: proof.text,
-                    parentId: lemma['@_id']
-                  });
-                }
-              });
-            }
-
-            // Parse corollaries for lemmas
-            if (lemma.corollary) {
-              const corollaries = Array.isArray(lemma.corollary) ? lemma.corollary : [lemma.corollary];
-              corollaries.forEach((cor: any) => {
-                if (cor['@_id'] && cor.text) {
-                  elements.set(cor['@_id'], {
-                    id: cor['@_id'],
-                    type: 'corollary',
-                    text: cor.text,
-                    parentId: lemma['@_id']
-                  });
-                }
-              });
-            }
-          }
-        });
-      }
-      
-      if (section['@_type'] === 'postulates' && section.postulate) {
-        const postulates = Array.isArray(section.postulate) ? section.postulate : [section.postulate];
-        postulates.forEach((postulate: any) => {
-          if (postulate['@_id'] && postulate.text) {
-            elements.set(postulate['@_id'], {
-              id: postulate['@_id'],
-              type: 'postulate',
-              number: postulate['@_number'],
-              text: postulate.text
-            });
-          }
-        });
-      }
-      
-      if (section['@_type'] === 'propositions' && section.prop) {
-        const propositions = Array.isArray(section.prop) ? section.prop : [section.prop];
-        propositions.forEach((prop: any) => {
-          if (prop['@_id'] && prop.text) {
-            elements.set(prop['@_id'], {
-              id: prop['@_id'],
-              type: 'proposition',
-              number: prop['@_number'],
-              text: prop.text
-            });
-
-            // Parse proofs
-            if (prop.proof) {
-              const proofs = Array.isArray(prop.proof) ? prop.proof : [prop.proof];
-              proofs.forEach((proof: any) => {
-                if (proof['@_id'] && proof.text) {
-                  elements.set(proof['@_id'], {
-                    id: proof['@_id'],
-                    type: 'proof',
-                    text: proof.text,
-                    parentId: prop['@_id']
-                  });
-                }
-              });
-            }
-
-            // Parse corollaries
-            if (prop.corollary) {
-              const corollaries = Array.isArray(prop.corollary) ? prop.corollary : [prop.corollary];
-              corollaries.forEach((cor: any) => {
-                if (cor['@_id'] && cor.text) {
-                  elements.set(cor['@_id'], {
-                    id: cor['@_id'],
-                    type: 'corollary',
-                    text: cor.text,
-                    parentId: prop['@_id']
-                  });
-                }
-              });
-            }
-
-            // Parse notes
-            if (prop.note) {
-              const notes = Array.isArray(prop.note) ? prop.note : [prop.note];
-              notes.forEach((note: any) => {
-                if (note['@_id'] && note.text) {
-                  elements.set(note['@_id'], {
-                    id: note['@_id'],
-                    type: 'note',
-                    text: note.text,
-                    parentId: prop['@_id']
-                  });
-                }
-              });
-            }
-          }
-        });
-      }
-    });
-
-    console.log(`Parsed ${elements.size} elements from XML`);
-    console.log('Sample elements:', Array.from(elements.entries()).slice(0, 3));
-    return elements;
-  };
-
-  const parseN3 = async (n3Content: string): Promise<Store> => {
-    const store = new Store();
-    const parser = new Parser();
-    
-    return new Promise((resolve, reject) => {
-      parser.parse(n3Content, (error, quad, prefixes) => {
-        if (error) {
-          reject(error);
-        } else if (quad) {
-          store.addQuad(quad);
-        } else {
-          resolve(store);
-        }
-      });
-    });
-  };
-
-  const handleElementHover = (elementId: string | null) => {
-    setState(prev => ({ ...prev, hoveredElement: elementId }));
-  };
-
-  const handleElementSelect = async (elementId: string | null) => {
-    setState(prev => ({ ...prev, selectedElement: elementId }));
-    
-    if (elementId) {
-      // Perform reasoning about the selected element
-      const reasoning = await performReasoning(elementId);
-      const transitiveChains = await findTransitiveChains(elementId);
-      const weightAnalysis = await analyzeElementWeight(elementId);
-      setState(prev => ({ ...prev, reasoning, transitiveChains, weightAnalysis }));
-    }
-  };
-
-  const handleNavigateToElement = (elementId: string) => {
-    console.log(`Navigation requested for element: ${elementId}`);
-    // Determine which part this element belongs to
-    const elementPart = elementId.startsWith('I.') ? 1 : elementId.startsWith('II.') ? 2 : state.currentPart;
-    console.log(`Element belongs to part ${elementPart}, currently viewing part ${state.currentPart}`);
-    
-    // If element is in a different part, switch to that part first
-    if (elementPart !== state.currentPart) {
-      console.log(`Switching from Part ${state.currentPart} to Part ${elementPart} to navigate to ${elementId}`);
-      setState(prev => ({ 
-        ...prev, 
-        currentPart: elementPart,
-        selectedElement: null,
-        hoveredElement: null,
-        reasoning: [],
-        transitiveChains: [],
-        weightAnalysis: null
-      }));
-      
-      // Wait for the new part to load, then navigate
-      const attemptNavigation = (attempts: number = 0) => {
-        const element = document.querySelector(`[data-element-id="${elementId}"]`);
-        if (element) {
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center',
-            inline: 'nearest'
+        try {
+          const { n3reasoner } = await import('eyereasoner');
+          const derivations = await n3reasoner(eyeContent, undefined, {
+            output: 'derivations',
+            outputType: 'string'
           });
-          
-          // Temporarily highlight the element
-          element.classList.add('navigation-highlight');
-          setTimeout(() => {
-            element.classList.remove('navigation-highlight');
-          }, 2000);
-          
-          // Also select it for the reasoning panel
-          handleElementSelect(elementId);
-        } else if (attempts < 10) {
-          // Retry up to 10 times with increasing delays
-          setTimeout(() => attemptNavigation(attempts + 1), 50 * (attempts + 1));
-        } else {
-          console.warn(`Element ${elementId} not found after part switch and ${attempts} attempts`);
+
+          if (derivations.trim()) {
+            inferredStore = await parseN3ToStore(derivations);
+          }
+        } catch (reasoningError) {
+          console.error('EYE-js reasoning failed, continuing with explicit graph only:', reasoningError);
         }
-      };
-      
-      setTimeout(() => attemptNavigation(), 100);
-    } else {
-      // Element is in current part, navigate directly
-      const element = document.querySelector(`[data-element-id="${elementId}"]`);
-      if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-        
-        // Temporarily highlight the element
-        element.classList.add('navigation-highlight');
-        setTimeout(() => {
-          element.classList.remove('navigation-highlight');
-        }, 2000);
-        
-        // Also select it for the reasoning panel
-        handleElementSelect(elementId);
-      } else {
-        console.warn(`Element ${elementId} not found in current part ${state.currentPart}`);
-      }
-    }
-  };
 
-  const performReasoning = async (elementId: string): Promise<any[]> => {
-    try {
-      const results: any[] = [];
-      const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
-      
-      // Original predicates from the knowledge graph
-      const originalPredicates = [
-        'cites',
-        'refersTo',
-        'mentions',
-        'clearlyfollowsFrom',
-        'evidentFrom', 
-        'necessarilyFollows',
-        'provedBy',
-        'demonstratedBy',
-        'groundedIn',
-        'hasCorollary',
-        'impliesConsequence',
-        'buildsUpon',
-        'appliesResultFrom',
-        'refutedByAbsurdity',
-        'contradicts',
-        'partOf',
-        'containsSection',
-        'containsElement',
-        'type'  // RDF type relationships
-      ];
-
-      // EYE-js inferred predicates
-      const inferredPredicates = [
-        'transitivelyDependsOn',
-        'dependsUpon',
-        'circularArgument',
-        'derivedFrom',
-        'explainsElement'
-      ];
-
-      const allPredicates = [...originalPredicates, ...inferredPredicates];
-      
-      // Find outward relationships (this element relates to others)
-      allPredicates.forEach(predicate => {
-        const predicateURI = predicate === 'type' 
-          ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
-          : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          
-        // Check both original data and EYE-js inferred facts
-        const storeToUse = inferredPredicates.includes(predicate) ? state.eyeStore : state.n3Store;
-        const outward = storeToUse.getQuads(elementURI, predicateURI, null, null);
-        
-        outward.forEach(quad => {
-          const objectValue = quad.object.value;
-          const cleanObject = objectValue.includes('#') 
-            ? objectValue.split('#')[1] 
-            : objectValue;
-            
-          results.push({
-            subject: elementId,
-            predicate: predicate,
-            object: cleanObject,
-            inferred: inferredPredicates.includes(predicate)
-          });
-        });
-      });
-      
-      // Find inward relationships (others relate to this element)  
-      allPredicates.forEach(predicate => {
-        const predicateURI = predicate === 'type' 
-          ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
-          : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          
-        // Check both original data and EYE-js inferred facts
-        const storeToUse = inferredPredicates.includes(predicate) ? state.eyeStore : state.n3Store;
-        const inward = storeToUse.getQuads(null, predicateURI, elementURI, null);
-        
-        inward.forEach(quad => {
-          const subjectValue = quad.subject.value;
-          const cleanSubject = subjectValue.includes('#') 
-            ? subjectValue.split('#')[1] 
-            : subjectValue;
-            
-          // Create inverse relationship names for clarity
-          const inversePredicate = 
-            predicate === 'cites' ? 'citedBy' :
-            predicate === 'refersTo' ? 'referredToBy' :
-            predicate === 'mentions' ? 'mentionedBy' :
-            predicate === 'clearlyfollowsFrom' ? 'clearlyLeadsTo' :
-            predicate === 'evidentFrom' ? 'makesEvident' :
-            predicate === 'necessarilyFollows' ? 'necessarilyFollowedBy' :
-            predicate === 'provedBy' ? 'proves' :
-            predicate === 'demonstratedBy' ? 'demonstrates' :
-            predicate === 'groundedIn' ? 'grounds' :
-            predicate === 'hasCorollary' ? 'isCorollaryOf' :
-            predicate === 'impliesConsequence' ? 'isConsequenceOf' :
-            predicate === 'buildsUpon' ? 'isBuiltUponBy' :
-            predicate === 'appliesResultFrom' ? 'providesResultTo' :
-            predicate === 'refutedByAbsurdity' ? 'refutes' :
-            predicate === 'contradicts' ? 'contradictedBy' :
-            predicate === 'partOf' ? 'contains' :
-            predicate === 'containsSection' ? 'isSectionOf' :
-            predicate === 'containsElement' ? 'isElementOf' :
-            `inverse_${predicate}`;
-                                  
-          results.push({
-            subject: cleanSubject,
-            predicate: inversePredicate,
-            object: elementId,
-            inferred: inferredPredicates.includes(predicate)
-          });
-        });
-      });
-
-      console.log(`Found ${results.length} relationships for ${elementId}:`, results);
-      return results;
-    } catch (error) {
-      console.error('Reasoning failed:', error);
-      return [];
-    }
-  };
-
-  const findTransitiveChains = async (startElementId: string, maxDepth: number = 4): Promise<any[]> => {
-    // Use EYE-js inferred transitive relationships instead of manual traversal
-    try {
-      const chains: any[] = [];
-      const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${startElementId}`);
-      
-      // Find all transitive dependencies inferred by EYE-js
-      const transitivelyDependsOnURI = DataFactory.namedNode('http://spinoza.org/ethics#transitivelyDependsOn');
-      const dependsUponURI = DataFactory.namedNode('http://spinoza.org/ethics#dependsUpon');
-      
-      // Get outward transitive dependencies
-      const outwardTransitive = state.eyeStore.getQuads(elementURI, transitivelyDependsOnURI, null, null);
-      const outwardDependencies = state.eyeStore.getQuads(elementURI, dependsUponURI, null, null);
-      
-      outwardTransitive.forEach(quad => {
-        const target = quad.object.value.split('#')[1];
-        chains.push({
-          type: 'transitive_dependency',
-          start: startElementId,
-          end: target,
-          relationship: 'transitivelyDependsOn',
-          inferred: true,
-          path: [{ from: startElementId, to: target, relationship: 'transitivelyDependsOn' }]
-        });
-      });
-      
-      outwardDependencies.forEach(quad => {
-        const target = quad.object.value.split('#')[1];
-        chains.push({
-          type: 'dependency',
-          start: startElementId,
-          end: target,
-          relationship: 'dependsUpon',
-          inferred: true,
-          path: [{ from: startElementId, to: target, relationship: 'dependsUpon' }]
-        });
-      });
-      
-      // Get inward transitive dependencies (others depend on this element)
-      const inwardTransitive = state.eyeStore.getQuads(null, transitivelyDependsOnURI, elementURI, null);
-      const inwardDependencies = state.eyeStore.getQuads(null, dependsUponURI, elementURI, null);
-      
-      inwardTransitive.forEach(quad => {
-        const source = quad.subject.value.split('#')[1];
-        chains.push({
-          type: 'inverse_transitive_dependency',
-          start: source,
-          end: startElementId,
-          relationship: 'transitivelyDependsOn',
-          inferred: true,
-          path: [{ from: source, to: startElementId, relationship: 'transitivelyDependsOn' }]
-        });
-      });
-      
-      inwardDependencies.forEach(quad => {
-        const source = quad.subject.value.split('#')[1];
-        chains.push({
-          type: 'inverse_dependency',
-          start: source,
-          end: startElementId,
-          relationship: 'dependsUpon',
-          inferred: true,
-          path: [{ from: source, to: startElementId, relationship: 'dependsUpon' }]
-        });
-      });
-      
-      console.log(`Found ${chains.length} EYE-js inferred chains for ${startElementId}:`, chains);
-      return chains;
-      
-    } catch (error) {
-      console.error('EYE-js transitive reasoning failed:', error);
-      return [];
-    }
-  };
-
-  // Keep the old manual implementation as fallback
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const findTransitiveChainsManual = async (startElementId: string, maxDepth: number = 4): Promise<any[]> => {
-    try {
-      const chains: any[] = [];
-      const visited = new Set<string>();
-      
-      // Find transitive chains through different relationship types
-      const transitivePredicates = [
-        'cites', 
-        'necessarilyFollows', 
-        'appliesResultFrom',
-        'clearlyfollowsFrom',
-        'provedBy',
-        'refutedByAbsurdity',
-        'partOf'
-      ];
-      
-      const exploreChain = (currentElement: string, path: any[], depth: number, predicate: string) => {
-        if (depth >= maxDepth || visited.has(`${currentElement}-${predicate}-${depth}`)) {
+        if (cancelled) {
           return;
         }
-        
-        visited.add(`${currentElement}-${predicate}-${depth}`);
-        
-        const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-        const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentElement}`);
-        
-        // Find next elements in the chain
-        const nextElements = state.n3Store.getQuads(elementURI, predicateURI, null, null);
-        
-        nextElements.forEach(quad => {
-          const nextElement = quad.object.value.split('#')[1];
-          const newPath = [...path, {
-            from: currentElement,
-            to: nextElement,
-            relationship: predicate,
-            depth: depth
-          }];
-          
-          // If this creates a meaningful chain (length > 1), save it
-          if (newPath.length > 1) {
-            chains.push({
-              type: `${predicate}_chain`,
-              path: newPath,
-              length: newPath.length,
-              start: startElementId,
-              end: nextElement
-            });
-          }
-          
-          // Continue exploring from this element
-          exploreChain(nextElement, newPath, depth + 1, predicate);
-        });
-      };
-      
-      // Start exploration for each transitive predicate
-      transitivePredicates.forEach(predicate => {
-        exploreChain(startElementId, [], 0, predicate);
-      });
-      
-      // Sort chains by length and remove duplicates
-      const uniqueChains = chains
-        .filter((chain, index, self) => 
-          index === self.findIndex(c => 
-            c.start === chain.start && 
-            c.end === chain.end && 
-            c.type === chain.type &&
-            c.length === chain.length
-          )
-        )
-        .sort((a, b) => b.length - a.length)
-        .slice(0, 20); // Limit to top 20 chains
-      
-      console.log(`Found ${uniqueChains.length} transitive chains for ${startElementId}`);
-      return uniqueChains;
-    } catch (error) {
-      console.error('Transitive reasoning failed:', error);
-      return [];
+
+        setElements(parsedElements);
+        setN3Store(mergedStore);
+        setEyeStore(inferredStore);
+        setLoading(false);
+      } catch (loadError) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error('Failed to load reader data:', loadError);
+        setError('The reader could not load this part of the text.');
+        setLoading(false);
+      }
+    };
+
+    loadPartData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentPart]);
+
+  useEffect(() => {
+    if (loading || !pendingNavigationId.current) {
+      return;
     }
+
+    const elementId = pendingNavigationId.current;
+    pendingNavigationId.current = null;
+    navigateToElement(elementId);
+  // navigateToElement is a stable callback; this effect only needs to react when loading finishes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
+  useEffect(() => {
+    if (loading || hashInitialized.current) {
+      return;
+    }
+
+    const hash = window.location.hash.replace(/^#/, '');
+
+    if (!hash) {
+      hashInitialized.current = true;
+      return;
+    }
+
+    hashInitialized.current = true;
+    navigateToElement(decodeURIComponent(hash));
+  // navigateToElement is a stable callback; this effect only needs to react once after initial load.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const analyzeSelectedElement = async () => {
+      if (!selectedElement) {
+        setReasoning([]);
+        setTransitiveChains([]);
+        setWeightAnalysis(null);
+        setAnalysisLoading(false);
+        return;
+      }
+
+      setAnalysisLoading(true);
+
+      const [relations, chains, weight] = await Promise.all([
+        performReasoning(selectedElement),
+        findTransitiveChains(selectedElement),
+        analyzeElementWeight(selectedElement)
+      ]);
+
+      if (cancelled) {
+        return;
+      }
+
+      setReasoning(relations);
+      setTransitiveChains(chains);
+      setWeightAnalysis(weight);
+      setAnalysisLoading(false);
+    };
+
+    analyzeSelectedElement();
+
+    return () => {
+      cancelled = true;
+    };
+  // These analyzers are stable callbacks backed by the current stores and elements.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedElement, n3Store, eyeStore, elements]);
+
+  useEffect(() => {
+    if (!selectedElement) {
+      if (window.location.hash) {
+        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      }
+      return;
+    }
+
+    const encoded = `#${encodeURIComponent(selectedElement)}`;
+
+    if (window.location.hash !== encoded) {
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${encoded}`);
+    }
+  }, [selectedElement]);
+
+  const orderedElements = Array.from(elements.values()).sort((left, right) => left.sortIndex - right.sortIndex);
+  const topLevelElements = orderedElements.filter(element => !element.parentId);
+  const visibleTopLevelElements = topLevelElements.filter(topLevel => {
+    if (!deferredQuery.trim()) {
+      return true;
+    }
+
+    if (matchesQuery(topLevel, deferredQuery)) {
+      return true;
+    }
+
+    return orderedElements.some(
+      candidate => candidate.parentId === topLevel.id && matchesQuery(candidate, deferredQuery)
+    );
+  });
+  const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
+  const selectedEntry = selectedElement ? elements.get(selectedElement) : undefined;
+  const currentPartMetadata = PARTS[currentPart];
+  const selectableEntries = orderedElements.filter(element => {
+    if (!deferredQuery.trim()) {
+      return true;
+    }
+
+    if (matchesQuery(element, deferredQuery)) {
+      return true;
+    }
+
+    const parent = element.parentId ? elements.get(element.parentId) : null;
+    return parent ? matchesQuery(parent, deferredQuery) : false;
+  });
+  const selectedIndex = selectedElement ? selectableEntries.findIndex(element => element.id === selectedElement) : -1;
+  const previousEntry = selectedIndex > 0 ? selectableEntries[selectedIndex - 1] : null;
+  const nextEntry =
+    selectedIndex >= 0 && selectedIndex < selectableEntries.length - 1
+      ? selectableEntries[selectedIndex + 1]
+      : null;
+
+  const handleSelectElement = (elementId: string | null) => {
+    setSelectedElement(elementId);
   };
 
-  const analyzeElementWeight = async (elementId: string): Promise<any> => {
+  const handlePartChange = useCallback((partNumber: number) => {
+    startTransition(() => {
+      setCurrentPart(partNumber);
+      setSelectedElement(null);
+      setHoveredElement(null);
+      setQuery('');
+      setReasoning([]);
+      setTransitiveChains([]);
+      setWeightAnalysis(null);
+    });
+  }, []);
+
+  const navigateToElement = useCallback((elementId: string) => {
+    const targetPart = elementId.startsWith('I.') ? 1 : elementId.startsWith('II.') ? 2 : currentPart;
+
+    if (targetPart !== currentPart) {
+      pendingNavigationId.current = elementId;
+      handlePartChange(targetPart);
+      return;
+    }
+
+    const elementNode = document.querySelector<HTMLElement>(`[data-element-id="${elementId}"]`);
+
+    if (!elementNode) {
+      return;
+    }
+
+    elementNode.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    });
+    elementNode.classList.add('navigation-highlight');
+
+    window.setTimeout(() => {
+      elementNode.classList.remove('navigation-highlight');
+    }, 1800);
+
+    setSelectedElement(elementId);
+  }, [currentPart, handlePartChange]);
+
+  const jumpToSection = (sectionKind: string) => {
+    const sectionNode = document.querySelector<HTMLElement>(`[data-section-kind="${sectionKind}"]`);
+
+    if (!sectionNode) {
+      return;
+    }
+
+    sectionNode.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
+  const performReasoning = useCallback(async (elementId: string): Promise<ReasoningRelation[]> => {
+    const results: ReasoningRelation[] = [];
+    const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
+    const originalPredicates = [
+      'cites',
+      'refersTo',
+      'mentions',
+      'clearlyfollowsFrom',
+      'evidentFrom',
+      'necessarilyFollows',
+      'provedBy',
+      'demonstratedBy',
+      'groundedIn',
+      'hasCorollary',
+      'impliesConsequence',
+      'buildsUpon',
+      'appliesResultFrom',
+      'refutedByAbsurdity',
+      'contradicts',
+      'partOf',
+      'containsSection',
+      'containsElement',
+      'type'
+    ];
+    const inferredPredicates = [
+      'transitivelyDependsOn',
+      'dependsUpon',
+      'circularArgument',
+      'derivedFrom',
+      'explainsElement'
+    ];
+
+    [...originalPredicates, ...inferredPredicates].forEach(predicate => {
+      const predicateURI =
+        predicate === 'type'
+          ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+          : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
+      const store = inferredPredicates.includes(predicate) ? eyeStore : n3Store;
+
+      store.getQuads(elementURI, predicateURI, null, null).forEach(quad => {
+        results.push({
+          subject: elementId,
+          predicate,
+          object: cleanResourceValue(quad.object.value),
+          inferred: inferredPredicates.includes(predicate)
+        });
+      });
+
+      store.getQuads(null, predicateURI, elementURI, null).forEach(quad => {
+        results.push({
+          subject: cleanResourceValue(quad.subject.value),
+          predicate: inversePredicateFor(predicate),
+          object: elementId,
+          inferred: inferredPredicates.includes(predicate)
+        });
+      });
+    });
+
+    return dedupeRelations(results);
+  }, [eyeStore, n3Store]);
+
+  const findTransitiveChains = useCallback(async (elementId: string): Promise<TransitiveChain[]> => {
+    const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
+    const transitiveURI = DataFactory.namedNode('http://spinoza.org/ethics#transitivelyDependsOn');
+    const dependencyURI = DataFactory.namedNode('http://spinoza.org/ethics#dependsUpon');
+    const chains: TransitiveChain[] = [];
+
+    eyeStore.getQuads(elementURI, transitiveURI, null, null).forEach(quad => {
+      chains.push({
+        type: 'transitive_dependency',
+        start: elementId,
+        end: cleanResourceValue(quad.object.value),
+        relationship: 'transitivelyDependsOn',
+        inferred: true,
+        path: [{ from: elementId, to: cleanResourceValue(quad.object.value), relationship: 'transitivelyDependsOn' }],
+        length: 1
+      });
+    });
+
+    eyeStore.getQuads(elementURI, dependencyURI, null, null).forEach(quad => {
+      chains.push({
+        type: 'dependency',
+        start: elementId,
+        end: cleanResourceValue(quad.object.value),
+        relationship: 'dependsUpon',
+        inferred: true,
+        path: [{ from: elementId, to: cleanResourceValue(quad.object.value), relationship: 'dependsUpon' }],
+        length: 1
+      });
+    });
+
+    eyeStore.getQuads(null, transitiveURI, elementURI, null).forEach(quad => {
+      chains.push({
+        type: 'inverse_transitive_dependency',
+        start: cleanResourceValue(quad.subject.value),
+        end: elementId,
+        relationship: 'transitivelyDependsOn',
+        inferred: true,
+        path: [{ from: cleanResourceValue(quad.subject.value), to: elementId, relationship: 'transitivelyDependsOn' }],
+        length: 1
+      });
+    });
+
+    eyeStore.getQuads(null, dependencyURI, elementURI, null).forEach(quad => {
+      chains.push({
+        type: 'inverse_dependency',
+        start: cleanResourceValue(quad.subject.value),
+        end: elementId,
+        relationship: 'dependsUpon',
+        inferred: true,
+        path: [{ from: cleanResourceValue(quad.subject.value), to: elementId, relationship: 'dependsUpon' }],
+        length: 1
+      });
+    });
+
+    return dedupeChains(chains);
+  }, [eyeStore]);
+
+  const analyzeElementWeight = useCallback(async (elementId: string): Promise<WeightAnalysis | null> => {
     try {
-      const analysis = {
+      const analysis: WeightAnalysis = {
         elementId,
         inboundWeight: 0,
         outboundWeight: 0,
         transitiveInfluence: 0,
         foundationalScore: 0,
-        relationshipBreakdown: {} as any,
+        relationshipBreakdown: {},
         dependencyDepth: 0,
         influenceReach: 0
       };
-
-      // All relationship types with different weights
-      const relationshipWeights = {
+      const weights: Record<string, number> = {
         cites: 1,
         necessarilyFollows: 3,
         clearlyfollowsFrom: 2,
@@ -694,153 +425,99 @@ const App: React.FC = () => {
         groundedIn: 2,
         demonstratedBy: 2
       };
-
       const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
-      
-      // Calculate inbound weight (how much depends on this element)
-      Object.entries(relationshipWeights).forEach(([predicate, weight]) => {
+
+      Object.entries(weights).forEach(([predicate, weight]) => {
         const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-        const inboundTriples = state.n3Store.getQuads(null, predicateURI, elementURI, null);
-        
-        const count = inboundTriples.length;
-        analysis.inboundWeight += count * weight;
-        
-        if (count > 0) {
-          analysis.relationshipBreakdown[`${predicate}_inbound`] = {
-            count,
-            weight: count * weight,
-            elements: inboundTriples.map(t => t.subject.value.split('#')[1])
-          };
-        }
+        const inbound = n3Store.getQuads(null, predicateURI, elementURI, null);
+        const outbound = n3Store.getQuads(elementURI, predicateURI, null, null);
+
+        analysis.inboundWeight += inbound.length * weight;
+        analysis.outboundWeight += outbound.length * weight;
       });
 
-      // Calculate outbound weight (how much this element depends on others)
-      Object.entries(relationshipWeights).forEach(([predicate, weight]) => {
-        const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-        const outboundTriples = state.n3Store.getQuads(elementURI, predicateURI, null, null);
-        
-        const count = outboundTriples.length;
-        analysis.outboundWeight += count * weight;
-        
-        if (count > 0) {
-          analysis.relationshipBreakdown[`${predicate}_outbound`] = {
-            count,
-            weight: count * weight,
-            elements: outboundTriples.map(t => t.object.value.split('#')[1])
-          };
+      const calculateTransitiveInfluence = (currentId: string, visited: Set<string>, depth: number): number => {
+        if (depth > 4 || visited.has(currentId)) {
+          return 0;
         }
-      });
 
-      // Calculate transitive influence (recursive depth analysis)
-      const calculateTransitiveInfluence = (currentElement: string, visited: Set<string>, depth: number): number => {
-        if (depth > 4 || visited.has(currentElement)) return 0;
-        visited.add(currentElement);
-        
+        visited.add(currentId);
         let influence = 0;
-        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentElement}`);
-        
-        // Check what depends on this element
-        Object.entries(relationshipWeights).forEach(([predicate, weight]) => {
+        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentId}`);
+
+        Object.entries(weights).forEach(([predicate, weight]) => {
           const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          const dependents = state.n3Store.getQuads(null, predicateURI, currentURI, null);
-          
-          dependents.forEach(triple => {
-            const dependent = triple.subject.value.split('#')[1];
-            influence += weight * (5 - depth); // Diminishing returns with depth
-            influence += calculateTransitiveInfluence(dependent, visited, depth + 1);
+          n3Store.getQuads(null, predicateURI, currentURI, null).forEach(quad => {
+            influence += weight * (5 - depth);
+            influence += calculateTransitiveInfluence(cleanResourceValue(quad.subject.value), new Set(visited), depth + 1);
           });
         });
-        
+
         return influence;
       };
 
-      analysis.transitiveInfluence = calculateTransitiveInfluence(elementId, new Set(), 0);
-      
-      // Calculate foundational score (how fundamental this element is)
-      // Definitions and axioms get base foundational score
-      const elementType = state.elements.get(elementId)?.type;
-      let foundationalBase = 0;
-      
-      switch (elementType) {
-        case 'definition': foundationalBase = 10; break;
-        case 'axiom': foundationalBase = 8; break;
-        case 'proposition': foundationalBase = 3; break;
-        case 'proof': foundationalBase = 1; break;
-        case 'corollary': foundationalBase = 2; break;
-        case 'note': foundationalBase = 0.5; break;
-      }
-      
-      // Calculate foundational score: base + inbound influence + transitive influence
-      // Don't subtract outbound weight directly - instead use it as a ratio modifier
-      const dependencyRatio = analysis.outboundWeight === 0 ? 1 : 
-                             Math.min(1, analysis.inboundWeight / analysis.outboundWeight);
-      
-      analysis.foundationalScore = Math.max(0, 
-        foundationalBase + 
-        (analysis.inboundWeight * 1.5) + 
-        (analysis.transitiveInfluence * 0.2) +
-        (dependencyRatio * 5) // Bonus for having more things depend on you than you depend on
-      );
+      const calculateDepth = (currentId: string, visited: Set<string>): number => {
+        if (visited.has(currentId)) {
+          return 0;
+        }
 
-      // Calculate dependency depth (how many layers of dependencies)
-      const calculateDepth = (currentElement: string, visited: Set<string>): number => {
-        if (visited.has(currentElement)) return 0;
-        visited.add(currentElement);
-        
-        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentElement}`);
+        visited.add(currentId);
+        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentId}`);
         let maxDepth = 0;
-        
-        Object.keys(relationshipWeights).forEach(predicate => {
+
+        Object.keys(weights).forEach(predicate => {
           const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          const dependencies = state.n3Store.getQuads(currentURI, predicateURI, null, null);
-          
-          dependencies.forEach(triple => {
-            const dependency = triple.object.value.split('#')[1];
-            const depth = 1 + calculateDepth(dependency, new Set(visited));
-            maxDepth = Math.max(maxDepth, depth);
+          n3Store.getQuads(currentURI, predicateURI, null, null).forEach(quad => {
+            maxDepth = Math.max(
+              maxDepth,
+              1 + calculateDepth(cleanResourceValue(quad.object.value), new Set(visited))
+            );
           });
         });
-        
+
         return maxDepth;
       };
-      
+
+      analysis.transitiveInfluence = calculateTransitiveInfluence(elementId, new Set(), 0);
       analysis.dependencyDepth = calculateDepth(elementId, new Set());
       analysis.influenceReach = Math.round(analysis.transitiveInfluence / 10);
 
-      console.log(`Weight analysis for ${elementId}:`, analysis);
+      const selectedType = elements.get(elementId)?.type;
+      const baseScore =
+        selectedType === 'definition'
+          ? 10
+          : selectedType === 'axiom'
+            ? 8
+            : selectedType === 'proposition'
+              ? 3
+              : selectedType === 'appendix'
+                ? 2
+                : 1;
+      const dependencyRatio =
+        analysis.outboundWeight === 0 ? 1 : Math.min(1, analysis.inboundWeight / analysis.outboundWeight);
+
+      analysis.foundationalScore = Math.max(
+        0,
+        baseScore +
+          analysis.inboundWeight * 1.5 +
+          analysis.transitiveInfluence * 0.2 +
+          dependencyRatio * 5
+      );
+
       return analysis;
-    } catch (error) {
-      console.error('Weight analysis failed:', error);
+    } catch (analysisError) {
+      console.error('Weight analysis failed:', analysisError);
       return null;
     }
-  };
+  }, [elements, n3Store]);
 
-  const handlePartChange = (partNumber: number) => {
-    setState(prev => ({ 
-      ...prev, 
-      currentPart: partNumber,
-      selectedElement: null,
-      hoveredElement: null,
-      reasoning: [],
-      transitiveChains: [],
-      weightAnalysis: null
-    }));
-  };
-
-  const getPartTitle = (partNumber: number): string => {
-    switch (partNumber) {
-      case 1: return "CONCERNING GOD";
-      case 2: return "ON THE NATURE AND ORIGIN OF THE MIND";
-      default: return `PART ${partNumber}`;
-    }
-  };
-
-  if (state.loading) {
+  if (loading) {
     return (
-      <div className="app loading">
-        <div className="loading-message">
-          <h2>Loading Spinoza's Ethics...</h2>
-          <p>Preparing the text and logical structure for exploration</p>
+      <div className="app loading-shell">
+        <div className="loading-card">
+          <p className="eyebrow">Ethica</p>
+          <h1>Loading Spinoza&apos;s Ethics</h1>
+          <p>Preparing the text, structure, and inference graph for reading.</p>
         </div>
       </div>
     );
@@ -849,140 +526,193 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="header-content">
-          <div className="signet-container">
-            <img 
-              src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
-              alt="Spinoza's Signet Ring - Rose with 'Caute' motto"
-              className="spinoza-signet"
-            />
-          </div>
-          <div className="title-section">
+        <div className="header-grid">
+          <div className="title-block">
+            <p className="eyebrow">Interactive Reader</p>
             <h1>The Ethics</h1>
-            <p className="subtitle">by Baruch Spinoza</p>
-            <div className="part-selector">
-              <h2>Part {state.currentPart}: {getPartTitle(state.currentPart)}</h2>
-              <div className="part-buttons">
-                <button 
-                  className={`part-button ${state.currentPart === 1 ? 'active' : ''}`}
-                  onClick={() => handlePartChange(1)}
-                >
-                  Part I
-                </button>
-                <button 
-                  className={`part-button ${state.currentPart === 2 ? 'active' : ''}`}
-                  onClick={() => handlePartChange(2)}
-                >
-                  Part II
-                </button>
-              </div>
-            </div>
+            <p className="subtitle">Baruch Spinoza, translated by R.H.M. Elwes</p>
+            <p className="part-description">{currentPartMetadata.description}</p>
           </div>
-        </div>
-        <div className="translation-info">
-          <p className="translation-credit">
-            Translated by R.H.M. Elwes • Text from{' '}
-            <a 
-              href="https://www.gutenberg.org/files/3800/3800-h/3800-h.htm" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="gutenberg-link"
-            >
-              Project Gutenberg #3800
-            </a>
-          </p>
+
+          <div className="header-actions">
+            <div className="part-switcher" aria-label="Select part">
+              {Object.values(PARTS).map(part => (
+                <button
+                  key={part.number}
+                  type="button"
+                  className={`part-button ${currentPart === part.number ? 'active' : ''}`}
+                  onClick={() => handlePartChange(part.number)}
+                >
+                  <span>Part {part.numeral}</span>
+                  <strong>{part.title}</strong>
+                </button>
+              ))}
+            </div>
+
+            <label className="reader-search">
+              <span>Search within this part</span>
+              <input
+                type="search"
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder="Search terms, ideas, references"
+              />
+            </label>
+          </div>
         </div>
       </header>
 
-      <main className="app-main">
+      <main className="reader-layout">
+        <aside className="reader-sidebar">
+          <div className="sidebar-card">
+            <img
+              src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
+              alt="Spinoza's signet ring"
+              className="spinoza-signet"
+            />
+            <p className="sidebar-kicker">
+              Part {currentPartMetadata.numeral}
+            </p>
+            <h2>{currentPartMetadata.title}</h2>
+            <p>{currentPartMetadata.strapline}</p>
+          </div>
+
+          <div className="sidebar-card">
+            <div className="sidebar-heading">
+              <h3>Sections</h3>
+              <span>{visibleTopLevelElements.length} passages</span>
+            </div>
+            <div className="section-links">
+              {sectionSummaries.map(section => (
+                <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
+                  <span>{section.label}</span>
+                  <strong>{section.count}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {selectedEntry && (
+            <div className="sidebar-card selection-card">
+              <p className="sidebar-kicker">Selected</p>
+              <h3>{formatElementLabel(selectedEntry)}</h3>
+              <p>{selectedEntry.text.slice(0, 220)}{selectedEntry.text.length > 220 ? '…' : ''}</p>
+              <div className="selection-nav">
+                <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
+                  Previous
+                </button>
+                <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </aside>
+
         <BookView
-          elements={state.elements}
-          onElementHover={handleElementHover}
-          onElementSelect={handleElementSelect}
-          selectedElement={state.selectedElement}
-          hoveredElement={state.hoveredElement}
-          currentPart={state.currentPart}
-          partTitle={getPartTitle(state.currentPart)}
+          elements={orderedElements}
+          query={deferredQuery}
+          selectedElement={selectedElement}
+          hoveredElement={hoveredElement}
+          onElementHover={setHoveredElement}
+          onElementSelect={handleSelectElement}
+          currentPart={currentPart}
+          partTitle={currentPartMetadata.title}
         />
-        
-        {(state.selectedElement || state.reasoning.length > 0) && (
-          <ReasoningPanel
-            selectedElement={state.selectedElement}
-            element={state.selectedElement ? state.elements.get(state.selectedElement) : undefined}
-            reasoning={state.reasoning}
-            transitiveChains={state.transitiveChains}
-            weightAnalysis={state.weightAnalysis}
-            n3Store={state.n3Store}
-            onNavigateToElement={handleNavigateToElement}
-            onClose={() => handleElementSelect(null)}
-            currentPart={state.currentPart}
-          />
-        )}
+
+        <ReasoningPanel
+          selectedElement={selectedElement}
+          element={selectedEntry}
+          reasoning={reasoning}
+          transitiveChains={transitiveChains}
+          weightAnalysis={weightAnalysis}
+          onNavigateToElement={navigateToElement}
+          onClose={() => handleSelectElement(null)}
+          currentPart={currentPart}
+          loading={analysisLoading}
+          previousElementId={previousEntry?.id ?? null}
+          nextElementId={nextEntry?.id ?? null}
+        />
       </main>
-      
-      <footer className="app-footer">
-        <div className="footer-content">
-          <div className="license-info">
-            <h4>Text Attribution</h4>
-            <p>
-              This work uses the English translation of Spinoza's <em>Ethics</em> by{' '}
-              <strong>R.H.M. Elwes</strong> (1883), sourced from{' '}
-              <a 
-                href="https://www.gutenberg.org/files/3800/3800-h/3800-h.htm" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Project Gutenberg #3800
-              </a>.
-            </p>
-            <p>
-              The original text is in the public domain. This interactive presentation 
-              adds computational analysis and modern interface design to enhance scholarly 
-              exploration of Spinoza's systematic philosophy.
-            </p>
-          </div>
-          
-          <div className="project-info">
-            <h4>About This Project</h4>
-            <p>
-              An interactive digital humanities project that transforms Spinoza's systematic 
-              philosophy into a computational exploration tool. Uses automated reasoning to 
-              discover implicit logical relationships in the Ethics.
-            </p>
-            <p className="tech-stack">
-              Built with React, N3.js for data querying, and EYE-js for automated logical reasoning.
-            </p>
-          </div>
+
+      {error && (
+        <div className="error-banner" role="alert">
+          {error}
         </div>
-        
-        <div className="footer-links">
-          <a 
-            href="https://www.gutenberg.org/policy/license.html" 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            Project Gutenberg License
-          </a>
-          <span className="separator">•</span>
-          <a 
-            href="https://en.wikipedia.org/wiki/Baruch_Spinoza" 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            About Spinoza
-          </a>
-          <span className="separator">•</span>
-          <a 
-            href="https://plato.stanford.edu/entries/spinoza/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            Stanford Encyclopedia
-          </a>
-        </div>
-      </footer>
+      )}
     </div>
   );
+};
+
+const cleanResourceValue = (value: string): string => (value.includes('#') ? value.split('#')[1] : value);
+
+const inversePredicateFor = (predicate: string): string =>
+  predicate === 'cites'
+    ? 'citedBy'
+    : predicate === 'refersTo'
+      ? 'referredToBy'
+      : predicate === 'mentions'
+        ? 'mentionedBy'
+        : predicate === 'clearlyfollowsFrom'
+          ? 'clearlyLeadsTo'
+          : predicate === 'evidentFrom'
+            ? 'makesEvident'
+            : predicate === 'necessarilyFollows'
+              ? 'necessarilyFollowedBy'
+              : predicate === 'provedBy'
+                ? 'proves'
+                : predicate === 'demonstratedBy'
+                  ? 'demonstrates'
+                  : predicate === 'groundedIn'
+                    ? 'grounds'
+                    : predicate === 'hasCorollary'
+                      ? 'isCorollaryOf'
+                      : predicate === 'impliesConsequence'
+                        ? 'isConsequenceOf'
+                        : predicate === 'buildsUpon'
+                          ? 'isBuiltUponBy'
+                          : predicate === 'appliesResultFrom'
+                            ? 'providesResultTo'
+                            : predicate === 'refutedByAbsurdity'
+                              ? 'refutes'
+                              : predicate === 'contradicts'
+                                ? 'contradictedBy'
+                                : predicate === 'partOf'
+                                  ? 'contains'
+                                  : predicate === 'containsSection'
+                                    ? 'isSectionOf'
+                                    : predicate === 'containsElement'
+                                      ? 'isElementOf'
+                                      : `inverse_${predicate}`;
+
+const dedupeRelations = (relations: ReasoningRelation[]): ReasoningRelation[] => {
+  const seen = new Set<string>();
+
+  return relations.filter(relation => {
+    const key = `${relation.subject}|${relation.predicate}|${relation.object}|${relation.inferred ? '1' : '0'}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+};
+
+const dedupeChains = (chains: TransitiveChain[]): TransitiveChain[] => {
+  const seen = new Set<string>();
+
+  return chains.filter(chain => {
+    const key = `${chain.start}|${chain.relationship}|${chain.end}`;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 };
 
 export default App;
