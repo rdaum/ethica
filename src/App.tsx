@@ -4,6 +4,7 @@ import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import {
+  backfillStore,
   formatElementLabel,
   matchesQuery,
   mergeStores,
@@ -61,7 +62,8 @@ const App: React.FC = () => {
         const baseStore = await parseN3ToStore(n3Content);
         const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(eyeContent));
         const supplementalStore = buildSupplementalStore(parsedElements);
-        const mergedStore = mergeStores(baseStore, eyeExplicitStore, supplementalStore);
+        const explicitStore = mergeStores(baseStore, eyeExplicitStore);
+        const mergedStore = backfillStore(explicitStore, supplementalStore);
 
         let inferredStore = new Store();
 

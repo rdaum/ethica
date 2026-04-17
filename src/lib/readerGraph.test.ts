@@ -42,6 +42,17 @@ describe('buildSupplementalStore', () => {
           sectionKind: 'propositions',
           parentId: 'II.prop.1'
         }
+      ],
+      [
+        'I.prop.36',
+        {
+          id: 'I.prop.36',
+          type: 'proposition',
+          text: 'External reference target.',
+          sortIndex: 3,
+          sectionKind: 'propositions',
+          number: '36'
+        }
       ]
     ]);
 

@@ -5,6 +5,8 @@ import { PartMetadata, ReaderSectionSummary, SpinozaElement } from '../types';
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
   definitions: 'Definitions',
+  definitions_of_emotions: 'Definitions of the Emotions',
+  general_definition: 'General Definition',
   axioms: 'Axioms',
   propositions: 'Propositions',
   physical_axioms: 'Physical Axioms',
@@ -35,6 +37,30 @@ export const PARTS: Record<number, PartMetadata> = {
     strapline: 'Mind, body, adequacy, and the order and connection of ideas.',
     description:
       'Part II turns from metaphysics to cognition and embodiment, tracing how the human mind follows from the same order that governs nature.'
+  },
+  3: {
+    number: 3,
+    numeral: 'III',
+    title: 'On the Origin and Nature of the Emotions',
+    strapline: 'Desire, pleasure, pain, and the mechanics of the affects.',
+    description:
+      'Part III treats human affects as natural phenomena, explaining passions and actions through the same order that governs bodies and ideas.'
+  },
+  4: {
+    number: 4,
+    numeral: 'IV',
+    title: 'Of Human Bondage, or the Strength of the Emotions',
+    strapline: 'Conflict, bondage, utility, and the limits of finite power.',
+    description:
+      'Part IV examines how inadequate ideas and external causes bind us, while sketching the practical demands of life under reason.'
+  },
+  5: {
+    number: 5,
+    numeral: 'V',
+    title: 'Of the Power of the Understanding, or of Human Freedom',
+    strapline: 'The mind’s power, intellectual love of God, and blessedness.',
+    description:
+      'Part V develops the ethical culmination of the work: understanding, freedom, and the durable joy that follows from adequate knowledge.'
   }
 };
 
@@ -376,6 +402,20 @@ export const mergeStores = (...stores: Store[]): Store => {
   stores.forEach(store => {
     merged.addQuads(store.getQuads(null, null, null, null));
   });
+  return merged;
+};
+
+export const backfillStore = (primary: Store, fallback: Store): Store => {
+  const merged = mergeStores(primary);
+
+  fallback.getQuads(null, null, null, null).forEach(candidate => {
+    const existing = merged.countQuads(candidate.subject, candidate.predicate, candidate.object, candidate.graph);
+
+    if (existing === 0) {
+      merged.addQuad(candidate);
+    }
+  });
+
   return merged;
 };
 

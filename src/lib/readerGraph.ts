@@ -3,6 +3,7 @@ import { SpinozaElement } from '../types';
 
 const ETHICS = 'http://spinoza.org/ethics#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+const PART_NUMERALS = new Set(['I', 'II', 'III', 'IV', 'V']);
 
 const { namedNode, quad } = DataFactory;
 
@@ -48,9 +49,11 @@ export const buildSupplementalStore = (elements: Map<string, SpinozaElement>): S
       }
     }
 
-    extractReferences(element).forEach(reference => {
+    extractReferences(element)
+      .filter(reference => elements.has(reference))
+      .forEach(reference => {
       store.addQuad(quad(subject, ethicsNode('cites'), ethicsNode(reference)));
-    });
+      });
   });
 
   return store;
@@ -61,27 +64,68 @@ export const extractReferences = (element: SpinozaElement): string[] => {
   const currentPart = element.id.split('.')[0];
   const references = new Set<string>();
 
-  const explicitPropRegex =
-    /(?:Pt\.?|Part)\s*([ivx]+)\.?,?\s*(?:Prop\.?|Proposition)\s*([ivxlcdm]+)(?:,?\s*Coroll?\.?\s*([ivxlcdm]+)?)?/gi;
+  const explicitRefRegex =
+    /\b(?:Pt\.?|Part)\s*([ivx]+)\.?,?\s*(?:(Prop(?:osition)?|Def(?:inition)?s?|Deff\.?|Ax(?:iom)?|Lemma|Post(?:ulate)?)\.?\s*)?([ivxlcdm]+)(?:,?\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
+  const compactQualifiedRegex =
+    /(?:^|[\s,(;])((?:i{1,3}|iv|v))\.\s*(Prop(?:osition)?|Def(?:inition)?s?|Deff\.?|Ax(?:iom)?|Lemma|Post(?:ulate)?)\.?\s*([ivxlcdm]+)(?:\.\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
   const compactPartPropRegex = /(?:^|[\s,(;])([ivx]+)\.\s*([ivxlcdm]+)(?:\.\s*Coroll?\.?\s*([ivxlcdm]+)?)?/gi;
   const localPropRegex =
-    /(?:^|[\s,(;])(?:Prop\.?|Proposition)\s*([ivxlcdm]+)(?:,?\s*Coroll?\.?\s*([ivxlcdm]+)?)?/gi;
-  const defRegex = /(?:^|[\s,(;])(?:Def\.?|Deff\.?|Definition)\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
-  const axiomRegex = /(?:^|[\s,(;])(?:Ax\.?|Axiom)\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
-  const lemmaRegex = /(?:^|[\s,(;])(?:Lemma)\s*([ivxlcdm]+)/gi;
+    /(?:^|[\s,(;])(?:Prop(?:osition)?\.?)\s*([ivxlcdm]+)(?:,?\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
+  const defRegex = /(?:^|[\s,(;])(?:Def(?:inition)?s?|Deff\.?)\.?\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
+  const axiomRegex = /(?:^|[\s,(;])(?:Ax(?:iom)?)\.?\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
+  const lemmaRegex = /(?:^|[\s,(;])Lemma\s+([ivxlcdm]+)/gi;
+  const postRegex = /(?:^|[\s,(;])(?:Post(?:ulate)?)\.?\s*([ivxlcdm]+)/gi;
 
-  collectMatches(explicitPropRegex, text, match => {
-    const part = romanToInteger(match[1]);
-    const proposition = romanToInteger(match[2]);
-    const corollary = match[3] ? romanToInteger(match[3]) : null;
+  collectMatches(explicitRefRegex, text, match => {
+    const part = normalizePartNumeral(match[1]);
+    const kindToken = (match[2] ?? 'Prop').toLowerCase();
+    const number = romanToInteger(match[3]);
+    const corollary = match[4] ? romanToInteger(match[4]) : null;
 
-    if (part && proposition) {
-      references.add(referenceId(part, 'prop', proposition, corollary ? `corollary${corollary}` : undefined));
+    if (!part || !number) {
+      return;
     }
+
+    const kind =
+      kindToken.startsWith('def')
+        ? 'def'
+        : kindToken.startsWith('ax')
+          ? 'ax'
+          : kindToken.startsWith('lemma')
+            ? 'lemma'
+            : kindToken.startsWith('post')
+              ? 'post'
+              : 'prop';
+
+    references.add(referenceId(part, kind, number, corollary && kind === 'prop' ? `corollary${corollary}` : undefined));
+  });
+
+  collectMatches(compactQualifiedRegex, text, match => {
+    const part = normalizePartNumeral(match[1]);
+    const kindToken = match[2].toLowerCase();
+    const number = romanToInteger(match[3]);
+    const corollary = match[4] ? romanToInteger(match[4]) : null;
+
+    if (!part || !number) {
+      return;
+    }
+
+    const kind =
+      kindToken.startsWith('def')
+        ? 'def'
+        : kindToken.startsWith('ax')
+          ? 'ax'
+          : kindToken.startsWith('lemma')
+            ? 'lemma'
+            : kindToken.startsWith('post')
+              ? 'post'
+              : 'prop';
+
+    references.add(referenceId(part, kind, number, corollary && kind === 'prop' ? `corollary${corollary}` : undefined));
   });
 
   collectMatches(compactPartPropRegex, text, match => {
-    const part = romanToInteger(match[1]);
+    const part = normalizePartNumeral(match[1]);
     const proposition = romanToInteger(match[2]);
     const corollary = match[3] ? romanToInteger(match[3]) : null;
 
@@ -124,6 +168,13 @@ export const extractReferences = (element: SpinozaElement): string[] => {
     }
   });
 
+  collectMatches(postRegex, text, match => {
+    const postulate = romanToInteger(match[1]);
+    if (postulate) {
+      references.add(referenceId(currentPart, 'post', postulate));
+    }
+  });
+
   return Array.from(references).filter(reference => reference !== element.id);
 };
 
@@ -138,12 +189,17 @@ const collectMatches = (regex: RegExp, text: string, callback: (match: RegExpExe
 
 const referenceId = (
   part: number | string,
-  kind: 'prop' | 'def' | 'ax' | 'lemma',
+  kind: 'prop' | 'def' | 'ax' | 'lemma' | 'post',
   number: number,
   suffix?: string
 ): string => {
   const numeral = typeof part === 'string' ? part : integerToRoman(part);
   return suffix ? `${numeral}.${kind}.${number}.${suffix}` : `${numeral}.${kind}.${number}`;
+};
+
+const normalizePartNumeral = (value: string): number | null => {
+  const numeral = value.trim().toUpperCase();
+  return PART_NUMERALS.has(numeral) ? romanToInteger(numeral) : null;
 };
 
 const ethicsNode = (value: string) => namedNode(`${ETHICS}${value}`);

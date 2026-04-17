@@ -7,13 +7,14 @@ The project combines:
 - structured XML editions of the text
 - an explicit N3 graph of logical relationships
 - EYE-based inferred relationships
+- a corpus generation step that keeps XML and graph data aligned
 - a reader UI designed for navigation, cross-reference tracing, and close reading
 
 Live site: [rdaum.github.io/ethica](https://rdaum.github.io/ethica/)
 
 ## What It Does
 
-The reader currently supports Parts I and II of the *Ethics* in the Elwes translation, with:
+The reader currently supports Parts I-V of the *Ethics* in the Elwes translation, with:
 
 - ordered reading flow rather than a flat “demo app” section dump
 - support for nested material such as physical axioms, lemmas, postulates, notes, explanations, and appendix sections
@@ -28,7 +29,7 @@ The reader currently supports Parts I and II of the *Ethics* in the Elwes transl
 The app has three main layers:
 
 1. Text layer
-   XML files in `public/ethica_1.xml` and `public/ethica_2.xml` are parsed into a typed in-memory reader model.
+   XML files in `public/ethica_1.xml` through `public/ethica_5.xml` are parsed into a typed in-memory reader model.
 
 2. Graph layer
    `public/ethica-logic.n3` contains explicit graph data.
@@ -48,6 +49,8 @@ src/
 │   ├── ethica.test.ts            # Parser-focused tests
 │   ├── readerGraph.ts            # Supplemental graph generation from parsed text
 │   └── readerGraph.test.ts       # Supplemental graph tests
+├── scripts/
+│   └── generate-corpus.mjs       # Regenerates Parts III-V XML and the explicit graph
 └── components/
     ├── BookView.tsx              # Main reading surface
     └── ReasoningPanel.tsx        # Logical analysis panel
@@ -57,6 +60,9 @@ src/
 public/
 ├── ethica_1.xml                  # Part I markup
 ├── ethica_2.xml                  # Part II markup
+├── ethica_3.xml                  # Part III markup
+├── ethica_4.xml                  # Part IV markup
+├── ethica_5.xml                  # Part V markup
 ├── ethica-logic.n3               # Explicit graph
 ├── ethica-logic-eye.n3           # Explicit triples + inference rules
 └── spinoza-signet.png            # Reader branding asset
@@ -72,6 +78,7 @@ npm start
 Useful commands:
 
 ```bash
+npm run generate:corpus
 npx tsc --noEmit
 CI=true npm test -- --watchAll=false
 npm run build
@@ -79,38 +86,38 @@ npm run build
 
 ## Data Model Notes
 
-The reader does not rely only on the hand-authored N3 files.
+The reader now treats the generated explicit graph as the primary source of structural and citation relationships.
 
-It also generates a supplemental graph from the parsed XML in order to provide:
+At runtime it still builds a supplemental graph from the parsed XML in order to provide backfill only when the canonical graph lacks a relationship. That backfill covers:
 
 - structural relationships such as `partOf`, `provedBy`, `hasCorollary`, and `hasNote`
-- fallback citation coverage extracted from prose references
-- better analysis behavior when the older graph files are incomplete
+- citation coverage extracted from prose references when an explicit triple is absent
 
-This is a pragmatic bridge, not the final scholarly data model.
+The canonical graph files are regenerated from the corpus, so the XML and N3 layers no longer drift independently.
 
 ## Current State
 
 What is in relatively good shape:
 
-- Parts I and II render in reading order
+- Parts I-V render in reading order
+- Parts III-V are generated into XML from `ethica.txt`
+- the explicit graph is regenerated from the corpus instead of being maintained only as ad hoc hand-edited triples
 - build, tests, and TypeScript checks pass
 - the main bundle is much smaller than before due to lazy loading of inference work
 - the reader UI is no longer structured like a prototype shell
 
 What is still incomplete:
 
-- only Parts I and II are present
-- the source graph files still contain uneven coverage, especially in Part II
+- the XML pipeline for Parts I-II is still partly inherited from older handcrafted files, while Parts III-V are generated from `ethica.txt`
+- the graph is much more coherent, but it is still a reader-oriented reference graph rather than a full scholarly critical apparatus
 - inference remains useful but is not yet a polished scholarly model
-- there is not yet a dedicated editorial pipeline for maintaining XML and N3 together
+- there is not yet a dedicated editorial normalization pipeline for harmonizing every source-text edge case across all five parts
 
 ## Next Work
 
 The highest-value next steps are:
 
-- normalize and expand the source graph data instead of relying on fallback extraction
-- add Parts III-V
+- unify Parts I-II into the same reproducible corpus pipeline used for Parts III-V
 - improve passage-level metadata and editorial annotations
 - add better tests around navigation and analysis behavior
 - consider replacing the aging CRA/CRACO stack with a more current frontend toolchain
