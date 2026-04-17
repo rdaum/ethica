@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import './ReasoningPanel.css';
 import { formatElementLabel } from '../lib/ethica';
 import { ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from '../types';
@@ -30,6 +30,19 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   previousElementId,
   nextElementId
 }) => {
+  const panelCardRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!selectedElement) {
+      return;
+    }
+
+    panelCardRef.current?.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
+  }, [selectedElement]);
+
   if (!selectedElement || !element) {
     return (
       <aside className="reasoning-panel empty">
@@ -52,9 +65,20 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
     return groups;
   }, {});
 
+  const orderedReasoningGroups = Object.entries(groupedReasoning).sort(([left], [right]) => {
+    const leftRank = predicateRank(left);
+    const rightRank = predicateRank(right);
+
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+
+    return formatPredicate(left).localeCompare(formatPredicate(right));
+  });
+
   return (
     <aside className="reasoning-panel">
-      <div className="panel-card pinned">
+      <div ref={panelCardRef} className="panel-card pinned">
         <div className="reasoning-header">
           <div>
             <p className="panel-kicker">Analysis</p>
@@ -114,7 +138,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
               {Object.keys(groupedReasoning).length === 0 ? (
                 <p className="muted-copy">No explicit or inferred relationships were found for this passage.</p>
               ) : (
-                Object.entries(groupedReasoning).map(([predicate, relations]) => (
+                orderedReasoningGroups.map(([predicate, relations]) => (
                   <div key={predicate} className="relationship-group">
                     <h4>{formatPredicate(predicate)}</h4>
                     <div className="relationship-list">
@@ -183,12 +207,28 @@ const truncateText = (text: string): string => {
   return `${text.slice(0, 300).trim()}…`;
 };
 
-const formatPredicate = (predicate: string): string =>
-  predicate
-    .replace(/^inverse_/, '')
+const formatPredicate = (predicate: string): string => {
+  const inverseLabels: Record<string, string> = {
+    inverse_dependsUpon: 'Is Depended On By',
+    inverse_transitivelyDependsOn: 'Is Transitively Depended On By',
+    inverse_derivedFrom: 'Derives',
+    inverse_explainsElement: 'Is Explained By',
+    inverse_cites: 'Is Cited By',
+    inverse_provedBy: 'Proves',
+    inverse_hasCorollary: 'Is Corollary Of',
+    inverse_partOf: 'Contains',
+    inverse_type: 'Type Of'
+  };
+
+  if (inverseLabels[predicate]) {
+    return inverseLabels[predicate];
+  }
+
+  return predicate
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, letter => letter.toUpperCase())
     .trim();
+};
 
 const humanizeRelationship = (relationship: string): string =>
   relationship.replace(/([A-Z])/g, ' $1').toLowerCase();
@@ -197,6 +237,16 @@ const formatElementReference = (elementId: string, currentPart: number): string 
   const showPart = !elementId.startsWith(`${currentPart === 1 ? 'I' : 'II'}.`);
   const label = elementId.split('.').length > 1 ? elementId : elementId;
   return showPart ? label : label.replace(/^[IVX]+\./, '');
+};
+
+const predicateRank = (predicate: string): number => {
+  const normalized = predicate.replace(/^inverse_/, '');
+
+  if (normalized.includes('transitively')) {
+    return 2;
+  }
+
+  return 1;
 };
 
 export default ReasoningPanel;

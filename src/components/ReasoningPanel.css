@@ -1,5 +1,7 @@
 .reasoning-panel {
-  position: relative;
+  position: sticky;
+  top: 1rem;
+  align-self: start;
 }
 
 .reasoning-panel.empty {
@@ -7,8 +9,8 @@
 }
 
 .panel-card {
-  position: sticky;
-  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
   border: 1px solid rgba(89, 67, 39, 0.15);
   background: linear-gradient(180deg, rgba(255, 250, 242, 0.98), rgba(248, 240, 225, 0.98));
   box-shadow: 0 16px 36px rgba(57, 41, 23, 0.1);
@@ -206,8 +208,13 @@
   background: rgba(255, 252, 245, 0.6);
 }
 
-@media (max-width: 1200px) {
-  .panel-card {
+@media (max-width: 980px) {
+  .reasoning-panel {
     position: static;
+  }
+
+  .panel-card {
+    max-height: none;
+    overflow: visible;
   }
 }

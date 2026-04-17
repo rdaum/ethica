@@ -327,9 +327,17 @@ body {
 
 @media (max-width: 1200px) {
   .reader-layout {
-    grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
+    grid-template-columns: minmax(13rem, 15rem) minmax(0, 1fr) minmax(15rem, 18rem);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 980px) {
+  .reader-layout {
+    grid-template-columns: 1fr;
   }
 
+  .reader-sidebar,
   .reasoning-panel {
     grid-column: 1 / -1;
   }
@@ -342,8 +350,7 @@ body {
     padding-right: 1rem;
   }
 
-  .header-grid,
-  .reader-layout {
+  .header-grid {
     grid-template-columns: 1fr;
   }
 
