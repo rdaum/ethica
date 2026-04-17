@@ -58,6 +58,12 @@ export interface WeightAnalysis {
   influenceReach: number;
 }
 
+export interface ReasoningAnalysis {
+  reasoning: ReasoningRelation[];
+  transitiveChains: TransitiveChain[];
+  weightAnalysis: WeightAnalysis | null;
+}
+
 export interface PartMetadata {
   number: number;
   numeral: string;

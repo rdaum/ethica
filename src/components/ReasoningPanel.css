@@ -48,6 +48,14 @@
   line-height: 1.02;
 }
 
+.panel-id {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .close-button,
 .nav-button {
   border: 1px solid rgba(130, 92, 42, 0.24);

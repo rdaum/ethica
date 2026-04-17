@@ -83,6 +83,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
           <div>
             <p className="panel-kicker">Analysis</p>
             <h2>{formatElementLabel(element)}</h2>
+            <p className="panel-id">{element.id}</p>
           </div>
           <div className="panel-actions">
             <button

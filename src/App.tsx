@@ -1,22 +1,18 @@
 import React, { startTransition, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
-import { DataFactory, Store } from 'n3';
 import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
+import createReasoningWorker from './lib/createReasoningWorker';
 import {
-  backfillStore,
   formatElementLabel,
   mergeLatinText,
   matchesQuery,
-  mergeStores,
-  parseN3ToStore,
   parseSpinozaXml,
   PARTS,
-  stripRulesFromN3,
   summarizeSections
 } from './lib/ethica';
-import { buildSupplementalStore } from './lib/readerGraph';
 import {
+  ReasoningAnalysis,
   ReaderSectionSummary,
   ReadingMode,
   ReasoningRelation,
@@ -25,10 +21,26 @@ import {
   WeightAnalysis
 } from './types';
 
+type WorkerResponse =
+  | {
+      type: 'partLoaded';
+      requestId: number;
+    }
+  | {
+      type: 'analysis';
+      requestId: number;
+      elementId: string;
+      result: ReasoningAnalysis;
+    }
+  | {
+      type: 'error';
+      requestId: number;
+      stage: 'loadPart' | 'analyze';
+      message: string;
+    };
+
 const App: React.FC = () => {
   const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
-  const [n3Store, setN3Store] = useState(new Store());
-  const [eyeStore, setEyeStore] = useState(new Store());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPart, setCurrentPart] = useState(1);
@@ -43,9 +55,111 @@ const App: React.FC = () => {
   const pendingNavigationId = useRef<string | null>(null);
   const hashInitialized = useRef(false);
   const deferredQuery = useDeferredValue(query);
+  const workerRef = useRef<Worker | null>(null);
+  const requestCounter = useRef(0);
+  const pendingLoadResolvers = useRef(new Map<number, { resolve: () => void; reject: (error: Error) => void }>());
+  const pendingAnalysisResolvers = useRef(
+    new Map<number, { resolve: (result: ReasoningAnalysis) => void; reject: (error: Error) => void }>()
+  );
 
-  // navigateToElement is a stable callback; this effect only needs to react when loading finishes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (typeof Worker === 'undefined') {
+      return undefined;
+    }
+
+    const loadResolvers = pendingLoadResolvers.current;
+    const analysisResolvers = pendingAnalysisResolvers.current;
+    const worker = createReasoningWorker();
+    workerRef.current = worker;
+
+    worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+      const message = event.data;
+
+      if (message.type === 'partLoaded') {
+        pendingLoadResolvers.current.get(message.requestId)?.resolve();
+        pendingLoadResolvers.current.delete(message.requestId);
+        return;
+      }
+
+      if (message.type === 'analysis') {
+        pendingAnalysisResolvers.current.get(message.requestId)?.resolve(message.result);
+        pendingAnalysisResolvers.current.delete(message.requestId);
+        return;
+      }
+
+      const error = new Error(message.message);
+
+      if (message.stage === 'loadPart') {
+        pendingLoadResolvers.current.get(message.requestId)?.reject(error);
+        pendingLoadResolvers.current.delete(message.requestId);
+        return;
+      }
+
+      pendingAnalysisResolvers.current.get(message.requestId)?.reject(error);
+      pendingAnalysisResolvers.current.delete(message.requestId);
+    };
+
+    worker.onerror = event => {
+      const error = new Error(event.message || 'Reasoning worker failed.');
+      loadResolvers.forEach(({ reject }) => reject(error));
+      analysisResolvers.forEach(({ reject }) => reject(error));
+      loadResolvers.clear();
+      analysisResolvers.clear();
+    };
+
+    return () => {
+      worker.terminate();
+      workerRef.current = null;
+      loadResolvers.clear();
+      analysisResolvers.clear();
+    };
+  }, []);
+
+  const nextRequestId = useCallback(() => {
+    requestCounter.current += 1;
+    return requestCounter.current;
+  }, []);
+
+  const loadPartIntoWorker = useCallback(
+    (payload: { elements: SpinozaElement[]; n3Content: string; eyeContent: string }) => {
+      if (!workerRef.current) {
+        return Promise.reject(new Error('Background reasoning worker is unavailable.'));
+      }
+
+      const requestId = nextRequestId();
+
+      return new Promise<void>((resolve, reject) => {
+        pendingLoadResolvers.current.set(requestId, { resolve, reject });
+        workerRef.current?.postMessage({
+          type: 'loadPart',
+          requestId,
+          ...payload
+        });
+      });
+    },
+    [nextRequestId]
+  );
+
+  const analyzeElementInWorker = useCallback(
+    (elementId: string) => {
+      if (!workerRef.current) {
+        return Promise.reject(new Error('Background reasoning worker is unavailable.'));
+      }
+
+      const requestId = nextRequestId();
+
+      return new Promise<ReasoningAnalysis>((resolve, reject) => {
+        pendingAnalysisResolvers.current.set(requestId, { resolve, reject });
+        workerRef.current?.postMessage({
+          type: 'analyze',
+          requestId,
+          elementId
+        });
+      });
+    },
+    [nextRequestId]
+  );
+
   useEffect(() => {
     let cancelled = false;
 
@@ -75,35 +189,17 @@ const App: React.FC = () => {
           parseSpinozaXml(xmlText),
           (latinPayload as { elements?: Record<string, string> }).elements ?? {}
         );
-        const baseStore = await parseN3ToStore(n3Content);
-        const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(eyeContent));
-        const supplementalStore = buildSupplementalStore(parsedElements);
-        const explicitStore = mergeStores(baseStore, eyeExplicitStore);
-        const mergedStore = backfillStore(explicitStore, supplementalStore);
-
-        let inferredStore = new Store();
-
-        try {
-          const { n3reasoner } = await import('eyereasoner');
-          const derivations = await n3reasoner(eyeContent, undefined, {
-            output: 'derivations',
-            outputType: 'string'
-          });
-
-          if (derivations.trim()) {
-            inferredStore = await parseN3ToStore(derivations);
-          }
-        } catch (reasoningError) {
-          console.error('EYE-js reasoning failed, continuing with explicit graph only:', reasoningError);
-        }
+        await loadPartIntoWorker({
+          elements: Array.from(parsedElements.values()),
+          n3Content,
+          eyeContent
+        });
 
         if (cancelled) {
           return;
         }
 
         setElements(parsedElements);
-        setN3Store(mergedStore);
-        setEyeStore(inferredStore);
         setLoading(false);
       } catch (loadError) {
         if (cancelled) {
@@ -121,7 +217,7 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [currentPart]);
+  }, [currentPart, loadPartIntoWorker]);
 
   useEffect(() => {
     if (loading || !pendingNavigationId.current) {
@@ -167,20 +263,28 @@ const App: React.FC = () => {
 
       setAnalysisLoading(true);
 
-      const [relations, chains, weight] = await Promise.all([
-        performReasoning(selectedElement),
-        findTransitiveChains(selectedElement),
-        analyzeElementWeight(selectedElement)
-      ]);
+      try {
+        const result = await analyzeElementInWorker(selectedElement);
 
-      if (cancelled) {
-        return;
+        if (cancelled) {
+          return;
+        }
+
+        setReasoning(result.reasoning);
+        setTransitiveChains(result.transitiveChains);
+        setWeightAnalysis(result.weightAnalysis);
+        setAnalysisLoading(false);
+      } catch (analysisError) {
+        if (cancelled) {
+          return;
+        }
+
+        console.error('Worker analysis failed:', analysisError);
+        setReasoning([]);
+        setTransitiveChains([]);
+        setWeightAnalysis(null);
+        setAnalysisLoading(false);
       }
-
-      setReasoning(relations);
-      setTransitiveChains(chains);
-      setWeightAnalysis(weight);
-      setAnalysisLoading(false);
     };
 
     analyzeSelectedElement();
@@ -190,7 +294,7 @@ const App: React.FC = () => {
     };
   // These analyzers are stable callbacks backed by the current stores and elements.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedElement, n3Store, eyeStore, elements]);
+  }, [selectedElement, elements]);
 
   useEffect(() => {
     if (!selectedElement) {
@@ -301,233 +405,6 @@ const App: React.FC = () => {
       block: 'start'
     });
   };
-
-  const performReasoning = useCallback(async (elementId: string): Promise<ReasoningRelation[]> => {
-    const results: ReasoningRelation[] = [];
-    const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
-    const originalPredicates = [
-      'cites',
-      'refersTo',
-      'mentions',
-      'clearlyfollowsFrom',
-      'evidentFrom',
-      'necessarilyFollows',
-      'provedBy',
-      'demonstratedBy',
-      'groundedIn',
-      'hasCorollary',
-      'impliesConsequence',
-      'buildsUpon',
-      'appliesResultFrom',
-      'refutedByAbsurdity',
-      'contradicts',
-      'partOf',
-      'containsSection',
-      'containsElement',
-      'type'
-    ];
-    const inferredPredicates = [
-      'transitivelyDependsOn',
-      'dependsUpon',
-      'circularArgument',
-      'derivedFrom',
-      'explainsElement'
-    ];
-
-    [...originalPredicates, ...inferredPredicates].forEach(predicate => {
-      const predicateURI =
-        predicate === 'type'
-          ? DataFactory.namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
-          : DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-      const store = inferredPredicates.includes(predicate) ? eyeStore : n3Store;
-
-      store.getQuads(elementURI, predicateURI, null, null).forEach(quad => {
-        results.push({
-          subject: elementId,
-          predicate,
-          object: cleanResourceValue(quad.object.value),
-          inferred: inferredPredicates.includes(predicate)
-        });
-      });
-
-      store.getQuads(null, predicateURI, elementURI, null).forEach(quad => {
-        results.push({
-          subject: cleanResourceValue(quad.subject.value),
-          predicate: inversePredicateFor(predicate),
-          object: elementId,
-          inferred: inferredPredicates.includes(predicate)
-        });
-      });
-    });
-
-    return dedupeRelations(results);
-  }, [eyeStore, n3Store]);
-
-  const findTransitiveChains = useCallback(async (elementId: string): Promise<TransitiveChain[]> => {
-    const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
-    const transitiveURI = DataFactory.namedNode('http://spinoza.org/ethics#transitivelyDependsOn');
-    const dependencyURI = DataFactory.namedNode('http://spinoza.org/ethics#dependsUpon');
-    const chains: TransitiveChain[] = [];
-
-    eyeStore.getQuads(elementURI, transitiveURI, null, null).forEach(quad => {
-      chains.push({
-        type: 'transitive_dependency',
-        start: elementId,
-        end: cleanResourceValue(quad.object.value),
-        relationship: 'transitivelyDependsOn',
-        inferred: true,
-        path: [{ from: elementId, to: cleanResourceValue(quad.object.value), relationship: 'transitivelyDependsOn' }],
-        length: 1
-      });
-    });
-
-    eyeStore.getQuads(elementURI, dependencyURI, null, null).forEach(quad => {
-      chains.push({
-        type: 'dependency',
-        start: elementId,
-        end: cleanResourceValue(quad.object.value),
-        relationship: 'dependsUpon',
-        inferred: true,
-        path: [{ from: elementId, to: cleanResourceValue(quad.object.value), relationship: 'dependsUpon' }],
-        length: 1
-      });
-    });
-
-    eyeStore.getQuads(null, transitiveURI, elementURI, null).forEach(quad => {
-      chains.push({
-        type: 'inverse_transitive_dependency',
-        start: cleanResourceValue(quad.subject.value),
-        end: elementId,
-        relationship: 'transitivelyDependsOn',
-        inferred: true,
-        path: [{ from: cleanResourceValue(quad.subject.value), to: elementId, relationship: 'transitivelyDependsOn' }],
-        length: 1
-      });
-    });
-
-    eyeStore.getQuads(null, dependencyURI, elementURI, null).forEach(quad => {
-      chains.push({
-        type: 'inverse_dependency',
-        start: cleanResourceValue(quad.subject.value),
-        end: elementId,
-        relationship: 'dependsUpon',
-        inferred: true,
-        path: [{ from: cleanResourceValue(quad.subject.value), to: elementId, relationship: 'dependsUpon' }],
-        length: 1
-      });
-    });
-
-    return dedupeChains(chains);
-  }, [eyeStore]);
-
-  const analyzeElementWeight = useCallback(async (elementId: string): Promise<WeightAnalysis | null> => {
-    try {
-      const analysis: WeightAnalysis = {
-        elementId,
-        inboundWeight: 0,
-        outboundWeight: 0,
-        transitiveInfluence: 0,
-        foundationalScore: 0,
-        relationshipBreakdown: {},
-        dependencyDepth: 0,
-        influenceReach: 0
-      };
-      const weights: Record<string, number> = {
-        cites: 1,
-        necessarilyFollows: 3,
-        clearlyfollowsFrom: 2,
-        provedBy: 2,
-        appliesResultFrom: 2,
-        refutedByAbsurdity: 1.5,
-        buildsUpon: 1.5,
-        groundedIn: 2,
-        demonstratedBy: 2
-      };
-      const elementURI = DataFactory.namedNode(`http://spinoza.org/ethics#${elementId}`);
-
-      Object.entries(weights).forEach(([predicate, weight]) => {
-        const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-        const inbound = n3Store.getQuads(null, predicateURI, elementURI, null);
-        const outbound = n3Store.getQuads(elementURI, predicateURI, null, null);
-
-        analysis.inboundWeight += inbound.length * weight;
-        analysis.outboundWeight += outbound.length * weight;
-      });
-
-      const calculateTransitiveInfluence = (currentId: string, visited: Set<string>, depth: number): number => {
-        if (depth > 4 || visited.has(currentId)) {
-          return 0;
-        }
-
-        visited.add(currentId);
-        let influence = 0;
-        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentId}`);
-
-        Object.entries(weights).forEach(([predicate, weight]) => {
-          const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          n3Store.getQuads(null, predicateURI, currentURI, null).forEach(quad => {
-            influence += weight * (5 - depth);
-            influence += calculateTransitiveInfluence(cleanResourceValue(quad.subject.value), new Set(visited), depth + 1);
-          });
-        });
-
-        return influence;
-      };
-
-      const calculateDepth = (currentId: string, visited: Set<string>): number => {
-        if (visited.has(currentId)) {
-          return 0;
-        }
-
-        visited.add(currentId);
-        const currentURI = DataFactory.namedNode(`http://spinoza.org/ethics#${currentId}`);
-        let maxDepth = 0;
-
-        Object.keys(weights).forEach(predicate => {
-          const predicateURI = DataFactory.namedNode(`http://spinoza.org/ethics#${predicate}`);
-          n3Store.getQuads(currentURI, predicateURI, null, null).forEach(quad => {
-            maxDepth = Math.max(
-              maxDepth,
-              1 + calculateDepth(cleanResourceValue(quad.object.value), new Set(visited))
-            );
-          });
-        });
-
-        return maxDepth;
-      };
-
-      analysis.transitiveInfluence = calculateTransitiveInfluence(elementId, new Set(), 0);
-      analysis.dependencyDepth = calculateDepth(elementId, new Set());
-      analysis.influenceReach = Math.round(analysis.transitiveInfluence / 10);
-
-      const selectedType = elements.get(elementId)?.type;
-      const baseScore =
-        selectedType === 'definition'
-          ? 10
-          : selectedType === 'axiom'
-            ? 8
-            : selectedType === 'proposition'
-              ? 3
-              : selectedType === 'appendix'
-                ? 2
-                : 1;
-      const dependencyRatio =
-        analysis.outboundWeight === 0 ? 1 : Math.min(1, analysis.inboundWeight / analysis.outboundWeight);
-
-      analysis.foundationalScore = Math.max(
-        0,
-        baseScore +
-          analysis.inboundWeight * 1.5 +
-          analysis.transitiveInfluence * 0.2 +
-          dependencyRatio * 5
-      );
-
-      return analysis;
-    } catch (analysisError) {
-      console.error('Weight analysis failed:', analysisError);
-      return null;
-    }
-  }, [elements, n3Store]);
 
   if (loading) {
     return (
@@ -683,77 +560,6 @@ const App: React.FC = () => {
       )}
     </div>
   );
-};
-
-const cleanResourceValue = (value: string): string => (value.includes('#') ? value.split('#')[1] : value);
-
-const inversePredicateFor = (predicate: string): string =>
-  predicate === 'cites'
-    ? 'citedBy'
-    : predicate === 'refersTo'
-      ? 'referredToBy'
-      : predicate === 'mentions'
-        ? 'mentionedBy'
-        : predicate === 'clearlyfollowsFrom'
-          ? 'clearlyLeadsTo'
-          : predicate === 'evidentFrom'
-            ? 'makesEvident'
-            : predicate === 'necessarilyFollows'
-              ? 'necessarilyFollowedBy'
-              : predicate === 'provedBy'
-                ? 'proves'
-                : predicate === 'demonstratedBy'
-                  ? 'demonstrates'
-                  : predicate === 'groundedIn'
-                    ? 'grounds'
-                    : predicate === 'hasCorollary'
-                      ? 'isCorollaryOf'
-                      : predicate === 'impliesConsequence'
-                        ? 'isConsequenceOf'
-                        : predicate === 'buildsUpon'
-                          ? 'isBuiltUponBy'
-                          : predicate === 'appliesResultFrom'
-                            ? 'providesResultTo'
-                            : predicate === 'refutedByAbsurdity'
-                              ? 'refutes'
-                              : predicate === 'contradicts'
-                                ? 'contradictedBy'
-                                : predicate === 'partOf'
-                                  ? 'contains'
-                                  : predicate === 'containsSection'
-                                    ? 'isSectionOf'
-                                    : predicate === 'containsElement'
-                                      ? 'isElementOf'
-                                      : `inverse_${predicate}`;
-
-const dedupeRelations = (relations: ReasoningRelation[]): ReasoningRelation[] => {
-  const seen = new Set<string>();
-
-  return relations.filter(relation => {
-    const key = `${relation.subject}|${relation.predicate}|${relation.object}|${relation.inferred ? '1' : '0'}`;
-
-    if (seen.has(key)) {
-      return false;
-    }
-
-    seen.add(key);
-    return true;
-  });
-};
-
-const dedupeChains = (chains: TransitiveChain[]): TransitiveChain[] => {
-  const seen = new Set<string>();
-
-  return chains.filter(chain => {
-    const key = `${chain.start}|${chain.relationship}|${chain.end}`;
-
-    if (seen.has(key)) {
-      return false;
-    }
-
-    seen.add(key);
-    return true;
-  });
 };
 
 const truncateText = (text: string, length = 220): string => (text.length > length ? `${text.slice(0, length)}…` : text);
