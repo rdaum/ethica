@@ -201,6 +201,48 @@ body {
   outline-offset: 2px;
 }
 
+.reading-mode {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.reading-mode span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.reading-mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid rgba(89, 67, 39, 0.16);
+  background: rgba(255, 252, 246, 0.78);
+}
+
+.reading-mode-button {
+  border: 0;
+  border-right: 1px solid rgba(89, 67, 39, 0.12);
+  background: transparent;
+  color: var(--ink);
+  padding: 0.78rem 0.7rem;
+  font: inherit;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.reading-mode-button:last-child {
+  border-right: 0;
+}
+
+.reading-mode-button:hover,
+.reading-mode-button.active {
+  background: linear-gradient(180deg, rgba(255, 247, 229, 0.96), rgba(250, 233, 197, 0.94));
+  color: var(--accent-strong);
+}
+
 .reader-layout {
   max-width: 92rem;
   margin: 0 auto;
@@ -295,6 +337,11 @@ body {
 
 .selection-card p {
   color: var(--muted);
+}
+
+.selection-preview-grid {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .selection-nav {

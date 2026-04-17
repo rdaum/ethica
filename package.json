@@ -30,7 +30,8 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "generate:corpus": "node scripts/generate-corpus.mjs",
+    "generate:latin": "node scripts/generate-latin.mjs",
+    "generate:corpus": "node scripts/generate-corpus.mjs && node scripts/generate-latin.mjs",
     "eject": "react-scripts eject",
     "deploy": "npm run build && gh-pages -d build"
   },

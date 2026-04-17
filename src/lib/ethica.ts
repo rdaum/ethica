@@ -149,9 +149,25 @@ export const matchesQuery = (element: SpinozaElement, query: string): boolean =>
     return true;
   }
 
-  return [element.text, formatElementLabel(element), element.heading, element.id]
+  return [element.text, element.latinText, formatElementLabel(element), element.heading, element.id]
     .filter(Boolean)
     .some(value => value!.toLowerCase().includes(normalizedQuery));
+};
+
+export const mergeLatinText = (
+  elements: Map<string, SpinozaElement>,
+  latinById: Record<string, string>
+): Map<string, SpinozaElement> => {
+  const merged = new Map<string, SpinozaElement>();
+
+  elements.forEach((element, id) => {
+    merged.set(id, {
+      ...element,
+      latinText: latinById[id]?.trim() || undefined
+    });
+  });
+
+  return merged;
 };
 
 export const summarizeSections = (elements: SpinozaElement[]): ReaderSectionSummary[] => {
@@ -282,7 +298,7 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
   const processAppendixSection = (node: OrderedNode, sectionKind: string, parentId: string) => {
     const attrs = getAttributes(node);
     const topic = attrs['@_topic'];
-    const id = `${parentId}.argument.${appendixIndex + 1}`;
+    const id = attrs['@_id'] ?? `${parentId}.argument.${appendixIndex + 1}`;
     appendixIndex += 1;
 
     addElement({
@@ -290,7 +306,11 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
       type: 'appendix',
       text: extractRecursiveText(node),
       sectionKind,
-      heading: topic ? APPENDIX_TOPIC_LABELS[topic] ?? humanizeToken(topic) : 'Appendix Section'
+      heading: topic
+        ? /^[IVXLCDM]+$/i.test(topic)
+          ? `Caput ${topic.toUpperCase()}`
+          : APPENDIX_TOPIC_LABELS[topic] ?? humanizeToken(topic)
+        : 'Appendix Section'
     });
   };
 

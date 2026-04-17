@@ -6,6 +6,7 @@ import './App.css';
 import {
   backfillStore,
   formatElementLabel,
+  mergeLatinText,
   matchesQuery,
   mergeStores,
   parseN3ToStore,
@@ -15,7 +16,14 @@ import {
   summarizeSections
 } from './lib/ethica';
 import { buildSupplementalStore } from './lib/readerGraph';
-import { ReaderSectionSummary, ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from './types';
+import {
+  ReaderSectionSummary,
+  ReadingMode,
+  ReasoningRelation,
+  SpinozaElement,
+  TransitiveChain,
+  WeightAnalysis
+} from './types';
 
 const App: React.FC = () => {
   const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
@@ -24,6 +32,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPart, setCurrentPart] = useState(1);
+  const [readingMode, setReadingMode] = useState<ReadingMode>('english');
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [query, setQuery] = useState('');
@@ -46,19 +55,26 @@ const App: React.FC = () => {
 
       try {
         const basePath = process.env.PUBLIC_URL || '.';
-        const [xmlResponse, n3Response, eyeResponse] = await Promise.all([
+        const [xmlResponse, latinResponse, n3Response, eyeResponse] = await Promise.all([
           fetch(`${basePath}/ethica_${currentPart}.xml`),
+          fetch(`${basePath}/ethica_la_${currentPart}.json`),
           fetch(`${basePath}/ethica-logic.n3`),
           fetch(`${basePath}/ethica-logic-eye.n3`)
         ]);
 
-        const [xmlText, n3Content, eyeContent] = await Promise.all([
+        const [xmlText, latinPayload, n3Content, eyeContent] = await Promise.all([
           xmlResponse.text(),
+          latinResponse.ok
+            ? latinResponse.json()
+            : Promise.resolve({ language: 'la', part: currentPart, elements: {} }),
           n3Response.text(),
           eyeResponse.text()
         ]);
 
-        const parsedElements = parseSpinozaXml(xmlText);
+        const parsedElements = mergeLatinText(
+          parseSpinozaXml(xmlText),
+          (latinPayload as { elements?: Record<string, string> }).elements ?? {}
+        );
         const baseStore = await parseN3ToStore(n3Content);
         const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(eyeContent));
         const supplementalStore = buildSupplementalStore(parsedElements);
@@ -245,7 +261,7 @@ const App: React.FC = () => {
   }, []);
 
   const navigateToElement = useCallback((elementId: string) => {
-    const targetPart = elementId.startsWith('I.') ? 1 : elementId.startsWith('II.') ? 2 : currentPart;
+    const targetPart = getPartNumberFromElementId(elementId) ?? currentPart;
 
     if (targetPart !== currentPart) {
       pendingNavigationId.current = elementId;
@@ -560,6 +576,28 @@ const App: React.FC = () => {
                 placeholder="Search terms, ideas, references"
               />
             </label>
+
+            <div className="reading-mode" aria-label="Reading language">
+              <span>Text view</span>
+              <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
+                {([
+                  ['english', 'English'],
+                  ['latin', 'Latin'],
+                  ['bilingual', 'Bilingual']
+                ] as const).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    role="tab"
+                    aria-selected={readingMode === mode}
+                    className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
+                    onClick={() => setReadingMode(mode)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -598,7 +636,7 @@ const App: React.FC = () => {
             <div className="sidebar-card selection-card">
               <p className="sidebar-kicker">Selected</p>
               <h3>{formatElementLabel(selectedEntry)}</h3>
-              <p>{selectedEntry.text.slice(0, 220)}{selectedEntry.text.length > 220 ? '…' : ''}</p>
+              {renderSelectionPreview(selectedEntry, readingMode)}
               <div className="selection-nav">
                 <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
                   Previous
@@ -620,6 +658,7 @@ const App: React.FC = () => {
           onElementSelect={handleSelectElement}
           currentPart={currentPart}
           partTitle={currentPartMetadata.title}
+          readingMode={readingMode}
         />
 
         <ReasoningPanel
@@ -715,6 +754,31 @@ const dedupeChains = (chains: TransitiveChain[]): TransitiveChain[] => {
     seen.add(key);
     return true;
   });
+};
+
+const truncateText = (text: string, length = 220): string => (text.length > length ? `${text.slice(0, length)}…` : text);
+
+const renderSelectionPreview = (element: SpinozaElement, readingMode: ReadingMode) => {
+  if (readingMode === 'latin') {
+    return <p>{truncateText(element.latinText || 'Latin text not yet available for this passage.')}</p>;
+  }
+
+  if (readingMode === 'bilingual') {
+    return (
+      <div className="selection-preview-grid">
+        <p>{truncateText(element.text, 140)}</p>
+        <p>{truncateText(element.latinText || 'Latin text not yet available.', 140)}</p>
+      </div>
+    );
+  }
+
+  return <p>{truncateText(element.text)}</p>;
+};
+
+const getPartNumberFromElementId = (elementId: string): number | null => {
+  const numeral = elementId.split('.')[0];
+  const part = Object.values(PARTS).find(entry => entry.numeral === numeral);
+  return part?.number ?? null;
 };
 
 export default App;

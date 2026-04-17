@@ -50,7 +50,7 @@
     </axiom>
     <axiom id="II.ax.5" number="5">
       <text>We feel and perceive no particular things, save bodies and modes of thought.</text>
-      <note id="II.ax.5.note">
+      <note id="II.ax.5.note" editorial="true">
         <text>The Postulates are given after the conclusion of Prop. xiii.</text>
       </note>
     </axiom>

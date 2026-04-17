@@ -5,6 +5,7 @@ An interactive reader for Spinoza's *Ethics* built in React and TypeScript.
 The project combines:
 
 - structured XML editions of the text
+- a Latin-aligned parallel text layer keyed to the same passage ids
 - an explicit N3 graph of logical relationships
 - EYE-based inferred relationships
 - a corpus generation step that keeps XML and graph data aligned
@@ -30,6 +31,7 @@ The app has three main layers:
 
 1. Text layer
    XML files in `public/ethica_1.xml` through `public/ethica_5.xml` are parsed into a typed in-memory reader model.
+   Latin alignment files in `public/ethica_la_1.json` through `public/ethica_la_5.json` attach bilingual text to the same canonical ids.
 
 2. Graph layer
    `public/ethica-logic.n3` contains explicit graph data.
@@ -56,7 +58,8 @@ src/
 
 ```text
 scripts/
-└── generate-corpus.mjs           # Regenerates Parts I-V XML and the explicit graph
+├── generate-corpus.mjs           # Regenerates Parts I-V XML and the explicit graph
+└── generate-latin.mjs            # Aligns Latin Library text to the canonical corpus ids
 ```
 
 ```text
@@ -66,6 +69,11 @@ public/
 ├── ethica_3.xml                  # Part III markup
 ├── ethica_4.xml                  # Part IV markup
 ├── ethica_5.xml                  # Part V markup
+├── ethica_la_1.json              # Part I Latin alignment
+├── ethica_la_2.json              # Part II Latin alignment
+├── ethica_la_3.json              # Part III Latin alignment
+├── ethica_la_4.json              # Part IV Latin alignment
+├── ethica_la_5.json              # Part V Latin alignment
 ├── ethica-logic.n3               # Explicit graph
 ├── ethica-logic-eye.n3           # Explicit triples + inference rules
 └── spinoza-signet.png            # Reader branding asset
@@ -91,6 +99,13 @@ npm run build
 
 The reader now treats the generated explicit graph as the primary source of structural and citation relationships.
 
+The canonical passage structure is now Latin-governed. In practice that means:
+
+- the English XML is the reader's structural source
+- the Latin alignment script validates that this structure can be walked in the order signaled by the original Latin
+- obvious English-only editorial additions are preserved, but marked as editorial rather than treated as authorial structure
+- Part IV appendix chapters follow the Latin `CAPUT` structure instead of anonymous synthetic argument buckets
+
 At runtime it still builds a supplemental graph from the parsed XML in order to provide backfill only when the canonical graph lacks a relationship. That backfill covers:
 
 - structural relationships such as `partOf`, `provedBy`, `hasCorollary`, and `hasNote`
@@ -104,6 +119,7 @@ What is in relatively good shape:
 
 - Parts I-V render in reading order
 - Parts I-V are generated into XML from `ethica.txt`
+- Parts I-V also have Latin parallel text aligned to the same passage ids
 - the explicit graph is regenerated from the corpus instead of being maintained only as ad hoc hand-edited triples
 - build, tests, and TypeScript checks pass
 - the main bundle is much smaller than before due to lazy loading of inference work

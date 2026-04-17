@@ -1,7 +1,7 @@
 import React from 'react';
 import './BookView.css';
 import { formatElementLabel, getSectionLabel, matchesQuery } from '../lib/ethica';
-import { SpinozaElement } from '../types';
+import { ReadingMode, SpinozaElement } from '../types';
 
 interface BookViewProps {
   elements: SpinozaElement[];
@@ -12,6 +12,7 @@ interface BookViewProps {
   hoveredElement: string | null;
   currentPart: number;
   partTitle: string;
+  readingMode: ReadingMode;
 }
 
 const BookView: React.FC<BookViewProps> = ({
@@ -22,7 +23,8 @@ const BookView: React.FC<BookViewProps> = ({
   selectedElement,
   hoveredElement,
   currentPart,
-  partTitle
+  partTitle,
+  readingMode
 }) => {
   const childrenByParent = new Map<string, SpinozaElement[]>();
 
@@ -94,7 +96,7 @@ const BookView: React.FC<BookViewProps> = ({
               </header>
 
               <div className="entry-body">
-                {renderParagraphs(element.text)}
+                {renderEntryBody(element, readingMode)}
               </div>
 
               {renderChildren(
@@ -105,7 +107,8 @@ const BookView: React.FC<BookViewProps> = ({
                 selectedElement,
                 hoveredElement,
                 onElementHover,
-                onElementSelect
+                onElementSelect,
+                readingMode
               )}
             </article>
           </div>
@@ -123,7 +126,8 @@ const renderChildren = (
   selectedElement: string | null,
   hoveredElement: string | null,
   onElementHover: (elementId: string | null) => void,
-  onElementSelect: (elementId: string | null) => void
+  onElementSelect: (elementId: string | null) => void,
+  readingMode: ReadingMode
 ) => {
   const children = (childrenByParent.get(parentId) ?? []).filter(child => {
     if (!query.trim()) {
@@ -159,7 +163,7 @@ const renderChildren = (
             <span className="entry-id">{child.id}</span>
           </header>
           <div className="entry-body compact">
-            {renderParagraphs(child.text)}
+            {renderEntryBody(child, readingMode)}
           </div>
         </article>
       ))}
@@ -167,11 +171,42 @@ const renderChildren = (
   );
 };
 
-const renderParagraphs = (text: string) =>
+const renderEntryBody = (element: SpinozaElement, readingMode: ReadingMode) => {
+  if (readingMode === 'latin') {
+    const text = element.latinText || 'Latin text not yet available for this passage.';
+    return renderParagraphs(text, element.latinText ? 'latin' : 'english');
+  }
+
+  if (readingMode === 'bilingual') {
+    return (
+      <div className="parallel-text">
+        <div className="parallel-column">
+          <p className="parallel-label">English</p>
+          {renderParagraphs(element.text, 'english')}
+        </div>
+        <div className="parallel-column">
+          <p className="parallel-label">Latin</p>
+          {renderParagraphs(
+            element.latinText || 'Latin text not yet available for this passage.',
+            element.latinText ? 'latin' : 'english'
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return renderParagraphs(element.text, 'english');
+};
+
+const renderParagraphs = (text: string, language: 'english' | 'latin') =>
   text
     .split(/\n{2,}/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean)
-    .map((paragraph, index) => <p key={index}>{paragraph}</p>);
+    .map((paragraph, index) => (
+      <p key={`${language}-${index}`} lang={language === 'latin' ? 'la' : 'en'}>
+        {paragraph}
+      </p>
+    ));
 
 export default BookView;

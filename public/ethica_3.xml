@@ -14,7 +14,7 @@ I do not forget, that the illustrious Descartes, though he believed, that the mi
     </def>
     <def id="III.def.3" number="3">
       <text>By emotion I mean the modifications of the body, whereby the active power of the said body is increased or diminished, aided or constrained, and also the ideas of such modifications.</text>
-      <note id="III.def.3.note">
+      <note id="III.def.3.note" editorial="true">
         <text>If we can be the adequate cause of any of these modifications, I then call the emotion an activity, otherwise I call it a passion, or state wherein the mind is passive.</text>
       </note>
     </def>
@@ -22,7 +22,7 @@ I do not forget, that the illustrious Descartes, though he believed, that the mi
   <section type="postulates" id="III.postulates">
     <postulate id="III.post.1" number="1">
       <text>The human body can be affected in many ways, whereby its power of activity is increased or diminished, and also in other ways which do not render its power of activity either greater or less.</text>
-      <note id="III.post.1.note">
+      <note id="III.post.1.note" editorial="true">
         <text>This postulate or axiom rests on Postulate i. and Lemmas v. and vii., which see after II. xiii.</text>
       </note>
     </postulate>

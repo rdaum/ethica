@@ -7,6 +7,7 @@ import { XMLParser } from 'fast-xml-parser';
 const ROOT = process.cwd();
 const RAW_TEXT_PATH = path.join(ROOT, 'ethica.txt');
 const PUBLIC_DIR = path.join(ROOT, 'public');
+const EDITORIAL_ELEMENT_IDS = new Set(['II.ax.5.note', 'III.def.3.note', 'III.post.1.note', 'IV.prop.10.corollary']);
 
 const PARTS = {
   I: {
@@ -266,8 +267,9 @@ const parseAppendixSection = (numeral, lines) => {
     id: `${numeral}.appendix`,
     introduction: intro.join('\n\n'),
     entries: entries.map(entry => ({
-      id: `${numeral}.appendix.section.${romanToNumber(entry.number) ?? entry.number.toLowerCase()}`,
-      heading: `Appendix ${entry.number}`,
+      id: `${numeral}.appendix.chapter.${romanToNumber(entry.number) ?? entry.number.toLowerCase()}`,
+      heading: `Caput ${entry.number}`,
+      topic: entry.number,
       text: entry.paragraphs.join('\n\n')
     }))
   };
@@ -631,7 +633,7 @@ const renderSection = section => {
     const entries = section.entries
       .map(
         entry =>
-          `    <section type="argument" topic="${entry.id.split('.').pop()}">\n      <text>${escapeXml(entry.text)}</text>\n    </section>`
+          `    <section type="chapter" id="${entry.id}" topic="${entry.topic}">\n      <text>${escapeXml(entry.text)}</text>\n    </section>`
       )
       .join('\n');
     return `  <section type="appendix" id="${section.id}">\n${intro}${entries ? `${entries}\n` : ''}  </section>`;
@@ -688,7 +690,8 @@ const renderSimpleItem = (tag, item, indent = 4) => {
 
 const renderChild = (child, indent) => {
   const spacing = ' '.repeat(indent);
-  return `${spacing}<${child.type} id="${child.id}">\n${spacing}  <text>${escapeXml(child.text)}</text>\n${spacing}</${child.type}>`;
+  const editorial = EDITORIAL_ELEMENT_IDS.has(child.id) ? ' editorial="true"' : '';
+  return `${spacing}<${child.type} id="${child.id}"${editorial}>\n${spacing}  <text>${escapeXml(child.text)}</text>\n${spacing}</${child.type}>`;
 };
 
 const escapeXml = value =>

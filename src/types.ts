@@ -15,12 +15,15 @@ export interface SpinozaElement {
   id: string;
   type: ElementType;
   text: string;
+  latinText?: string;
   sortIndex: number;
   sectionKind: string;
   number?: string;
   parentId?: string;
   heading?: string;
 }
+
+export type ReadingMode = 'english' | 'latin' | 'bilingual';
 
 export interface ReasoningRelation {
   subject: string;
