@@ -453,77 +453,81 @@ const App: React.FC = () => {
                 placeholder="Search terms, ideas, references"
               />
             </label>
-
-            <div className="reading-mode" aria-label="Reading language">
-              <span>Text view</span>
-              <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
-                {([
-                  ['english', 'English'],
-                  ['latin', 'Latin'],
-                  ['bilingual', 'Bilingual']
-                ] as const).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    role="tab"
-                    aria-selected={readingMode === mode}
-                    className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
-                    onClick={() => setReadingMode(mode)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </header>
 
       <main className="reader-layout">
         <aside className="reader-sidebar">
-          <div className="sidebar-card">
-            <img
-              src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
-              alt="Spinoza's signet ring"
-              className="spinoza-signet"
-            />
-            <p className="sidebar-kicker">
-              Part {currentPartMetadata.numeral}
-            </p>
-            <h2>{currentPartMetadata.title}</h2>
-            <p>{currentPartMetadata.strapline}</p>
-          </div>
-
-          <div className="sidebar-card">
-            <div className="sidebar-heading">
-              <h3>Sections</h3>
-              <span>{visibleTopLevelElements.length} passages</span>
+          <div className="sidebar-stack">
+            <div className="sidebar-card">
+              <img
+                src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
+                alt="Spinoza's signet ring"
+                className="spinoza-signet"
+              />
+              <p className="sidebar-kicker">
+                Part {currentPartMetadata.numeral}
+              </p>
+              <h2>{currentPartMetadata.title}</h2>
+              <p>{currentPartMetadata.strapline}</p>
             </div>
-            <div className="section-links">
-              {sectionSummaries.map(section => (
-                <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
-                  <span>{section.label}</span>
-                  <strong>{section.count}</strong>
-                </button>
-              ))}
-            </div>
-          </div>
 
-          {selectedEntry && (
-            <div className="sidebar-card selection-card">
-              <p className="sidebar-kicker">Selected</p>
-              <h3>{formatElementLabel(selectedEntry)}</h3>
-              {renderSelectionPreview(selectedEntry, readingMode)}
-              <div className="selection-nav">
-                <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
-                  Previous
-                </button>
-                <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
-                  Next
-                </button>
+            <div className="sidebar-card">
+              <div className="reading-mode" aria-label="Reading language">
+                <span>Text view</span>
+                <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
+                  {([
+                    ['english', 'English'],
+                    ['latin', 'Latin'],
+                    ['bilingual', 'Bilingual']
+                  ] as const).map(([mode, label]) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      role="tab"
+                      aria-selected={readingMode === mode}
+                      className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
+                      onClick={() => setReadingMode(mode)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
+
+            <div className="sidebar-card">
+              <div className="sidebar-heading">
+                <h3>Sections</h3>
+                <span>{visibleTopLevelElements.length} passages</span>
+              </div>
+              <div className="section-links">
+                {sectionSummaries.map(section => (
+                  <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
+                    <span>{section.label}</span>
+                    <strong>{section.count}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {selectedEntry && (
+              <div className="sidebar-card selection-card">
+                <p className="sidebar-kicker">Selected</p>
+                <h3>{formatElementLabel(selectedEntry)}</h3>
+                {renderSelectionPreview(selectedEntry, readingMode)}
+                <div className="selection-nav">
+                  <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
+                    Previous
+                  </button>
+                  <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </aside>
 
         <BookView

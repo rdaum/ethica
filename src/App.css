@@ -254,8 +254,17 @@ body {
 }
 
 .reader-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+}
+
+.sidebar-stack {
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
   display: grid;
   gap: 1rem;
+  padding-right: 0.2rem;
 }
 
 .sidebar-card {
@@ -387,6 +396,16 @@ body {
   .reader-sidebar,
   .reasoning-panel {
     grid-column: 1 / -1;
+  }
+
+  .reader-sidebar {
+    position: static;
+  }
+
+  .sidebar-stack {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
 }
 
