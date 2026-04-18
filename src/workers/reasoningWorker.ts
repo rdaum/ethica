@@ -47,6 +47,8 @@ let explicitStore = new Store();
 let inferredStore = new Store();
 let elements = new Map<string, SpinozaElement>();
 let analysisCache = new Map<string, ReasoningAnalysis>();
+let weightedOutboundAdjacency = new Map<string, string[]>();
+let weightedInboundAdjacency = new Map<string, string[]>();
 
 ctx.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   const message = event.data;
@@ -87,6 +89,7 @@ const loadPart = async (message: LoadPartMessage) => {
   const supplementalStore = buildSupplementalStore(elements);
   explicitStore = backfillStore(mergeStores(baseStore, eyeExplicitStore), supplementalStore);
   inferredStore = new Store();
+  buildWeightedAdjacency();
 
   try {
     const { n3reasoner } = await import('eyereasoner');
@@ -266,50 +269,8 @@ const analyzeElementWeight = (elementId: string): WeightAnalysis | null => {
       analysis.outboundWeight += outbound.length * weight;
     });
 
-    const calculateTransitiveInfluence = (currentId: string, visited: Set<string>, depth: number): number => {
-      if (depth > 4 || visited.has(currentId)) {
-        return 0;
-      }
-
-      visited.add(currentId);
-      let influence = 0;
-      const currentURI = DataFactory.namedNode(`${ETHICS}${currentId}`);
-
-      Object.entries(weights).forEach(([predicate, weight]) => {
-        const predicateURI = DataFactory.namedNode(`${ETHICS}${predicate}`);
-        explicitStore.getQuads(null, predicateURI, currentURI, null).forEach(quad => {
-          influence += weight * (5 - depth);
-          influence += calculateTransitiveInfluence(cleanResourceValue(quad.subject.value), new Set(visited), depth + 1);
-        });
-      });
-
-      return influence;
-    };
-
-    const calculateDepth = (currentId: string, visited: Set<string>): number => {
-      if (visited.has(currentId)) {
-        return 0;
-      }
-
-      visited.add(currentId);
-      const currentURI = DataFactory.namedNode(`${ETHICS}${currentId}`);
-      let maxDepth = 0;
-
-      Object.keys(weights).forEach(predicate => {
-        const predicateURI = DataFactory.namedNode(`${ETHICS}${predicate}`);
-        explicitStore.getQuads(currentURI, predicateURI, null, null).forEach(quad => {
-          maxDepth = Math.max(
-            maxDepth,
-            1 + calculateDepth(cleanResourceValue(quad.object.value), new Set(visited))
-          );
-        });
-      });
-
-      return maxDepth;
-    };
-
-    analysis.transitiveInfluence = calculateTransitiveInfluence(elementId, new Set(), 0);
-    analysis.dependencyDepth = calculateDepth(elementId, new Set());
+    analysis.transitiveInfluence = calculateTransitiveInfluence(elementId);
+    analysis.dependencyDepth = calculateDependencyDepth(elementId);
     analysis.influenceReach = Math.round(analysis.transitiveInfluence / 10);
 
     const selectedType = elements.get(elementId)?.type;
@@ -335,6 +296,114 @@ const analyzeElementWeight = (elementId: string): WeightAnalysis | null => {
     console.error('Weight analysis failed in worker:', error);
     return null;
   }
+};
+
+const buildWeightedAdjacency = () => {
+  weightedOutboundAdjacency = new Map();
+  weightedInboundAdjacency = new Map();
+  const weightedPredicates = [
+    'cites',
+    'necessarilyFollows',
+    'clearlyfollowsFrom',
+    'provedBy',
+    'appliesResultFrom',
+    'refutedByAbsurdity',
+    'buildsUpon',
+    'groundedIn',
+    'demonstratedBy'
+  ];
+
+  weightedPredicates.forEach(predicate => {
+    const predicateURI = DataFactory.namedNode(`${ETHICS}${predicate}`);
+    explicitStore.getQuads(null, predicateURI, null, null).forEach(quad => {
+      const from = cleanResourceValue(quad.subject.value);
+      const to = cleanResourceValue(quad.object.value);
+
+      if (!weightedOutboundAdjacency.has(from)) {
+        weightedOutboundAdjacency.set(from, []);
+      }
+
+      if (!weightedInboundAdjacency.has(to)) {
+        weightedInboundAdjacency.set(to, []);
+      }
+
+      weightedOutboundAdjacency.get(from)?.push(to);
+      weightedInboundAdjacency.get(to)?.push(from);
+    });
+  });
+};
+
+const calculateTransitiveInfluence = (elementId: string): number => {
+  const maxDepth = 4;
+  const seenDepth = new Map<string, number>([[elementId, 0]]);
+  const queue: Array<{ id: string; depth: number }> = [{ id: elementId, depth: 0 }];
+  let influence = 0;
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (!current) {
+      break;
+    }
+
+    if (current.depth >= maxDepth) {
+      continue;
+    }
+
+    const inboundNeighbors = weightedInboundAdjacency.get(current.id) ?? [];
+
+    for (const neighbor of inboundNeighbors) {
+      const nextDepth = current.depth + 1;
+      const bestDepth = seenDepth.get(neighbor);
+
+      if (bestDepth !== undefined && bestDepth <= nextDepth) {
+        continue;
+      }
+
+      seenDepth.set(neighbor, nextDepth);
+      influence += 5 - current.depth;
+      queue.push({ id: neighbor, depth: nextDepth });
+    }
+  }
+
+  return influence;
+};
+
+const calculateDependencyDepth = (elementId: string): number => {
+  const maxDepth = 12;
+  const seenDepth = new Map<string, number>([[elementId, 0]]);
+  const queue: Array<{ id: string; depth: number }> = [{ id: elementId, depth: 0 }];
+  let deepest = 0;
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+
+    if (!current) {
+      break;
+    }
+
+    deepest = Math.max(deepest, current.depth);
+
+    if (current.depth >= maxDepth) {
+      continue;
+    }
+
+    const outboundNeighbors = weightedOutboundAdjacency.get(current.id) ?? [];
+
+    for (const neighbor of outboundNeighbors) {
+      const nextDepth = current.depth + 1;
+      const bestDepth = seenDepth.get(neighbor);
+
+      if (bestDepth !== undefined && bestDepth <= nextDepth) {
+        continue;
+      }
+
+      seenDepth.set(neighbor, nextDepth);
+      queue.push({ id: neighbor, depth: nextDepth });
+    }
+  }
+
+  return deepest;
 };
 
 const cleanResourceValue = (value: string): string => (value.includes('#') ? value.split('#')[1] : value);
