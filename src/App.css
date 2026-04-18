@@ -391,6 +391,7 @@ body {
 @media (max-width: 980px) {
   .reader-layout {
     grid-template-columns: 1fr;
+    padding-bottom: 15rem;
   }
 
   .reader-sidebar,
@@ -406,6 +407,10 @@ body {
     max-height: none;
     overflow: visible;
     padding-right: 0;
+  }
+
+  .sidebar-reading-mode {
+    display: none;
   }
 }
 

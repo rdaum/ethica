@@ -1,7 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import './ReasoningPanel.css';
 import { formatElementLabel } from '../lib/ethica';
-import { ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from '../types';
+import {
+  ReadingMode,
+  ReasoningRelation,
+  SpinozaElement,
+  TransitiveChain,
+  WeightAnalysis
+} from '../types';
 
 interface ReasoningPanelProps {
   selectedElement: string | null;
@@ -15,6 +21,8 @@ interface ReasoningPanelProps {
   loading: boolean;
   previousElementId: string | null;
   nextElementId: string | null;
+  readingMode: ReadingMode;
+  onReadingModeChange: (mode: ReadingMode) => void;
 }
 
 const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
@@ -28,7 +36,9 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   currentPart,
   loading,
   previousElementId,
-  nextElementId
+  nextElementId,
+  readingMode,
+  onReadingModeChange
 }) => {
   const panelCardRef = useRef<HTMLDivElement | null>(null);
 
@@ -103,8 +113,28 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
               Next
             </button>
             <button type="button" className="close-button" onClick={onClose}>
-              Clear
+              Close
             </button>
+            <div className="panel-reading-mode" aria-label="Reading language">
+              <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
+                {([
+                  ['english', 'EN'],
+                  ['latin', 'LA'],
+                  ['bilingual', 'BI']
+                ] as const).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    role="tab"
+                    aria-selected={readingMode === mode}
+                    className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
+                    onClick={() => onReadingModeChange(mode)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

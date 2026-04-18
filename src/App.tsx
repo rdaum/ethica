@@ -473,7 +473,7 @@ const App: React.FC = () => {
               <p>{currentPartMetadata.strapline}</p>
             </div>
 
-            <div className="sidebar-card">
+            <div className="sidebar-card sidebar-reading-mode">
               <div className="reading-mode" aria-label="Reading language">
                 <span>Text view</span>
                 <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
@@ -554,6 +554,8 @@ const App: React.FC = () => {
           loading={analysisLoading}
           previousElementId={previousEntry?.id ?? null}
           nextElementId={nextEntry?.id ?? null}
+          readingMode={readingMode}
+          onReadingModeChange={setReadingMode}
         />
       </main>
 
