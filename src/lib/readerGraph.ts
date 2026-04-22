@@ -28,6 +28,15 @@ const CHILD_RELATIONS: Partial<Record<SpinozaElement['type'], string>> = {
   explanation: 'hasNote'
 };
 
+// These predicates are expected to be present in the generated graph files.
+// The runtime supplemental store exists only to backfill them when the corpus graph
+// does not yet carry a structurally obvious edge for a parsed element.
+export const CANONICAL_RELATION_PREDICATES = ['cites', 'partOf', 'provedBy', 'hasCorollary', 'hasNote'] as const;
+
+// These predicates are synthesized from parsed XML only when the canonical graph
+// lacks the corresponding triple for an element already present in the reader model.
+export const SUPPLEMENTAL_RELATION_PREDICATES = ['cites', 'partOf', 'provedBy', 'hasCorollary', 'hasNote'] as const;
+
 export const buildSupplementalStore = (elements: Map<string, SpinozaElement>): Store => {
   const store = new Store();
   const ordered = Array.from(elements.values()).sort((left, right) => left.sortIndex - right.sortIndex);

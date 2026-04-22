@@ -111,6 +111,12 @@ At runtime it still builds a supplemental graph from the parsed XML in order to 
 - structural relationships such as `partOf`, `provedBy`, `hasCorollary`, and `hasNote`
 - citation coverage extracted from prose references when an explicit triple is absent
 
+In other words:
+
+- canonical graph facts come from the generated corpus files in `public/`
+- supplemental facts are reader-side backfill for structurally obvious parent-child links and prose citations whose targets already exist in the parsed part data
+- the reader should not invent references to passages that are absent from the currently loaded corpus model
+
 The canonical graph files are regenerated from the corpus, so the XML and N3 layers no longer drift independently.
 
 ## Current State
