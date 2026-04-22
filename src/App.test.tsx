@@ -1,14 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import createReasoningWorker from './lib/createReasoningWorker';
 import App from './App';
 import { ReasoningAnalysis } from './types';
 
-jest.mock('./lib/createReasoningWorker', () => ({
+vi.mock('./lib/createReasoningWorker', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: vi.fn()
 }));
 
-const mockCreateReasoningWorker = createReasoningWorker as jest.MockedFunction<typeof createReasoningWorker>;
+const mockCreateReasoningWorker = vi.mocked(createReasoningWorker);
 
 class FakeWorker {
   onmessage: ((event: MessageEvent<WorkerResponse>) => void) | null = null;
@@ -129,7 +130,7 @@ const fetchResponse = (body: string | object): Promise<Response> =>
   } as Response);
 
 const installFetchMock = () =>
-  jest.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+  vi.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
     const url = String(input);
 
     if (url.includes('ethica_1.xml')) {
@@ -186,24 +187,24 @@ beforeEach(() => {
   });
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
     configurable: true,
-    value: jest.fn()
+    value: vi.fn()
   });
   Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
     configurable: true,
-    value: jest.fn()
+    value: vi.fn()
   });
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
+  vi.restoreAllMocks();
   window.history.replaceState(null, '', '/');
 });
 
 test('renders the loading state before data is fetched', () => {
-  const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(
+  const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation(
     () => new Promise(() => {}) as Promise<Response>
   );
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   buildWorker();
 
   render(<App />);
@@ -298,10 +299,12 @@ test('navigates across parts from a relationship chip in the analysis panel', as
   const crossPartLink = await screen.findByRole('button', { name: 'II.prop.1' });
   fireEvent.click(crossPartLink);
 
-  expect(
-    await screen.findByRole('button', {
-      name: /part ii on the nature and origin of the mind/i
-    })
-  ).toHaveClass('active');
+  await waitFor(() =>
+    expect(
+      Array.from(document.querySelectorAll<HTMLButtonElement>('.part-button')).find(button =>
+        button.classList.contains('active')
+      )?.textContent
+    ).toContain('On the Nature and Origin of the Mind')
+  );
   await waitFor(() => expect(document.querySelector('.panel-id')?.textContent).toBe('II.prop.1'));
 });

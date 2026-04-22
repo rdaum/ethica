@@ -3,6 +3,7 @@ import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import createReasoningWorker from './lib/createReasoningWorker';
+import { publicPath } from './lib/publicPath';
 import {
   formatElementLabel,
   mergeLatinText,
@@ -168,12 +169,11 @@ const App: React.FC = () => {
       setError(null);
 
       try {
-        const basePath = process.env.PUBLIC_URL || '.';
         const [xmlResponse, latinResponse, n3Response, eyeResponse] = await Promise.all([
-          fetch(`${basePath}/ethica_${currentPart}.xml`),
-          fetch(`${basePath}/ethica_la_${currentPart}.json`),
-          fetch(`${basePath}/ethica-logic.n3`),
-          fetch(`${basePath}/ethica-logic-eye.n3`)
+          fetch(publicPath(`ethica_${currentPart}.xml`)),
+          fetch(publicPath(`ethica_la_${currentPart}.json`)),
+          fetch(publicPath('ethica-logic.n3')),
+          fetch(publicPath('ethica-logic-eye.n3'))
         ]);
 
         const [xmlText, latinPayload, n3Content, eyeContent] = await Promise.all([
@@ -462,7 +462,7 @@ const App: React.FC = () => {
           <div className="sidebar-stack">
             <div className="sidebar-card">
               <img
-                src={`${process.env.PUBLIC_URL}/spinoza-signet.png`}
+                src={publicPath('spinoza-signet.png')}
                 alt="Spinoza's signet ring"
                 className="spinoza-signet"
               />
