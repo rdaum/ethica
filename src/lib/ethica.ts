@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Parser, Store } from 'n3';
-import { PartMetadata, ReaderSectionSummary, SpinozaElement } from '../types';
+import { EditorialKind, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
 
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
@@ -149,7 +149,7 @@ export const matchesQuery = (element: SpinozaElement, query: string): boolean =>
     return true;
   }
 
-  return [element.text, element.latinText, formatElementLabel(element), element.heading, element.id]
+  return [element.text, element.latinText, element.canonicalLabel ?? formatElementLabel(element), element.heading, element.id]
     .filter(Boolean)
     .some(value => value!.toLowerCase().includes(normalizedQuery));
 };
@@ -218,8 +218,23 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
       return;
     }
 
+    const partNumeral = partId;
+    const partNumber = PARTS_BY_NUMERAL[partNumeral]?.number ?? romanNumeralToInteger(partNumeral);
+    const isEditorial = Boolean(element.isEditorial);
+    const editorialKind = element.editorialKind ?? inferEditorialKind(element);
+    const sourceAuthority = element.sourceAuthority ?? inferSourceAuthority(isEditorial);
+    const variantLabel = element.variantLabel ?? inferVariantLabel(element.id, element.type);
+    const canonicalLabel = element.canonicalLabel ?? formatElementLabel(element);
+
     elements.set(element.id, {
       ...element,
+      partNumeral,
+      partNumber,
+      canonicalLabel,
+      isEditorial,
+      editorialKind,
+      sourceAuthority,
+      variantLabel,
       sortIndex: element.sortIndex ?? nextSortIndex()
     });
   };
@@ -240,7 +255,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
           type: 'proof',
           text,
           parentId,
-          sectionKind
+          sectionKind,
+          isEditorial: attrs['@_editorial'] === 'true'
         });
       }
 
@@ -250,7 +266,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
           type: 'corollary',
           text,
           parentId,
-          sectionKind
+          sectionKind,
+          isEditorial: attrs['@_editorial'] === 'true'
         });
       }
 
@@ -261,7 +278,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
           text,
           number: attrs['@_number'],
           parentId,
-          sectionKind
+          sectionKind,
+          isEditorial: attrs['@_editorial'] === 'true'
         });
       }
 
@@ -271,7 +289,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
           type: 'explanation',
           text,
           parentId,
-          sectionKind
+          sectionKind,
+          isEditorial: attrs['@_editorial'] === 'true'
         });
       }
     });
@@ -287,7 +306,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
       type,
       text,
       number: attrs['@_number'],
-      sectionKind
+      sectionKind,
+      isEditorial: attrs['@_editorial'] === 'true'
     });
 
     if (id) {
@@ -310,7 +330,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
         ? /^[IVXLCDM]+$/i.test(topic)
           ? `Caput ${topic.toUpperCase()}`
           : APPENDIX_TOPIC_LABELS[topic] ?? humanizeToken(topic)
-        : 'Appendix Section'
+        : 'Appendix Section',
+      editorialKind: topic ? undefined : 'synthetic_heading'
     });
   };
 
@@ -340,7 +361,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
             type: 'appendix',
             text: extractRecursiveText(child),
             sectionKind,
-            heading: 'Appendix Introduction'
+            heading: 'Appendix Introduction',
+            editorialKind: 'synthetic_heading'
           });
         }
 
@@ -383,7 +405,8 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
           id: getAttributes(child)['@_id'],
           type: 'note',
           text: extractNodeBody(child),
-          sectionKind
+          sectionKind,
+          isEditorial: getAttributes(child)['@_editorial'] === 'true'
         });
       }
     });
@@ -501,3 +524,64 @@ const extractNodeBody = (node: OrderedNode): string => {
 };
 
 const extractRecursiveText = (node: OrderedNode): string => joinText(collectText(node));
+
+const PARTS_BY_NUMERAL = Object.fromEntries(Object.values(PARTS).map(part => [part.numeral, part])) as Record<
+  string,
+  PartMetadata
+>;
+
+const romanNumeralToInteger = (value: string): number | undefined => {
+  const numerals: Record<string, number> = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+  let total = 0;
+  let previous = 0;
+
+  for (let index = value.length - 1; index >= 0; index -= 1) {
+    const current = numerals[value[index]];
+
+    if (!current) {
+      return undefined;
+    }
+
+    if (current < previous) {
+      total -= current;
+    } else {
+      total += current;
+      previous = current;
+    }
+  }
+
+  return total;
+};
+
+const inferVariantLabel = (id: string, type: SpinozaElement['type']): string | undefined => {
+  const pattern =
+    type === 'proof'
+      ? /\.proof(\d+)$/
+      : type === 'corollary'
+        ? /\.corollary(\d+)$/
+        : type === 'note'
+          ? /\.note(\d+)$/
+          : type === 'explanation'
+            ? /\.explanation(\d+)$/
+            : null;
+
+  if (!pattern) {
+    return undefined;
+  }
+
+  const match = id.match(pattern);
+  return match ? `${type}${match[1]}` : undefined;
+};
+
+const inferEditorialKind = (
+  element: Pick<SpinozaElement, 'isEditorial'>
+): EditorialKind | undefined => {
+  if (element.isEditorial) {
+    return 'english_only_addition';
+  }
+
+  return undefined;
+};
+
+const inferSourceAuthority = (isEditorial: boolean): SourceAuthority =>
+  isEditorial ? 'english_structural' : 'latin_governed';

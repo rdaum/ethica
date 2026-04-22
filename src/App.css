@@ -259,6 +259,46 @@ body {
   align-self: start;
 }
 
+.metadata-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.55rem 0 0.75rem;
+}
+
+.metadata-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.24rem 0.52rem;
+  border: 1px solid rgba(89, 67, 39, 0.14);
+  background: rgba(255, 252, 246, 0.78);
+  color: var(--muted);
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metadata-chip.gold {
+  border-color: rgba(157, 93, 20, 0.22);
+  color: #9d5d14;
+}
+
+.metadata-chip.green {
+  border-color: rgba(40, 92, 61, 0.22);
+  color: #285c3d;
+}
+
+.metadata-chip.rose {
+  border-color: rgba(142, 75, 71, 0.22);
+  color: #8e4b47;
+}
+
+.metadata-chip.ink {
+  border-color: rgba(67, 53, 36, 0.18);
+  color: #433524;
+}
+
 .sidebar-stack {
   max-height: calc(100vh - 2rem);
   overflow: auto;

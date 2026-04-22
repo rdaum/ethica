@@ -94,6 +94,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             <p className="panel-kicker">Analysis</p>
             <h2>{formatElementLabel(element)}</h2>
             <p className="panel-id">{element.id}</p>
+            <MetadataChips element={element} />
           </div>
           <div className="panel-actions">
             <button
@@ -230,6 +231,35 @@ const MetricCard = ({ label, value, tone }: { label: string; value: number; tone
   </div>
 );
 
+type MetadataChip = {
+  label: string;
+  tone: string;
+  description: string;
+};
+
+const MetadataChips = ({ element }: { element: SpinozaElement }) => {
+  const chips = getMetadataChips(element);
+
+  if (chips.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="panel-metadata-chips" aria-label="Passage metadata">
+      {chips.map(chip => (
+        <span
+          key={`${chip.tone}-${chip.label}`}
+          className={`panel-metadata-chip ${chip.tone}`}
+          title={chip.description}
+          aria-label={`${chip.label}: ${chip.description}`}
+        >
+          {chip.label}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const truncateText = (text: string): string => {
   if (text.length <= 300) {
     return text;
@@ -278,6 +308,61 @@ const predicateRank = (predicate: string): number => {
   }
 
   return 1;
+};
+
+const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {
+  const chips: MetadataChip[] = [];
+
+  if (element.variantLabel) {
+    chips.push({
+      label: formatVariantLabel(element.variantLabel),
+      tone: 'ink',
+      description: 'This passage is an alternate numbered section, such as a second proof or second note.'
+    });
+  }
+
+  if (element.isEditorial) {
+    chips.push({
+      label: 'Editorial',
+      tone: 'rose',
+      description: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.'
+    });
+  } else if (element.editorialKind === 'synthetic_heading') {
+    chips.push({
+      label: 'Normalized Heading',
+      tone: 'gold',
+      description: 'This heading is a normalized reader aid created to label a section consistently.'
+    });
+  }
+
+  if (element.sourceAuthority === 'latin_governed') {
+    chips.push({
+      label: 'Latin-Based',
+      tone: 'green',
+      description: 'The reader derives this passage structure and its analysis from the Latin source text.'
+    });
+  }
+
+  if (element.sourceAuthority === 'english_structural') {
+    chips.push({
+      label: 'English-Based',
+      tone: 'rose',
+      description: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
+    });
+  }
+
+  return chips;
+};
+
+const formatVariantLabel = (variantLabel: string): string => {
+  const match = variantLabel.match(/^([a-z]+)(\d+)$/i);
+
+  if (!match) {
+    return variantLabel;
+  }
+
+  const [, kind, index] = match;
+  return `${kind[0].toUpperCase()}${kind.slice(1)} ${index}`;
 };
 
 export default ReasoningPanel;

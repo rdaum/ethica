@@ -516,6 +516,7 @@ const App: React.FC = () => {
               <div className="sidebar-card selection-card">
                 <p className="sidebar-kicker">Selected</p>
                 <h3>{formatElementLabel(selectedEntry)}</h3>
+                <MetadataChips element={selectedEntry} />
                 {renderSelectionPreview(selectedEntry, readingMode)}
                 <div className="selection-nav">
                   <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
@@ -570,6 +571,35 @@ const App: React.FC = () => {
 
 const truncateText = (text: string, length = 220): string => (text.length > length ? `${text.slice(0, length)}…` : text);
 
+type MetadataChip = {
+  label: string;
+  tone: string;
+  description: string;
+};
+
+const MetadataChips = ({ element }: { element: SpinozaElement }) => {
+  const chips = getMetadataChips(element);
+
+  if (chips.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="metadata-chips" aria-label="Passage metadata">
+      {chips.map(chip => (
+        <span
+          key={`${chip.tone}-${chip.label}`}
+          className={`metadata-chip ${chip.tone}`}
+          title={chip.description}
+          aria-label={`${chip.label}: ${chip.description}`}
+        >
+          {chip.label}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 const renderSelectionPreview = (element: SpinozaElement, readingMode: ReadingMode) => {
   if (readingMode === 'latin') {
     return <p>{truncateText(element.latinText || 'Latin text not yet available for this passage.')}</p>;
@@ -591,6 +621,61 @@ const getPartNumberFromElementId = (elementId: string): number | null => {
   const numeral = elementId.split('.')[0];
   const part = Object.values(PARTS).find(entry => entry.numeral === numeral);
   return part?.number ?? null;
+};
+
+const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {
+  const chips: MetadataChip[] = [];
+
+  if (element.variantLabel) {
+    chips.push({
+      label: formatVariantLabel(element.variantLabel),
+      tone: 'ink',
+      description: 'This passage is an alternate numbered section, such as a second proof or second note.'
+    });
+  }
+
+  if (element.isEditorial) {
+    chips.push({
+      label: 'Editorial',
+      tone: 'rose',
+      description: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.'
+    });
+  } else if (element.editorialKind === 'synthetic_heading') {
+    chips.push({
+      label: 'Normalized Heading',
+      tone: 'gold',
+      description: 'This heading is a normalized reader aid created to label a section consistently.'
+    });
+  }
+
+  if (element.sourceAuthority === 'latin_governed') {
+    chips.push({
+      label: 'Latin-Based',
+      tone: 'green',
+      description: 'The reader derives this passage structure and its analysis from the Latin source text.'
+    });
+  }
+
+  if (element.sourceAuthority === 'english_structural') {
+    chips.push({
+      label: 'English-Based',
+      tone: 'rose',
+      description: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
+    });
+  }
+
+  return chips;
+};
+
+const formatVariantLabel = (variantLabel: string): string => {
+  const match = variantLabel.match(/^([a-z]+)(\d+)$/i);
+
+  if (!match) {
+    return variantLabel;
+  }
+
+  const [, kind, index] = match;
+  return `${kind[0].toUpperCase()}${kind.slice(1)} ${index}`;
 };
 
 export default App;

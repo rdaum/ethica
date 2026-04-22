@@ -11,6 +11,10 @@ export type ElementType =
   | 'explanation'
   | 'appendix';
 
+export type EditorialKind = 'english_only_addition' | 'synthetic_heading' | 'normalization';
+
+export type SourceAuthority = 'latin_governed' | 'english_structural' | 'runtime_backfill';
+
 export interface SpinozaElement {
   id: string;
   type: ElementType;
@@ -21,6 +25,13 @@ export interface SpinozaElement {
   number?: string;
   parentId?: string;
   heading?: string;
+  partNumber?: number;
+  partNumeral?: string;
+  canonicalLabel?: string;
+  isEditorial?: boolean;
+  editorialKind?: EditorialKind;
+  sourceAuthority?: SourceAuthority;
+  variantLabel?: string;
 }
 
 export type ReadingMode = 'english' | 'latin' | 'bilingual';
