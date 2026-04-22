@@ -55,6 +55,7 @@ const App: React.FC = () => {
   const [weightAnalysis, setWeightAnalysis] = useState<WeightAnalysis | null>(null);
   const pendingNavigationId = useRef<string | null>(null);
   const hashInitialized = useRef(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const deferredQuery = useDeferredValue(query);
   const workerRef = useRef<Worker | null>(null);
   const requestCounter = useRef(0);
@@ -329,6 +330,7 @@ const App: React.FC = () => {
   const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
   const selectedEntry = selectedElement ? elements.get(selectedElement) : undefined;
   const currentPartMetadata = PARTS[currentPart];
+  const totalPassageCount = topLevelElements.length;
   const selectableEntries = orderedElements.filter(element => {
     if (!deferredQuery.trim()) {
       return true;
@@ -406,6 +408,17 @@ const App: React.FC = () => {
     });
   };
 
+  const focusSearch = () => {
+    searchInputRef.current?.focus();
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   if (loading) {
     return (
       <div className="app loading-shell">
@@ -420,145 +433,188 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-grid">
-          <div className="title-block">
-            <p className="eyebrow">Interactive Reader</p>
-            <h1>The Ethics</h1>
-            <p className="subtitle">Baruch Spinoza, translated by R.H.M. Elwes</p>
-            <p className="part-description">{currentPartMetadata.description}</p>
-          </div>
-
-          <div className="header-actions">
-            <div className="part-switcher" aria-label="Select part">
-              {Object.values(PARTS).map(part => (
-                <button
-                  key={part.number}
-                  type="button"
-                  className={`part-button ${currentPart === part.number ? 'active' : ''}`}
-                  onClick={() => handlePartChange(part.number)}
-                >
-                  <span>Part {part.numeral}</span>
-                  <strong>{part.title}</strong>
-                </button>
-              ))}
-            </div>
-
-            <label className="reader-search">
-              <span>Search within this part</span>
-              <input
-                type="search"
-                value={query}
-                onChange={event => setQuery(event.target.value)}
-                placeholder="Search terms, ideas, references"
-              />
-            </label>
-          </div>
-        </div>
-      </header>
-
-      <main className="reader-layout">
-        <aside className="reader-sidebar">
-          <div className="sidebar-stack">
-            <div className="sidebar-card">
-              <img
-                src={publicPath('spinoza-signet.png')}
-                alt="Spinoza's signet ring"
-                className="spinoza-signet"
-              />
-              <p className="sidebar-kicker">
-                Part {currentPartMetadata.numeral}
-              </p>
-              <h2>{currentPartMetadata.title}</h2>
-              <p>{currentPartMetadata.strapline}</p>
-            </div>
-
-            <div className="sidebar-card sidebar-reading-mode">
-              <div className="reading-mode" aria-label="Reading language">
-                <span>Text view</span>
-                <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
-                  {([
-                    ['english', 'English'],
-                    ['latin', 'Latin'],
-                    ['bilingual', 'Bilingual']
-                  ] as const).map(([mode, label]) => (
-                    <button
-                      key={mode}
-                      type="button"
-                      role="tab"
-                      aria-selected={readingMode === mode}
-                      className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
-                      onClick={() => setReadingMode(mode)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="sidebar-card">
-              <div className="sidebar-heading">
-                <h3>Sections</h3>
-                <span>{visibleTopLevelElements.length} passages</span>
-              </div>
-              <div className="section-links">
-                {sectionSummaries.map(section => (
-                  <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
-                    <span>{section.label}</span>
-                    <strong>{section.count}</strong>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {selectedEntry && (
-              <div className="sidebar-card selection-card">
-                <p className="sidebar-kicker">Selected</p>
-                <h3>{formatElementLabel(selectedEntry)}</h3>
-                <MetadataChips element={selectedEntry} />
-                {renderSelectionPreview(selectedEntry, readingMode)}
-                <div className="selection-nav">
-                  <button type="button" onClick={() => previousEntry && navigateToElement(previousEntry.id)} disabled={!previousEntry}>
-                    Previous
-                  </button>
-                  <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+      <div className="app-shell">
+        <aside className="app-rail" aria-label="Reader tools">
+          <button type="button" className="rail-logo" onClick={scrollToTop} aria-label="Scroll to top">
+            <img src={publicPath('spinoza-signet.png')} alt="" />
+          </button>
+          <div className="rail-actions">
+            <button type="button" className="rail-button active" onClick={scrollToTop} aria-label="Overview">
+              <span>Home</span>
+            </button>
+            <button type="button" className="rail-button" onClick={focusSearch} aria-label="Search this part">
+              <span>Search</span>
+            </button>
+            <button
+              type="button"
+              className="rail-button"
+              onClick={() => selectedEntry && navigateToElement(selectedEntry.id)}
+              aria-label="Jump to selected passage"
+              disabled={!selectedEntry}
+            >
+              <span>Focus</span>
+            </button>
+            <button
+              type="button"
+              className="rail-button"
+              onClick={() => handleSelectElement(null)}
+              aria-label="Clear selection"
+              disabled={!selectedEntry}
+            >
+              <span>Clear</span>
+            </button>
           </div>
         </aside>
 
-        <BookView
-          elements={orderedElements}
-          query={deferredQuery}
-          selectedElement={selectedElement}
-          hoveredElement={hoveredElement}
-          onElementHover={setHoveredElement}
-          onElementSelect={handleSelectElement}
-          currentPart={currentPart}
-          partTitle={currentPartMetadata.title}
-          readingMode={readingMode}
-        />
+        <div className="app-stage">
+          <header className="app-header">
+            <div className="header-grid">
+              <div className="title-block">
+                <p className="eyebrow">Interactive Reader</p>
+                <h1>The Ethics</h1>
+                <p className="subtitle">Baruch Spinoza, translated by R.H.M. Elwes</p>
+                <p className="part-description">{currentPartMetadata.description}</p>
+              </div>
 
-        <ReasoningPanel
-          selectedElement={selectedElement}
-          element={selectedEntry}
-          reasoning={reasoning}
-          transitiveChains={transitiveChains}
-          weightAnalysis={weightAnalysis}
-          onNavigateToElement={navigateToElement}
-          onClose={() => handleSelectElement(null)}
-          currentPart={currentPart}
-          loading={analysisLoading}
-          previousElementId={previousEntry?.id ?? null}
-          nextElementId={nextEntry?.id ?? null}
-          readingMode={readingMode}
-          onReadingModeChange={setReadingMode}
-        />
-      </main>
+              <div className="header-actions">
+                <div className="part-switcher" aria-label="Select part">
+                  {Object.values(PARTS).map(part => (
+                    <button
+                      key={part.number}
+                      type="button"
+                      className={`part-button ${currentPart === part.number ? 'active' : ''}`}
+                      onClick={() => handlePartChange(part.number)}
+                    >
+                      <span>Part {part.numeral}</span>
+                      <strong>{part.title}</strong>
+                    </button>
+                  ))}
+                </div>
+
+                <label className="reader-search">
+                  <span>Search within this part</span>
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={query}
+                    onChange={event => setQuery(event.target.value)}
+                    placeholder="Search terms, ideas, references"
+                  />
+                </label>
+              </div>
+            </div>
+          </header>
+
+          <main className="reader-layout">
+            <aside className="reader-sidebar">
+              <div className="sidebar-stack">
+                <div className="sidebar-card part-overview-card">
+                  <div className="part-overview-header">
+                    <div>
+                      <p className="sidebar-kicker">Current Part</p>
+                      <h2>{currentPartMetadata.title}</h2>
+                    </div>
+                    <img
+                      src={publicPath('spinoza-signet.png')}
+                      alt="Spinoza's signet ring"
+                      className="spinoza-signet"
+                    />
+                  </div>
+                  <p>{currentPartMetadata.strapline}</p>
+                </div>
+
+                <div className="sidebar-card sidebar-reading-mode">
+                  <div className="reading-mode" aria-label="Reading language">
+                    <span>View In</span>
+                    <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
+                      {([
+                        ['english', 'English'],
+                        ['latin', 'Latin'],
+                        ['bilingual', 'Bilingual']
+                      ] as const).map(([mode, label]) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          role="tab"
+                          aria-selected={readingMode === mode}
+                          className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
+                          onClick={() => setReadingMode(mode)}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="sidebar-card">
+                  <div className="sidebar-heading">
+                    <h3>Sections</h3>
+                    <span>{totalPassageCount} passages</span>
+                  </div>
+                  <div className="section-links">
+                    {sectionSummaries.map(section => (
+                      <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
+                        <span>{section.label}</span>
+                        <strong>{section.count}</strong>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedEntry && (
+                  <div className="sidebar-card selection-card">
+                    <p className="sidebar-kicker">Selected Note</p>
+                    <h3>{formatElementLabel(selectedEntry)}</h3>
+                    <MetadataChips element={selectedEntry} />
+                    {renderSelectionPreview(selectedEntry, readingMode)}
+                    <div className="selection-nav">
+                      <button
+                        type="button"
+                        onClick={() => previousEntry && navigateToElement(previousEntry.id)}
+                        disabled={!previousEntry}
+                      >
+                        Previous
+                      </button>
+                      <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            <BookView
+              elements={orderedElements}
+              query={deferredQuery}
+              selectedElement={selectedElement}
+              hoveredElement={hoveredElement}
+              onElementHover={setHoveredElement}
+              onElementSelect={handleSelectElement}
+              currentPart={currentPart}
+              partTitle={currentPartMetadata.title}
+              readingMode={readingMode}
+            />
+
+            <ReasoningPanel
+              selectedElement={selectedElement}
+              element={selectedEntry}
+              reasoning={reasoning}
+              transitiveChains={transitiveChains}
+              weightAnalysis={weightAnalysis}
+              onNavigateToElement={navigateToElement}
+              onClose={() => handleSelectElement(null)}
+              currentPart={currentPart}
+              loading={analysisLoading}
+              previousElementId={previousEntry?.id ?? null}
+              nextElementId={nextEntry?.id ?? null}
+              readingMode={readingMode}
+              onReadingModeChange={setReadingMode}
+            />
+          </main>
+        </div>
+      </div>
 
       {error && (
         <div className="error-banner" role="alert">

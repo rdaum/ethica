@@ -11,16 +11,19 @@
 .panel-card {
   max-height: calc(100vh - 2rem);
   overflow: auto;
-  border: 1px solid rgba(89, 67, 39, 0.24);
-  background: linear-gradient(180deg, rgba(255, 250, 242, 0.98), rgba(248, 240, 225, 0.98));
-  box-shadow: 0 16px 36px rgba(57, 41, 23, 0.1);
-  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 1.6rem;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 245, 0.98), rgba(248, 241, 230, 0.98)),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 40%);
+  box-shadow: var(--shadow);
+  padding: 1.1rem;
 }
 
 .panel-kicker {
   margin: 0 0 0.4rem;
   color: var(--accent-strong);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -28,31 +31,30 @@
 
 .reasoning-header {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .panel-actions {
   display: flex;
-  gap: 0.45rem;
+  gap: 0.4rem;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .reasoning-header h2 {
   margin: 0;
   font-family: var(--display-font);
-  font-size: 1.7rem;
+  font-size: 1.9rem;
   line-height: 1.02;
 }
 
 .panel-id {
   margin: 0.35rem 0 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  color: var(--muted-soft);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -60,19 +62,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin: 0.65rem 0 0;
+  margin: 0.55rem 0 0;
 }
 
 .panel-metadata-chip {
   display: inline-flex;
   align-items: center;
   padding: 0.24rem 0.52rem;
-  border: 1px solid rgba(89, 67, 39, 0.14);
-  background: rgba(255, 252, 246, 0.78);
+  border: 1px solid rgba(108, 86, 54, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 252, 246, 0.82);
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -102,10 +105,11 @@
 
 .close-button,
 .nav-button {
-  border: 1px solid rgba(130, 92, 42, 0.24);
-  background: rgba(255, 252, 245, 0.7);
+  border: 1px solid rgba(108, 86, 54, 0.14);
+  border-radius: 0.75rem;
+  background: rgba(255, 252, 245, 0.78);
   color: var(--ink);
-  padding: 0.5rem 0.75rem;
+  padding: 0.52rem 0.82rem;
   font: inherit;
   cursor: pointer;
 }
@@ -118,17 +122,21 @@
 .selected-text,
 .muted-copy {
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .selected-text {
-  margin: 1rem 0 0;
+  margin: 0.8rem 0 0;
+  padding: 0.85rem;
+  border: 1px solid rgba(108, 86, 54, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 252, 246, 0.62);
 }
 
 .panel-section {
-  margin-top: 1.35rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid rgba(100, 76, 42, 0.12);
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(108, 86, 54, 0.12);
 }
 
 .section-heading {
@@ -136,46 +144,47 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
 }
 
 .section-heading h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.92rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
 
 .section-heading span {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .metric-card {
-  padding: 0.85rem 0.9rem;
-  border: 1px solid rgba(89, 67, 39, 0.12);
+  padding: 0.72rem 0.8rem;
+  border: 1px solid rgba(108, 86, 54, 0.1);
+  border-radius: 0.9rem;
   background: rgba(255, 252, 246, 0.76);
 }
 
 .metric-card span {
   display: block;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .metric-card strong {
   display: block;
   margin-top: 0.35rem;
   font-family: var(--display-font);
-  font-size: 1.5rem;
+  font-size: 1.65rem;
 }
 
 .metric-card.gold strong {
@@ -195,28 +204,32 @@
 }
 
 .relationship-group + .relationship-group {
-  margin-top: 1rem;
+  margin-top: 0.8rem;
 }
 
 .relationship-group h4 {
   margin: 0 0 0.55rem;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .relationship-list,
 .chain-list {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .relationship-chip,
 .chain-item {
   width: 100%;
-  border: 1px solid rgba(89, 67, 39, 0.12);
+  border: 1px solid rgba(108, 86, 54, 0.1);
+  border-radius: 0.8rem;
   background: rgba(255, 253, 249, 0.84);
   color: var(--ink);
   text-align: left;
-  padding: 0.8rem 0.9rem;
+  padding: 0.72rem 0.8rem;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -225,22 +238,22 @@
 }
 
 .relationship-chip.inferred {
-  border-color: rgba(122, 85, 140, 0.24);
-  background: rgba(247, 241, 252, 0.78);
+  border-color: rgba(150, 125, 164, 0.2);
+  background: rgba(246, 241, 250, 0.82);
 }
 
 .relationship-chip span,
 .chain-item strong {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
 }
 
 .relationship-chip em {
-  color: var(--muted);
-  font-size: 0.75rem;
+  color: var(--muted-soft);
+  font-size: 0.72rem;
   font-style: normal;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .chain-item {
@@ -254,9 +267,10 @@
 }
 
 .analysis-loading {
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px dashed rgba(89, 67, 39, 0.24);
+  margin-top: 0.8rem;
+  padding: 0.85rem;
+  border: 1px dashed rgba(108, 86, 54, 0.24);
+  border-radius: 1rem;
   background: rgba(255, 252, 245, 0.6);
 }
 
@@ -273,7 +287,7 @@
   .panel-card {
     max-height: 50vh;
     overflow: auto;
-    border: 2px solid rgba(89, 67, 39, 0.4);
+    border: 2px solid rgba(108, 86, 54, 0.3);
     box-shadow:
       0 0 0 1px rgba(240, 222, 192, 0.9),
       0 24px 48px rgba(57, 41, 23, 0.24);
@@ -289,9 +303,9 @@
     top: -1.35rem;
     z-index: 2;
     margin: -1.35rem -1.35rem 0;
-    padding: 1rem 1.35rem 0.85rem;
+    padding: 0.9rem 1.1rem 0.75rem;
     background: linear-gradient(180deg, rgba(255, 250, 242, 0.98), rgba(248, 240, 225, 0.94));
-    border-bottom: 1px solid rgba(100, 76, 42, 0.12);
+    border-bottom: 1px solid rgba(108, 86, 54, 0.12);
   }
 
   .panel-reading-mode {
@@ -302,7 +316,7 @@
 
   .panel-reading-mode .reading-mode-buttons {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-color: rgba(89, 67, 39, 0.2);
+    border-color: rgba(108, 86, 54, 0.16);
     background: rgba(255, 252, 246, 0.9);
   }
 
