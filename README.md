@@ -7,7 +7,7 @@ The project combines:
 - structured XML editions of the text
 - a Latin-aligned parallel text layer keyed to the same passage ids
 - an explicit N3 graph of logical relationships
-- EYE-based inferred relationships
+- lightweight rule-based inferred relationships
 - a corpus generation step that keeps XML and graph data aligned
 - a reader UI designed for navigation, cross-reference tracing, and close reading
 
@@ -122,7 +122,7 @@ What is in relatively good shape:
 - Parts I-V also have Latin parallel text aligned to the same passage ids
 - the explicit graph is regenerated from the corpus instead of being maintained only as ad hoc hand-edited triples
 - build, tests, and TypeScript checks pass
-- the main bundle is much smaller than before due to lazy loading of inference work
+- the analysis payload is much smaller than before due to lightweight local inference
 - the reader UI is no longer structured like a prototype shell
 
 What is still incomplete:

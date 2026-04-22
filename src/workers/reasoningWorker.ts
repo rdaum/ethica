@@ -1,5 +1,6 @@
 import { DataFactory, Store } from 'n3';
 import { backfillStore, mergeStores, parseN3ToStore, stripRulesFromN3 } from '../lib/ethica';
+import { buildInferredStore } from '../lib/inference';
 import { buildSupplementalStore } from '../lib/readerGraph';
 import { ReasoningAnalysis, ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from '../types';
 
@@ -88,22 +89,8 @@ const loadPart = async (message: LoadPartMessage) => {
   const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(message.eyeContent));
   const supplementalStore = buildSupplementalStore(elements);
   explicitStore = backfillStore(mergeStores(baseStore, eyeExplicitStore), supplementalStore);
-  inferredStore = new Store();
+  inferredStore = buildInferredStore(explicitStore);
   buildWeightedAdjacency();
-
-  try {
-    const { n3reasoner } = await import('eyereasoner');
-    const derivations = await n3reasoner(message.eyeContent, undefined, {
-      output: 'derivations',
-      outputType: 'string'
-    });
-
-    if (derivations.trim()) {
-      inferredStore = await parseN3ToStore(derivations);
-    }
-  } catch (error) {
-    console.error('EYE-js reasoning failed in worker, continuing with explicit graph only:', error);
-  }
 };
 
 const analyzeElement = (elementId: string): ReasoningAnalysis => {
