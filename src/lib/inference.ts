@@ -48,34 +48,31 @@ const addTransitiveDependencies = (inferredStore: Store) => {
     }));
 
   const adjacency = buildAdjacency(dependencyEdges);
+  adjacency.forEach((directTargets, origin) => {
+    const directTargetSet = new Set(directTargets);
+    const visited = new Set<string>([origin]);
+    const queue = [...directTargets];
 
-  dependencyEdges.forEach(edge => {
-    const visited = new Set<string>([edge.from]);
-    walkDependencies(edge.from, edge.to, edge.to, adjacency, visited, inferredStore);
-  });
-};
+    while (queue.length > 0) {
+      const current = queue.shift();
 
-const walkDependencies = (
-  origin: string,
-  current: string,
-  directTarget: string,
-  adjacency: Map<string, string[]>,
-  visited: Set<string>,
-  inferredStore: Store
-) => {
-  if (visited.has(current)) {
-    return;
-  }
+      if (!current || visited.has(current)) {
+        continue;
+      }
 
-  visited.add(current);
-  const nextNodes = adjacency.get(current) ?? [];
+      visited.add(current);
 
-  nextNodes.forEach(next => {
-    if (next !== directTarget) {
-      inferredStore.addQuad(quad(namedNode(origin), ethicsNode('transitivelyDependsOn'), namedNode(next)));
+      if (!directTargetSet.has(current)) {
+        inferredStore.addQuad(quad(namedNode(origin), ethicsNode('transitivelyDependsOn'), namedNode(current)));
+      }
+
+      const nextNodes = adjacency.get(current) ?? [];
+      nextNodes.forEach(next => {
+        if (!visited.has(next)) {
+          queue.push(next);
+        }
+      });
     }
-
-    walkDependencies(origin, next, directTarget, adjacency, new Set(visited), inferredStore);
   });
 };
 

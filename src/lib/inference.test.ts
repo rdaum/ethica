@@ -81,4 +81,50 @@ describe('buildInferredStore', () => {
       ])
     );
   });
+
+  it('handles dependency cycles without creating self-dependencies', async () => {
+    const explicitStore = await parseStore(`
+      @prefix ethics: <http://spinoza.org/ethics#> .
+
+      ethics:I.prop.1 ethics:cites ethics:I.prop.2 .
+      ethics:I.prop.2 ethics:cites ethics:I.prop.3 .
+      ethics:I.prop.3 ethics:cites ethics:I.prop.1 .
+    `);
+
+    const inferredStore = buildInferredStore(explicitStore);
+    const triples = inferredStore.getQuads(null, null, null, null).map(quad => [
+      quad.subject.value,
+      quad.predicate.value,
+      quad.object.value
+    ]);
+
+    expect(triples).toEqual(
+      expect.arrayContaining([
+        [
+          'http://spinoza.org/ethics#I.prop.1',
+          'http://spinoza.org/ethics#transitivelyDependsOn',
+          'http://spinoza.org/ethics#I.prop.3'
+        ],
+        [
+          'http://spinoza.org/ethics#I.prop.2',
+          'http://spinoza.org/ethics#transitivelyDependsOn',
+          'http://spinoza.org/ethics#I.prop.1'
+        ],
+        [
+          'http://spinoza.org/ethics#I.prop.3',
+          'http://spinoza.org/ethics#transitivelyDependsOn',
+          'http://spinoza.org/ethics#I.prop.2'
+        ]
+      ])
+    );
+    expect(triples).not.toEqual(
+      expect.arrayContaining([
+        [
+          'http://spinoza.org/ethics#I.prop.1',
+          'http://spinoza.org/ethics#transitivelyDependsOn',
+          'http://spinoza.org/ethics#I.prop.1'
+        ]
+      ])
+    );
+  });
 });
