@@ -71,7 +71,7 @@ The English source (Project Gutenberg #3800) differs from the Latin in a few pla
 - **Missing from the English:** the corollaries of II.xiii. and IV.l., and the proof of IV.lxxii. Their Latin is not shown, because there is no English passage to attach it to. The passage the source labels "Proof" at IV.lxxii. translates the Latin scholium, so it appears here as a note.
 - **Citations without a target:** II.xvii. note cites the same missing corollary of II.xiii. Two others, in the proofs of III.i. and III.xix., cite a corollary or note the proposition doesn't have. All three resolve to the proposition. `node scripts/generate-corpus.mjs --report-citations` lists them.
 - **Misprint:** the proof of IV.i. prints "IV. iii." where the Latin has III.iv. The text is unchanged, and the graph follows the Latin.
-- **Typography:** the source uses a long dash for ordinary hyphens, as in "self—caused". This is left as it is.
+- **Typography:** the source uses a long dash for ordinary hyphens, as in "self—caused". The generator hyphenates the compounds listed in `scripts/lib/compounds.mjs` and leaves every other dash as printed.
 
 ## Dependency notes
 

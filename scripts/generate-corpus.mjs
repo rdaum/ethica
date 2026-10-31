@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { XMLParser } from 'fast-xml-parser';
 import { extractCitations } from './lib/citations.mjs';
+import { normalizeCompounds } from './lib/compounds.mjs';
 
 const ROOT = process.cwd();
 const RAW_TEXT_PATH = path.join(ROOT, 'ethica.txt');
@@ -40,7 +41,7 @@ const PARTS = {
 };
 
 const main = async () => {
-  const rawText = fs.readFileSync(RAW_TEXT_PATH, 'utf8').replace(/\r\n/g, '\n');
+  const rawText = normalizeCompounds(fs.readFileSync(RAW_TEXT_PATH, 'utf8').replace(/\r\n/g, '\n'));
   const generatedParts = parseAllParts(rawText);
 
   generatedParts.forEach(part => {
