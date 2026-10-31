@@ -1,83 +1,17 @@
 # Ethica
 
-An interactive reader for Spinoza's *Ethics* built in React and TypeScript.
-
-The project combines:
-
-- structured XML editions of the text
-- a Latin-aligned parallel text layer keyed to the same passage ids
-- an explicit N3 graph of logical relationships
-- lightweight rule-based inferred relationships
-- a corpus generation step that keeps XML and graph data aligned
-- a reader UI designed for navigation, cross-reference tracing, and close reading
+An interactive reader for Spinoza's *Ethics*, built with React and TypeScript. It presents the whole work in English and Latin and traces the geometric argument from passage to passage.
 
 Live site: [rdaum.github.io/ethica](https://rdaum.github.io/ethica/)
 
-## What It Does
+## What it does
 
-The reader currently supports Parts I-V of the *Ethics* in the Elwes translation, with:
-
-- ordered reading flow rather than a flat “demo app” section dump
-- support for nested material such as physical axioms, lemmas, postulates, notes, explanations, and appendix sections
-- passage selection with logical analysis in a side panel
-- cross-navigation between cited and related passages
-- URL deep-linking to individual passages
-- part-local search
-- inferred dependency and transitive relationship display
-
-## Architecture
-
-The app has three main layers:
-
-1. Text layer
-   XML files in `public/ethica_1.xml` through `public/ethica_5.xml` are parsed into a typed in-memory reader model.
-   Latin alignment files in `public/ethica_la_1.json` through `public/ethica_la_5.json` attach bilingual text to the same canonical ids.
-
-2. Graph layer
-   `public/ethica-logic.n3` contains explicit graph data.
-   `public/ethica-logic-eye.n3` contains both explicit triples and rule-based inference input.
-
-3. Reader layer
-   React components render the ordered text, section navigation, search, and analysis panel.
-
-## Important Source Files
-
-```text
-src/
-├── App.tsx                       # Application shell, loading, navigation, selection state
-├── types.ts                      # Shared reader and analysis types
-├── lib/
-│   ├── ethica.ts                 # XML parsing, labels, section summaries, graph helpers
-│   ├── ethica.test.ts            # Parser-focused tests
-│   ├── readerGraph.ts            # Supplemental graph generation from parsed text
-│   └── readerGraph.test.ts       # Supplemental graph tests
-└── components/
-    ├── BookView.tsx              # Main reading surface
-    └── ReasoningPanel.tsx        # Logical analysis panel
-```
-
-```text
-scripts/
-├── generate-corpus.mjs           # Regenerates Parts I-V XML and the explicit graph
-└── generate-latin.mjs            # Aligns Latin Library text to the canonical corpus ids
-```
-
-```text
-public/
-├── ethica_1.xml                  # Part I markup
-├── ethica_2.xml                  # Part II markup
-├── ethica_3.xml                  # Part III markup
-├── ethica_4.xml                  # Part IV markup
-├── ethica_5.xml                  # Part V markup
-├── ethica_la_1.json              # Part I Latin alignment
-├── ethica_la_2.json              # Part II Latin alignment
-├── ethica_la_3.json              # Part III Latin alignment
-├── ethica_la_4.json              # Part IV Latin alignment
-├── ethica_la_5.json              # Part V Latin alignment
-├── ethica-logic.n3               # Explicit graph
-├── ethica-logic-eye.n3           # Explicit triples + inference rules
-└── spinoza-signet.png            # Reader branding asset
-```
+- Reads Parts I-V in the Elwes translation, in English, Latin, or side by side
+- Keeps the book's structure: definitions, axioms, propositions, proofs, corollaries and their proofs, notes, lemmas, postulates, prefaces and appendices
+- Shows what each passage rests on and what rests on it, with shortest dependency paths you can follow step by step
+- Searches within a part, across both languages
+- Links directly to any part (`#III`) or passage (`#III.prop.6`), and works with the back button
+- Works by keyboard alone and on small screens
 
 ## Development
 
@@ -86,65 +20,68 @@ npm install
 npm start
 ```
 
-Useful commands:
+| Command | Purpose |
+| --- | --- |
+| `npm test` | Unit and data integrity tests |
+| `npm run test:e2e` | Browser tests (run `npx playwright install chromium` once first) |
+| `npm run typecheck` | TypeScript |
+| `npm run lint` | ESLint |
+| `npm run build` | Production build into `build/` |
+| `npm run generate:corpus` | Regenerate all data in `public/` from the sources |
+| `npm run deploy` | Build and publish to GitHub Pages |
 
-```bash
-npm run generate:corpus
-npx tsc --noEmit
-CI=true npm test -- --watchAll=false
-npm run build
+CI runs all of these except deployment, and fails if regenerating the English corpus changes `public/`. It skips the Latin because that needs network access; `generate-latin.mjs` caches its downloads in `.cache/latin/`.
+
+## How it fits together
+
+```text
+ethica.txt ──────► scripts/generate-corpus.mjs ──► public/ethica_N.xml
+                            │                      public/ethica-logic.n3
+                            └─ scripts/lib/citations.mjs
+
+The Latin Library ► scripts/generate-latin.mjs ──► public/ethica_la_N.json
+
+public/ ─────────► src/App.tsx ── reader state, loading, URL
+                     ├─ components/BookView.tsx        the text
+                     ├─ components/ReasoningPanel.tsx  analysis of a passage
+                     └─ lib/analysisClient.ts ► workers/reasoningWorker.ts
+                                                  └─ lib/analysis.ts, lib/inference.ts
 ```
 
-## Data Model Notes
+Files in `public/` are generated. Change the generators rather than editing them by hand.
 
-The reader now treats the generated explicit graph as the primary source of structural and citation relationships.
+### Passages
 
-The canonical passage structure is now Latin-governed. In practice that means:
+Each passage has a stable id such as `III.prop.27.corollary2.proof`, shared by the XML, the Latin and the graph. A numbered proof like `I.prop.11.proof2` is always a true alternate ("Another proof"); the proof of a corollary sits under that corollary.
 
-- the English XML is the reader's structural source
-- the Latin alignment script validates that this structure can be walked in the order signaled by the original Latin
-- obvious English-only editorial additions are preserved, but marked as editorial rather than treated as authorial structure
-- Part IV appendix chapters follow the Latin `CAPUT` structure instead of anonymous synthetic argument buckets
+### Citations and dependencies
 
-At runtime it still builds a supplemental graph from the parsed XML in order to provide backfill only when the canonical graph lacks a relationship. That backfill covers:
+`scripts/lib/citations.mjs` is the only place citations are read from the text. The graph records them as `cites`, alongside the structural `provedBy`, `hasCorollary`, `hasNote` and `partOf`.
 
-- structural relationships such as `partOf`, `provedBy`, `hasCorollary`, and `hasNote`
-- citation coverage extracted from prose references when an explicit triple is absent
+`lib/inference.ts` derives `dependsUpon` from these, and `lib/analysis.ts` walks it to find transitive dependencies and paths. Only demonstrative passages create dependencies: citations in notes, explanations, prefaces and appendices stay as references, because they can legitimately look ahead. Tests assert that the resulting graph has no cycles and that no demonstration depends on a later proposition.
 
-In other words:
+### Latin alignment
 
-- canonical graph facts come from the generated corpus files in `public/`
-- supplemental facts are reader-side backfill for structurally obvious parent-child links and prose citations whose targets already exist in the parsed part data
-- the reader should not invent references to passages that are absent from the currently loaded corpus model
+`generate-latin.mjs` walks the Latin in the order of the English passages. Generation fails if any Latin block is left unplaced, apart from a short reviewed list in the script.
 
-The canonical graph files are regenerated from the corpus, so the XML and N3 layers no longer drift independently.
+## Known gaps in the source text
 
-## Current State
+The English source (Project Gutenberg #3800) differs from the Latin in a few places. The reader follows the source rather than supplying a translation:
 
-What is in relatively good shape:
+- **Missing from the English:** the corollaries of II.xiii. and IV.l., and the proof of IV.lxxii. Their Latin is not shown, because there is no English passage to attach it to. The passage the source labels "Proof" at IV.lxxii. translates the Latin scholium, so it appears here as a note.
+- **Citations without a target:** II.xvii. note cites the same missing corollary of II.xiii. Two others, in the proofs of III.i. and III.xix., cite a corollary or note the proposition doesn't have. All three resolve to the proposition. `node scripts/generate-corpus.mjs --report-citations` lists them.
+- **Misprint:** the proof of IV.i. prints "IV. iii." where the Latin has III.iv. The text is unchanged, and the graph follows the Latin.
+- **Typography:** the source uses a long dash for ordinary hyphens, as in "self—caused". This is left as it is.
 
-- Parts I-V render in reading order
-- Parts I-V are generated into XML from `ethica.txt`
-- Parts I-V also have Latin parallel text aligned to the same passage ids
-- the explicit graph is regenerated from the corpus instead of being maintained only as ad hoc hand-edited triples
-- build, tests, and TypeScript checks pass
-- the analysis payload is much smaller than before due to lightweight local inference
-- the reader UI is no longer structured like a prototype shell
+## Dependency notes
 
-What is still incomplete:
+- `npm audit` reports a moderate `minimatch` advisory. It is only reachable through ESLint, which runs on this repository's own files, and the production dependencies are clean. The suggested fix would downgrade ESLint to version 4, so it has not been applied.
+- TypeScript stays on 5.9 until `typescript-eslint` supports version 7.
 
-- the graph is much more coherent, but it is still a reader-oriented reference graph rather than a full scholarly critical apparatus
-- inference remains useful but is not yet a polished scholarly model
-- there is not yet a dedicated editorial normalization pipeline for harmonizing every source-text edge case across all five parts
+## Project direction
 
-## Next Work
+[SPINOZA_MARKUP_PROJECT.md](SPINOZA_MARKUP_PROJECT.md) separates what has been built from ideas for later.
 
-The highest-value next steps are:
+## Text attribution
 
-- improve passage-level metadata and editorial annotations
-- add better tests around navigation and analysis behavior
-- consider replacing the aging CRA/CRACO stack with a more current frontend toolchain
-
-## Text Attribution
-
-Uses the English translation by R.H.M. Elwes (1883) from [Project Gutenberg #3800](https://www.gutenberg.org/files/3800/3800-h/3800-h.htm). The text is public domain.
+The English is the translation by R.H.M. Elwes (1883) from [Project Gutenberg #3800](https://www.gutenberg.org/files/3800/3800-h/3800-h.htm). The Latin is from [The Latin Library](https://www.thelatinlibrary.com/spinoza.html). Both texts are in the public domain.
