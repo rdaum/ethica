@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://rdaum.github.io/ethica",
   "dependencies": {
-    "fast-xml-parser": "^4.3.2",
+    "fast-xml-parser": "^5.11.2",
     "n3": "^1.17.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
