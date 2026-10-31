@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <part id="III" number="3" title="ON THE ORIGIN AND NATURE OF THE EMOTIONS">
   <section type="preface" id="III.preface">
-    <text>ON THE ORIGIN AND NATURE OF THE EMOTIONS Most writers on the emotions and on human conduct seem to be treating rather of matters outside nature than of natural phenomena following nature's general laws. They appear to conceive man to be situated in nature as a kingdom within a kingdom: for they believe that he disturbs rather than follows nature's order, that he has absolute control over his actions, and that he is determined solely by himself. They attribute human infirmities and fickleness, not to the power of nature in general, but to some mysterious flaw in the nature of man, which accordingly they bemoan, deride, despise, or, as usually happens, abuse: he, who succeeds in hitting off the weakness of the human mind more eloquently or more acutely than his fellows, is looked upon as a seer. Still there has been no lack of very excellent men (to whose toil and industry I confess myself much indebted), who have written many noteworthy things concerning the right way of life, and have given much sage advice to mankind. But no one, so far as I know, has defined the nature and strength of the emotions, and the power of the mind against them for their restraint.
+    <text>Most writers on the emotions and on human conduct seem to be treating rather of matters outside nature than of natural phenomena following nature's general laws. They appear to conceive man to be situated in nature as a kingdom within a kingdom: for they believe that he disturbs rather than follows nature's order, that he has absolute control over his actions, and that he is determined solely by himself. They attribute human infirmities and fickleness, not to the power of nature in general, but to some mysterious flaw in the nature of man, which accordingly they bemoan, deride, despise, or, as usually happens, abuse: he, who succeeds in hitting off the weakness of the human mind more eloquently or more acutely than his fellows, is looked upon as a seer. Still there has been no lack of very excellent men (to whose toil and industry I confess myself much indebted), who have written many noteworthy things concerning the right way of life, and have given much sage advice to mankind. But no one, so far as I know, has defined the nature and strength of the emotions, and the power of the mind against them for their restraint.
 
 I do not forget, that the illustrious Descartes, though he believed, that the mind has absolute power over its actions, strove to explain human emotions by their primary causes, and, at the same time, to point out a way, by which the mind might attain to absolute dominion over them. However, in my opinion, he accomplishes nothing beyond a display of the acuteness of his own great intellect, as I will show in the proper place. For the present I wish to revert to those, who would rather abuse or deride human emotions than understand them. Such persons will, doubtless think it strange that I should attempt to treat of human vice and folly geometrically, and should wish to set forth with rigid reasoning those matters which they cry out against as repugnant to reason, frivolous, absurd, and dreadful. However, such is my plan. Nothing comes to pass in nature, which can be set down to a flaw therein; for nature is always the same, and everywhere one and the same in her efficacy and power of action; that is, nature's laws and ordinances, whereby all things come to pass and change from one form to another, are everywhere and always the same; so that there should be one and the same method of understanding the nature of all things whatsoever, namely, through nature's universal laws and rules. Thus the passions of hatred, anger, envy, and so on, considered in themselves, follow from this same necessity and efficacy of nature; they answer to certain definite causes, through which they are understood, and possess certain properties as worthy of being known as the properties of anything else, whereof the contemplation in itself affords us delight. I shall, therefore, treat of the nature and strength of the emotions according to the same method, as I employed heretofore in my investigations concerning God and the mind. I shall consider human actions and desires in exactly the same manner, as though I were concerned with lines, planes, and solids.</text>
   </section>
@@ -14,7 +14,7 @@ I do not forget, that the illustrious Descartes, though he believed, that the mi
     </def>
     <def id="III.def.3" number="3">
       <text>By emotion I mean the modifications of the body, whereby the active power of the said body is increased or diminished, aided or constrained, and also the ideas of such modifications.</text>
-      <note id="III.def.3.note" editorial="true">
+      <note id="III.def.3.note">
         <text>If we can be the adequate cause of any of these modifications, I then call the emotion an activity, otherwise I call it a passion, or state wherein the mind is passive.</text>
       </note>
     </def>
@@ -22,7 +22,7 @@ I do not forget, that the illustrious Descartes, though he believed, that the mi
   <section type="postulates" id="III.postulates">
     <postulate id="III.post.1" number="1">
       <text>The human body can be affected in many ways, whereby its power of activity is increased or diminished, and also in other ways which do not render its power of activity either greater or less.</text>
-      <note id="III.post.1.note" editorial="true">
+      <note id="III.post.1.note">
         <text>This postulate or axiom rests on Postulate i. and Lemmas v. and vii., which see after II. xiii.</text>
       </note>
     </postulate>
@@ -155,10 +155,10 @@ Further, between appetite and desire there is no difference, except that the ter
       </proof>
       <corollary id="III.prop.15.corollary">
         <text>Simply from the fact that we have regarded a thing with the emotion of pleasure or pain, though that thing be not the efficient cause of the emotion, we can either love or hate it.</text>
+        <proof id="III.prop.15.corollary.proof">
+          <text>For from this fact alone it arises (III. xiv.), that the mind afterwards conceiving the said thing is affected with the emotion of pleasure or pain, that is (III. xi. note), according as the power of the mind and body may be increased or diminished, &amp;c.; and consequently (III. xii.), according as the mind may desire or shrink from the conception of it (III. xiii. Coroll.), in other words (III. xiii. note), according as it may love or hate the same. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.15.proof2">
-        <text>For from this fact alone it arises (III. xiv.), that the mind afterwards conceiving the said thing is affected with the emotion of pleasure or pain, that is (III. xi. note), according as the power of the mind and body may be increased or diminished, &amp;c.; and consequently (III. xii.), according as the mind may desire or shrink from the conception of it (III. xiii. Coroll.), in other words (III. xiii. note), according as it may love or hate the same. Q.E.D.</text>
-      </proof>
       <note id="III.prop.15.note">
         <text>Hence we understand how it may happen, that we love or hate a thing without any cause for our emotion being known to us; merely, as a phrase is, from sympathy or antipathy. We should refer to the same category those objects, which affect us pleasurably or painfully, simply because they resemble other objects which affect us in the same way. This I will show in the next Prop. I am aware that certain authors, who were the first to introduce these terms &quot;sympathy&quot; and &quot;antipathy,&quot; wished to signify thereby some occult qualities in things; nevertheless I think we may be permitted to use the same terms to indicate known or manifest qualities.</text>
       </note>
@@ -187,9 +187,10 @@ Further, between appetite and desire there is no difference, except that the ter
         <text>I call a thing past or future, according as we either have been or shall be affected thereby. For instance, according as we have seen it, or are about to see it, according as it has recreated us, or will recreate us, according as it has harmed us, or will harm us. For, as we thus conceive it, we affirm its existence; that is, the body is affected by no emotion which excludes the existence of the thing, and therefore (II. xvii.) the body is affected by the image of the thing, in the same way as if the thing were actually present. However, as it generally happens that those, who have had many experiences, vacillate, so long as they regard a thing as future or past, and are usually in doubt about its issue (II. xliv. note); it follows that the emotions which arise from similar images of things are not so constant, but are generally disturbed by the images of other things, until men become assured of the issue.</text>
       </note>
       <note id="III.prop.18.note2">
-        <text>From what has just been said, we understand what is meant by the terms Hope, Fear, Confidence, Despair, Joy, and Disappointment.[5] Hope is nothing else but an inconstant pleasure, arising from the image of something future or past, whereof we do not yet know the issue. Fear, on the other hand, is an inconstant pain also arising from the image of something concerning which we are in doubt. If the element of doubt be removed from these emotions, hope becomes Confidence and fear becomes Despair. In other words, Pleasure or Pain arising from the image of something concerning which we have hoped or feared. Again, Joy is Pleasure arising from the image of something past whereof we have doubted the issue. Disappointment is the Pain opposed to Joy.
-
-[5] Conscientiæ morsus—thus rendered by Mr. Pollock.</text>
+        <text>From what has just been said, we understand what is meant by the terms Hope, Fear, Confidence, Despair, Joy, and Disappointment.[5] Hope is nothing else but an inconstant pleasure, arising from the image of something future or past, whereof we do not yet know the issue. Fear, on the other hand, is an inconstant pain also arising from the image of something concerning which we are in doubt. If the element of doubt be removed from these emotions, hope becomes Confidence and fear becomes Despair. In other words, Pleasure or Pain arising from the image of something concerning which we have hoped or feared. Again, Joy is Pleasure arising from the image of something past whereof we have doubted the issue. Disappointment is the Pain opposed to Joy.</text>
+        <footnote number="5">
+          <text>Conscientiæ morsus—thus rendered by Mr. Pollock.</text>
+        </footnote>
       </note>
     </prop>
     <prop id="III.prop.19" number="19">
@@ -264,22 +265,22 @@ We will call the love towards him who confers a benefit on another, Approval; an
       </note>
       <corollary id="III.prop.27.corollary1">
         <text>If we conceive that anyone, whom we have hitherto regarded with no emotion, pleasurably affects something similar to ourselves, we shall be affected with love towards him. If, on the other hand, we conceive that he painfully affects the same, we shall be affected with hatred towards him.</text>
+        <proof id="III.prop.27.corollary1.proof">
+          <text>This is proved from the last proposition in the same manner as III. xxii. is proved from III. xxi.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.27.proof2">
-        <text>This is proved from the last proposition in the same manner as III. xxii. is proved from III. xxi.</text>
-      </proof>
       <corollary id="III.prop.27.corollary2">
         <text>We cannot hate a thing which we pity, because its misery affects us painfully.</text>
+        <proof id="III.prop.27.corollary2.proof">
+          <text>If we could hate it for this reason, we should rejoice in its pain, which is contrary to the hypothesis.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.27.proof3">
-        <text>If we could hate it for this reason, we should rejoice in its pain, which is contrary to the hypothesis.</text>
-      </proof>
       <corollary id="III.prop.27.corollary3">
         <text>We seek to free from misery, as far as we can, a thing which we pity.</text>
+        <proof id="III.prop.27.corollary3.proof">
+          <text>That, which painfully affects the object of our pity, affects us also with similar pain (by the foregoing proposition); therefore, we shall endeavour to recall everything which removes its existence, or which destroys it (cf. III. xiii.); in other words (III. ix. note), we shall desire to destroy it, or we shall be determined for its destruction; thus, we shall endeavour to free from misery a thing which we pity. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.27.proof4">
-        <text>That, which painfully affects the object of our pity, affects us also with similar pain (by the foregoing proposition); therefore, we shall endeavour to recall everything which removes its existence, or which destroys it (cf. III. xiii.); in other words (III. ix. note), we shall desire to destroy it, or we shall be determined for its destruction; thus, we shall endeavour to free from misery a thing which we pity. Q.E.D.</text>
-      </proof>
       <note id="III.prop.27.note2">
         <text>This will or appetite for doing good, which arises from pity of the thing whereon we would confer a benefit, is called benevolence, and is nothing else but desire arising from compassion. Concerning love or hate towards him who has done good or harm to something, which we conceive to be like ourselves, see III. xxii. note.</text>
       </note>
@@ -291,9 +292,10 @@ We will call the love towards him who confers a benefit on another, Approval; an
       </proof>
     </prop>
     <prop id="III.prop.29" number="29">
-      <text>We shall also endeavour to do whatsoever we conceive men[6] to regard with pleasure, and contrariwise we shall shrink from doing that which we conceive men to shrink from.
-
-[6] By &quot;men&quot; in this and the following propositions, I mean men whom we regard without any particular emotion.</text>
+      <text>We shall also endeavour to do whatsoever we conceive men[6] to regard with pleasure, and contrariwise we shall shrink from doing that which we conceive men to shrink from.</text>
+      <footnote number="6">
+        <text>By &quot;men&quot; in this and the following propositions, I mean men whom we regard without any particular emotion.</text>
+      </footnote>
       <proof id="III.prop.29.proof">
         <text>From the fact of imagining, that men love or hate anything, we shall love or hate the same thing (III. xxvii.). That is (III. xiii. note), from this mere fact we shall feel pleasure or pain at the thing's presence. And so we shall endeavour to do whatsoever we conceive men to love or regard with pleasure, etc. Q.E.D.</text>
       </proof>
@@ -307,11 +309,13 @@ We will call the love towards him who confers a benefit on another, Approval; an
         <text>He who conceives, that he affects others with pleasure or pain, will, by that very fact, himself be affected with pleasure or pain (III. xxvii.), but, as a man (II. xix. and xxiii.) is conscious of himself through the modifications whereby he is determined to action, it follows that he who conceives, that he affects others pleasurably, will be affected with pleasure accompanied by the idea of himself as cause; in other words, he will regard himself with pleasure. And so mutatis mutandis in the case of pain. Q.E.D.</text>
       </proof>
       <note id="III.prop.30.note">
-        <text>As love (III. xiii.) is pleasure accompanied by the idea of an external cause, and hatred is pain accompanied by the idea of an external cause; the pleasure and pain in question will be a species of love and hatred. But, as the terms love and hatred are used in reference to external objects, we will employ other names for the emotions now under discussion: pleasure accompanied by the idea of an external cause[7] we will style Honour, and the emotion contrary thereto we will style Shame: I mean in such cases as where pleasure or pain arises from a man's belief, that he is being praised or blamed: otherwise pleasure accompanied by the idea of an external cause[8] is called self—complacency, and its contrary pain is called repentance. Again, as it may happen (II. xvii. Coroll.) that the pleasure, wherewith a man conceives that he affects others, may exist solely in his own imagination, and as (III. xxv.) everyone endeavours to conceive concerning himself that which he conceives will affect him with pleasure, it may easily come to pass that a vain man may be proud and may imagine that he is pleasing to all, when in reality he may be an annoyance to all.
-
-[7] So Van Vloten and Bruder. The Dutch version and Camerer read, &quot;an internal cause.&quot; &quot;Honor&quot; = Gloria.
-
-[8] See previous endnote.</text>
+        <text>As love (III. xiii.) is pleasure accompanied by the idea of an external cause, and hatred is pain accompanied by the idea of an external cause; the pleasure and pain in question will be a species of love and hatred. But, as the terms love and hatred are used in reference to external objects, we will employ other names for the emotions now under discussion: pleasure accompanied by the idea of an external cause[7] we will style Honour, and the emotion contrary thereto we will style Shame: I mean in such cases as where pleasure or pain arises from a man's belief, that he is being praised or blamed: otherwise pleasure accompanied by the idea of an external cause[8] is called self—complacency, and its contrary pain is called repentance. Again, as it may happen (II. xvii. Coroll.) that the pleasure, wherewith a man conceives that he affects others, may exist solely in his own imagination, and as (III. xxv.) everyone endeavours to conceive concerning himself that which he conceives will affect him with pleasure, it may easily come to pass that a vain man may be proud and may imagine that he is pleasing to all, when in reality he may be an annoyance to all.</text>
+        <footnote number="7">
+          <text>So Van Vloten and Bruder. The Dutch version and Camerer read, &quot;an internal cause.&quot; &quot;Honor&quot; = Gloria.</text>
+        </footnote>
+        <footnote number="8">
+          <text>See previous endnote.</text>
+        </footnote>
       </note>
     </prop>
     <prop id="III.prop.31" number="31">
@@ -322,11 +326,12 @@ We will call the love towards him who confers a benefit on another, Approval; an
       <corollary id="III.prop.31.corollary">
         <text>From the foregoing, and also from III. xxviii. it follows that everyone endeavours, as far as possible, to cause others to love what he himself loves, and to hate what he himself hates: as the poet says: &quot;As lovers let us share every hope and every fear: ironhearted were he who should love what the other leaves.&quot;[9]
 
-[9] Ovid, &quot;Amores,&quot; II. xix. 4,5. Spinoza transposes the verses.
-
 &quot;Speremus pariter, pariter metuamus amantes;
 
 Ferreus est, si quis, quod sinit alter, amat.&quot;</text>
+        <footnote number="9">
+          <text>Ovid, &quot;Amores,&quot; II. xix. 4,5. Spinoza transposes the verses.</text>
+        </footnote>
       </corollary>
       <note id="III.prop.31.note">
         <text>This endeavour to bring it about, that our own likes and dislikes should meet with universal approval, is really ambition (see III. xxix. note); wherefore we see that everyone by nature desires (appetere), that the rest of mankind should live according to his own individual disposition: when such a desire is equally present in all, everyone stands in everyone else's way, and in wishing to be loved or praised by all, all become mutually hateful.</text>
@@ -371,10 +376,10 @@ We must add, that a jealous man is not greeted by his beloved with the same joyf
       </proof>
       <corollary id="III.prop.36.corollary">
         <text>A lover will, therefore, feel pain if one of the aforesaid attendant circumstances be missing.</text>
+        <proof id="III.prop.36.corollary.proof">
+          <text>For, in so far as he finds some circumstance to be missing, he conceives something which excludes its existence. As he is assumed to be desirous for love's sake of that thing or circumstance (by the last Prop.), he will, in so far as he conceives it to be missing, feel pain (III. xix.). Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.36.proof2">
-        <text>For, in so far as he finds some circumstance to be missing, he conceives something which excludes its existence. As he is assumed to be desirous for love's sake of that thing or circumstance (by the last Prop.), he will, in so far as he conceives it to be missing, feel pain (III. xix.). Q.E.D.</text>
-      </proof>
       <note id="III.prop.36.note">
         <text>This pain, in so far as it has reference to the absence of the object of love, is called Regret.</text>
       </note>
@@ -415,10 +420,10 @@ Lastly, since hatred and love are themselves emotions of pain and pleasure, it f
       </corollary>
       <corollary id="III.prop.40.corollary2">
         <text>If a man conceives that one, whom he has hitherto regarded without emotion, has done him any injury from motives of hatred, he will forthwith seek to repay the injury in kind.</text>
+        <proof id="III.prop.40.corollary2.proof">
+          <text>He who conceives, that another hates him, will (by the last proposition) hate his enemy in return, and (III. xxvi.) will endeavour to recall everything which can affect him painfully; he will moreover endeavour to do him an injury (III. xxxix.). Now the first thing of this sort which he conceives is the injury done to himself; he will, therefore, forthwith endeavour to repay it in kind. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.40.proof2">
-        <text>He who conceives, that another hates him, will (by the last proposition) hate his enemy in return, and (III. xxvi.) will endeavour to recall everything which can affect him painfully; he will moreover endeavour to do him an injury (III. xxxix.). Now the first thing of this sort which he conceives is the injury done to himself; he will, therefore, forthwith endeavour to repay it in kind. Q.E.D.</text>
-      </proof>
       <note id="III.prop.40.note2">
         <text>The endeavour to injure one whom we hate is called Anger; the endeavour to repay in kind injury done to ourselves is called Revenge.</text>
       </note>
@@ -512,9 +517,10 @@ Lastly, since hatred and love are themselves emotions of pain and pleasure, it f
       <note id="III.prop.51.note">
         <text>We thus see that it is possible, that what one man loves another may hate, and that what one man fears another may not fear; or, again, that one and the same man may love what he once hated, or may be bold where he once was timid, and so on. Again, as everyone judges according to his emotions what is good, what bad, what better, and what worse (III. xxxix. note), it follows that men's judgments may vary no less than their emotions[10], hence when we compare some with others, we distinguish them solely by the diversity of their emotions, and style some intrepid, others timid, others by some other epithet. For instance, I shall call a man intrepid, if he despises an evil which I am accustomed to fear; if I further take into consideration, that, in his desire to injure his enemies and to benefit those whom he loves, he is not restrained by the fear of an evil which is sufficient to restrain me, I shall call him daring. Again, a man will appear timid to me, if he fears an evil which I am accustomed to despise; and if I further take into consideration that his desire is restrained by the fear of an evil, which is not sufficient to restrain me, I shall say that he is cowardly; and in like manner will everyone pass judgment.
 
-[10] This is possible, though the human mind is part of the divine intellect, as I have shown in II. xiii. note.
-
 Lastly, from this inconstancy in the nature of human judgment, inasmuch as a man often judges things solely by his emotions, and inasmuch as the things which he believes cause pleasure or pain, and therefore endeavours to promote or prevent, are often purely imaginary, not to speak of the uncertainty of things alluded to in III. xxviii.; we may readily conceive that a man may be at one time affected with pleasure, and at another with pain, accompanied by the idea of himself as cause. Thus we can easily understand what are Repentance and Self—complacency. Repentance is pain, accompanied by the idea of one's self as cause; Self—complacency is pleasure, accompanied by the idea of one's self as cause, and these emotions are most intense because men believe themselves to be free (III. xlix.).</text>
+        <footnote number="10">
+          <text>This is possible, though the human mind is part of the divine intellect, as I have shown in II. xiii. note.</text>
+        </footnote>
       </note>
     </prop>
     <prop id="III.prop.52" number="52">
@@ -558,10 +564,10 @@ It is thus apparent that men are naturally prone to hatred and envy, which latte
       </note>
       <corollary id="III.prop.55.corollary2">
         <text>No one envies the virtue of anyone who is not his equal.</text>
+        <proof id="III.prop.55.corollary2.proof">
+          <text>Envy is a species of hatred (III. xxiv. note) or (III. xiii. note) pain, that is (III. xi. note), a modification whereby a man's power of activity, or endeavour towards activity, is checked. But a man does not endeavour or desire to do anything, which cannot follow from his nature as it is given; therefore a man will not desire any power of activity or virtue (which is the same thing) to be attributed to him, that is appropriate to another's nature and foreign to his own; hence his desire cannot be checked, nor he himself pained by the contemplation of virtue in some one unlike himself, consequently he cannot envy such an one. But he can envy his equal, who is assumed to have the same nature as himself. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="III.prop.55.proof2">
-        <text>Envy is a species of hatred (III. xxiv. note) or (III. xiii. note) pain, that is (III. xi. note), a modification whereby a man's power of activity, or endeavour towards activity, is checked. But a man does not endeavour or desire to do anything, which cannot follow from his nature as it is given; therefore a man will not desire any power of activity or virtue (which is the same thing) to be attributed to him, that is appropriate to another's nature and foreign to his own; hence his desire cannot be checked, nor he himself pained by the contemplation of virtue in some one unlike himself, consequently he cannot envy such an one. But he can envy his equal, who is assumed to have the same nature as himself. Q.E.D.</text>
-      </proof>
       <note id="III.prop.55.note2">
         <text>When, therefore, as we said in the note to III. lii., we venerate a man, through wonder at his prudence, fortitude, &amp;c., we do so, because we conceive those qualities to be peculiar to him, and not as common to our nature; we, therefore, no more envy their possessor, than we envy trees for being tall, or lions for being courageous.</text>
       </note>
@@ -755,9 +761,10 @@ The definitions of veneration and scorn I here pass over, for I am not aware tha
       </explanation>
     </def>
     <def id="III.affect.30" number="30">
-      <text>Honour[11] is pleasure accompanied by the idea of some action of our own, which we believe to be praised by others.
-
-[11] Gloria.</text>
+      <text>Honour[11] is pleasure accompanied by the idea of some action of our own, which we believe to be praised by others.</text>
+      <footnote number="11">
+        <text>Gloria.</text>
+      </footnote>
     </def>
     <def id="III.affect.31" number="31">
       <text>Shame is pain accompanied by the idea of some action of our own, which we believe to be blamed by others.</text>
