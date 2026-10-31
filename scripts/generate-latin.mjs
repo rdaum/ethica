@@ -299,7 +299,7 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
 
     if (element.type === 'appendix') {
       if (element.id.endsWith('.introduction')) {
-        return consumeAppendixIntroduction(paragraphs, cursor, element.id);
+        return consumeAppendixIntroduction(paragraphs, cursor);
       }
 
       if (/\.appendix\.chapter\.\d+$/.test(element.id)) {
@@ -521,7 +521,7 @@ const consumeAppendix = (paragraphs, cursor) => {
   return joinParts(parts);
 };
 
-const consumeAppendixIntroduction = (paragraphs, cursor, elementId) => {
+const consumeAppendixIntroduction = (paragraphs, cursor) => {
   const current = paragraphs[cursor.index] ?? '';
   const appendixMatch = current.match(/^APPENDIX\s*:?\s*(.*)$/i);
 

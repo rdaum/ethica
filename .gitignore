@@ -73,3 +73,7 @@ spinoza-reader/.eslintcache
 # Temporary folders
 tmp/
 temp/
+
+# Playwright
+/playwright-report/
+/test-results/
