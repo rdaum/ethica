@@ -1,0 +1,72 @@
+{
+  "source": {
+    "english": {
+      "translator": "A.H. Gosset",
+      "editor": "R.H.M. Elwes",
+      "year": 1883,
+      "url": "https://constitution.org/2-Authors/bs/poltreat.txt"
+    },
+    "latin": {
+      "url": "https://la.wikisource.org/wiki/Tractatus_Politicus",
+      "edition": "not stated by the source"
+    }
+  },
+  "chapter": 5,
+  "title": "Of the best state of a dominion",
+  "elements": [
+    {
+      "id": "TP.V.1",
+      "number": "1",
+      "text": "In Chap. II. Sec. 2, we showed, that man is then most independent, when he is most led by reason, and, in consequence (Chap. III. Sec. 7), that that commonwealth is most powerful and most independent, which is founded and guided by reason. But, as the best plan of living, so as to assure to the utmost self-preservation, is that which is framed according to the dictate of reason, therefore it follows, that that in every kind is best done, which a man or commonwealth does, so far as he or it is in the highest degree independent. For it is one thing to till a field by right, and another to till it in the best way. One thing, I say, to defend or preserve one's self, and to pass judgment by right, and another to defend or preserve one's self in the best way, and to pass the best judgment; and, consequently, it is one thing to have dominion and care of affairs of state by right, and another to exercise dominion and direct affairs of state in the best way. And so, as we have treated of the right of every commonwealth in general, it is time to treat of the best state of every dominion.",
+      "latinText": "In Art. II. Cap. 2. ostendimus hominem tum maxime sui juris esse, quando maxime ratione ducitur, et consequenter (vid. Art. 7. Cap. 3.) Civitatem illam maxime potentem, maximeque sui juris esse, quae ratione fundatur, et dirigitur. Cum autem optima vivendi ratio ad sese, quantum fieri potest, conservandum ea sit, quae ex praescripto rationis instituitur; sequitur ergo id omne optimum esse, quod homo, vel Civitas agit, quatenus maxime sui juris est. Nam non id omne, quod jure fieri dicimus, optime fieri affirmamus: aliud namque est agrum jure colere, aliud agrum optime colere; aliud, inquam, est sese jure defendere, conservare, judicium ferre, etc. aliud sese optime defendere, conservare, atque optimum judicium ferre; et consequenter aliud est jure imperare, et Reipublicae curam habere, aliud optime imperare, et Rempublicam optime gubernare. Postquam itaque de jure cujuscunque Civitatis in genere egimus, tempus est, ut de optimo cujuscunque imperii statu agamus."
+    },
+    {
+      "id": "TP.V.2",
+      "number": "2",
+      "text": "Now the quality of the state of any dominion is easily perceived from the end of the civil state, which end is nothing else but peace and security of life. And therefore that dominion is the best, where men pass their lives in unity, and the laws are kept unbroken. For it is certain, that seditions, wars, and contempt or breach of the laws are not so much to be imputed to the wickedness of the subjects, as to the bad state of a dominion. For men are not born fit for citizenship, but must be made so. Besides, men's natural passions are everywhere the same; and if wickedness more prevails, and more offences are committed in one commonwealth than in another, it is certain that the former has not enough pursued the end of unity, nor framed its laws with sufficient forethought; and that, therefore, it has failed in making quite good its right as a commonwealth. For a civil state, which has not done away with the causes of seditions, where war is a perpetual object of fear, and where, lastly, the laws are often broken, differs but little from the mere state of nature, in which everyone lives after his own mind at the great risk of his life.",
+      "latinText": "Qualis autem cujuscunque imperii optimus sit status , facile ex fine status civilis cognoscitur: qui scilicet nullus alius est, quam pax, vitaeque securitas. Ac proinde illud imperium optimum est, ubi homines concorditer vitam transigunt, et cujus jura inviolata servantur. Nam certum est, quod seditiones, bella, legumque contemptio, sive violatio non tam subditorum malitiae, quam pravo imperii statui imputanda sunt. Homines enim civiles non nascuntur, sed fiunt. Hominum praeterea naturales affectus ubique iidem sunt; si itaque in una Civitate malitia magis regnat, pluraque peccata committuntur, quam in alia, certum est, id ex eo oriri, quod talis Civitas non satis concordiae providerit, nec jura satis prudenter instituerit, et consequenter neque Jus Civitatis absolutum obtinuerit. Status enim civilis, qui seditionum causas non abstulit, et ubi bellum continuo timendum, et ubi denique leges frequenter violantur, non multum ab ipso naturali statu differt, ubi unusquisque ex suo ingenio magno vitae periculo vivit."
+    },
+    {
+      "id": "TP.V.3",
+      "number": "3",
+      "text": "But as the vices and inordinate licence and contumacy of subjects must be imputed to the commonwealth, so, on the other hand, their virtue and constant obedience to the laws are to be ascribed in the main to the virtue and perfect right of the commonwealth, as is clear from Chap. II. Sec. 15. And so it is deservedly reckoned to Hannibal as an extraordinary virtue, that in his army there never arose a sedition. [1]",
+      "latinText": "At sicut subditorum vitia, nimiaque licentia, et contumacia Civitati imputanda sunt, ita contra eorum virtus, et constans legum observantia maxime Civitatis virtuti, et juri absoluto tribuenda est, ut patet ex Art. 15. Cap. 2. Unde Hannibali merito eximiae virtuti ducitur, quod in ipsius exercitu nulla unquam seditio orta fuerit.",
+      "footnotes": [
+        {
+          "number": "1",
+          "text": "Justin, Histories, xxxii. iv. 12."
+        }
+      ]
+    },
+    {
+      "id": "TP.V.4",
+      "number": "4",
+      "text": "Of a commonwealth, whose subjects are but hindered by terror from taking arms, it should rather be said, that it is free from war, than that it has peace. For peace is not mere absence of war, but is a virtue that springs from force of character: for obedience (Chap. II. Sec. 19) is the constant will to execute what, by the general decree of the commonwealth, ought to be done. Besides that commonwealth, whose peace depends on the sluggishness of its subjects, that are led about like sheep, to learn but slavery, may more properly be called a desert than a commonwealth.",
+      "latinText": "Civitas, cujus subditi, metu territi, arma non capiunt, potius dicenda est, quod sine bello sit, quam quod pacem habeat. Pax enim non belli privatio, sed virtus est, quae ex animi fortitudine oritur: est namque obsequium (per Art. 19. Cap. 2.) constans voluntas id exequendi, quod ex communi Civitatis decreto fieri debet. Illa praeterea Civitas, cujus pax a subditorum inertia pendet, qui scilicet veluti pecora ducuntur, ut tantum servire discant, rectius solitudo, quam Civitas dici potest."
+    },
+    {
+      "id": "TP.V.5",
+      "number": "5",
+      "text": "When, then, we call that dominion best, where men pass their lives in unity, I understand a human life, defined not by mere circulation of the blood, and other qualities common to all animals, but above all by reason, the true excellence and life of the mind.",
+      "latinText": "Cum ergo dicimus, illud imperium optimum esse, ubi homines concorditer vitam transigunt, vitam humanam intelligo, quae non sola sanguinis circulatione, et aliis, quae omnibus animalibus sunt communia, sed quae maxime ratione, vera Mentis virtute, et vita definitur."
+    },
+    {
+      "id": "TP.V.6",
+      "number": "6",
+      "text": "But be it remarked that, by the dominion which I have said is established for this end, I intend that which has been established by a free multitude, not that which is acquired over a multitude by right of war. For a free multitude is guided more by hope than fear; a conquered one, more by fear than hope: inasmuch as the former aims at making use of life, the latter but at escaping death. The former, I say, aims at living for its own ends, the latter is forced to belong to the conqueror; and so we say that this is enslaved, but that free. And, therefore, the end of a dominion, which one gets by right of war, is to be master, and have rather slaves than subjects. And although between the dominion created by a free multitude, and that gained by right of war, if we regard generally the right of each, we can make no essential distinction; yet their ends, as we have already shown, and further the means to the preservation of each are very different.",
+      "latinText": "Sed notandum, imperium, quod in hunc finem institui dixi, a me intelligi id, quod multitudo libera instituit, non autem id, quod in multitudinem jure belli acquiritur. Libera enim multitudo majori spe, quam metu, subacta autem majori metu, quam spe ducitur: quippe illa vitam colere, haec autem mortem tantummodo vitare studet; illa inquam, sibi vivere studet, haec victoris esse cogitur, unde hanc servire, illam liberam esse dicimus. Finis itaque imperii, quod aliquis Jure belli adipiscitur, est dominari, et servos potius, quam subditos habere. Et quamvis inter imperium, quod a libera multitudine creatur, et illud, quod jure belli acquiritur, si ad utriusque jus in genere attendamus, nulla essentialis detur differentia, finem tamen, ut jam ostendimus, et praeterea media, quibus unumquodque conservari debeat, admodum diversa habent."
+    },
+    {
+      "id": "TP.V.7",
+      "number": "7",
+      "text": "But what means a prince, whose sole motive is lust of mastery, should use to establish and maintain his dominion, the most ingenious Machiavelli has set forth at large, [2] but with what design one can hardly be sure. If, however, he had some good design, as one should believe of a learned man, it seems to have been to show, with how little foresight many attempt to remove a tyrant, though thereby the causes which make the prince a tyrant can in no wise be removed, but, on the contrary, are so much the more established, as the prince is given more cause to fear, which happens when the multitude has made an example of its prince, and glories in the parricide as in a thing well done. Moreover, he perhaps wished to show how cautious a free multitude should be of entrusting its welfare absolutely to one man, who, unless in his vanity he thinks he can please everybody, must be in daily fear of plots, and so is forced to look chiefly after his own interest, and, as for the multitude, rather to plot against it than consult its good. And I am the more led to this opinion concerning that most far-seeing man, because it is known that he was favourable to liberty, for the maintenance of which he has besides given the most wholesome advice.",
+      "latinText": "Quibus autem mediis Princeps, qui sola dominandi libidine fertur, uti debet, ut imperium stabilire, et conservare possit, acutissimus Machiavellus prolixe ostendit; quem autem in finem, non satis constare videtur. Si quem tamen bonum habuit, ut de viro sapiente credendum est, fuisse videtur, ut ostenderet, quam imprudenter multi Tyrannum e medio tollere conantur, cum tamen causae, cur princeps sit Tyrannus, tolli nequeant, sed contra eo magis ponantur, quo principi major timendi causa praebetur: quod fit, quando multitudo exempla in principem edidit, et parricidio, quasi re bene gesta, gloriatur. Praeterea ostendere forsan voluit, quantum libera multitudo cavere debet, ne salutem suam uni absolute credat, qui, nisi vanus sit, et omnibus se posse placere existimet, quotidie insidias timere debet; atque adeo sibi potius cavere, et multitudini contra insidiari magis, quam consulere cogitur; et ad hoc de prudentissimo isto viro credendum magis adducor, quia pro libertate fuisse constat, ad quam etiam tuendam saluberrima consilia dedit.",
+      "footnotes": [
+        {
+          "number": "2",
+          "text": "In his book called \"Il Principe,\" or \"The Prince.\""
+        }
+      ]
+    }
+  ]
+}
