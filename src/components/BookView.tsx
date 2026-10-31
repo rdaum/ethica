@@ -7,24 +7,24 @@ interface BookViewProps {
   elements: SpinozaElement[];
   query: string;
   visibleIds: Set<string>;
-  onElementHover: (elementId: string | null) => void;
   onElementSelect: (elementId: string | null, viaKeyboard?: boolean) => void;
   selectedElement: string | null;
-  hoveredElement: string | null;
   currentPart: number;
   partTitle: string;
+  partNumeral: string;
+  partDescription: string;
   readingMode: ReadingMode;
 }
 
 const BookView: React.FC<BookViewProps> = ({
   elements,
   visibleIds,
-  onElementHover,
   onElementSelect,
   selectedElement,
-  hoveredElement,
   currentPart,
   partTitle,
+  partNumeral,
+  partDescription,
   readingMode
 }) => {
   const childrenByParent = new Map<string, SpinozaElement[]>();
@@ -71,20 +71,15 @@ const BookView: React.FC<BookViewProps> = ({
         {children.map(child => (
           <article
             key={child.id}
-            className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''} ${hoveredElement === child.id ? 'hovered' : ''}`}
-            onMouseEnter={() => onElementHover(child.id)}
-            onMouseLeave={() => onElementHover(null)}
+            className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''}`}
             onClick={event => handleSelect(child.id, event)}
             data-element-id={child.id}
           >
-            <header className="entry-header child-header">
-              <div>
-                <p className="entry-type">{child.type}</p>
-                <h4>{selectButton(child)}</h4>
-              </div>
+            <header className="entry-header">
+              <h4>{selectButton(child)}</h4>
               <span className="entry-id">{child.id}</span>
             </header>
-            <div className="entry-body compact">{renderEntryBody(child, readingMode)}</div>
+            <div className="entry-body">{renderEntryBody(child, readingMode)}</div>
             {renderChildren(child.id)}
           </article>
         ))}
@@ -97,8 +92,9 @@ const BookView: React.FC<BookViewProps> = ({
   return (
     <section className="book-view" aria-label={`Part ${currentPart}: ${partTitle}`}>
       <div className="book-intro">
-        <p className="book-kicker">Part {currentPart}</p>
+        <p className="book-kicker">Part {partNumeral}</p>
         <h2>{partTitle}</h2>
+        <p className="book-description">{partDescription}</p>
       </div>
 
       {visibleElements.length === 0 && (
@@ -121,17 +117,12 @@ const BookView: React.FC<BookViewProps> = ({
             )}
 
             <article
-              className={`reader-entry entry-${element.type} ${selectedElement === element.id ? 'selected' : ''} ${hoveredElement === element.id ? 'hovered' : ''}`}
-              onMouseEnter={() => onElementHover(element.id)}
-              onMouseLeave={() => onElementHover(null)}
+              className={`reader-entry entry-${element.type} ${selectedElement === element.id ? 'selected' : ''}`}
               onClick={event => handleSelect(element.id, event)}
               data-element-id={element.id}
             >
               <header className="entry-header">
-                <div>
-                  <p className="entry-type">{element.type}</p>
-                  <h3>{selectButton(element)}</h3>
-                </div>
+                <h3>{selectButton(element)}</h3>
                 <span className="entry-id">{element.id}</span>
               </header>
 

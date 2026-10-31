@@ -1,6 +1,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import BookView from './components/BookView';
-import { MetadataChips, PassagePreview, ReadingModeToggle } from './components/PassageMeta';
+import { ReadingModeToggle } from './components/PassageMeta';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import { AnalysisClient, createAnalysisClient } from './lib/analysisClient';
@@ -13,7 +13,6 @@ import {
   sameReaderLocation
 } from './lib/readerUrl';
 import {
-  formatElementLabel,
   getVisibleElementIds,
   mergeLatinText,
   parseSpinozaXml,
@@ -23,6 +22,32 @@ import {
 import { PassageAnalysis, ReaderSectionSummary, ReadingMode, SpinozaElement } from './types';
 
 const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
+
+const FOCUS_MODE_KEY = 'ethica.focusMode';
+
+const readFocusMode = (): boolean => {
+  try {
+    return window.localStorage.getItem(FOCUS_MODE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const saveFocusMode = (enabled: boolean) => {
+  try {
+    window.localStorage.setItem(FOCUS_MODE_KEY, String(enabled));
+  } catch {
+    // Without storage, focus mode simply lasts until the next reload.
+  }
+};
+
+const prefersReducedMotion = (): boolean => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+// Animating across a long part is slow and disorienting, so a far jump goes straight there.
+const scrollBehaviorFor = (node: HTMLElement): ScrollBehavior => {
+  const distance = Math.abs(node.getBoundingClientRect().top);
+  return prefersReducedMotion() || distance > window.innerHeight * 2 ? 'auto' : 'smooth';
+};
 
 const fetchOk = async (path: string): Promise<Response> => {
   const response = await fetch(publicPath(path));
@@ -62,7 +87,6 @@ const App: React.FC = () => {
   const [readingMode, setReadingMode] = useState<ReadingMode>('english');
   const [selectedElement, setSelectedElement] = useState<string | null>(initialLocation.elementId);
   const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
-  const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [partAttempt, setPartAttempt] = useState(0);
   const [analysisAttempt, setAnalysisAttempt] = useState(0);
@@ -70,7 +94,12 @@ const App: React.FC = () => {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<PassageAnalysis | null>(null);
   const [panelFocusRequest, setPanelFocusRequest] = useState(0);
+  const [focusMode, setFocusMode] = useState(readFocusMode);
+  const [contentsOpen, setContentsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const contentsToggleRef = useRef<HTMLButtonElement | null>(null);
+  const sidebarRef = useRef<HTMLElement | null>(null);
   const deferredQuery = useDeferredValue(query);
   const analysisClient = useRef<AnalysisClient | null>(null);
   const partCache = useRef(new Map<number, Map<string, SpinozaElement>>());
@@ -156,7 +185,7 @@ const App: React.FC = () => {
     }
 
     elementNode.scrollIntoView({
-      behavior: 'smooth',
+      behavior: scrollBehaviorFor(elementNode),
       block: 'center',
       inline: 'nearest'
     });
@@ -227,6 +256,18 @@ const App: React.FC = () => {
     };
   }, [selectedElement, elements, ready, analysisAttempt]);
 
+  useEffect(() => {
+    if (contentsOpen) {
+      sidebarRef.current?.querySelector('button')?.focus();
+    }
+  }, [contentsOpen]);
+
+  useEffect(() => {
+    if (searchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [searchOpen]);
+
   // State to URL: comparing parsed locations means a state change that came from the
   // URL itself (initial load, back, forward, a hash edit) never adds a history entry.
   useEffect(() => {
@@ -264,7 +305,6 @@ const App: React.FC = () => {
   const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
   const selectedEntry = selectedElement ? currentElements.get(selectedElement) : undefined;
   const currentPartMetadata = PARTS[currentPart];
-  const totalPassageCount = topLevelElements.length;
   const selectableEntries = orderedElements.filter(element => visibleIds.has(element.id));
   const selectedIndex = selectedElement ? selectableEntries.findIndex(element => element.id === selectedElement) : -1;
   const previousEntry = selectedIndex > 0 ? selectableEntries[selectedIndex - 1] : null;
@@ -295,9 +335,9 @@ const App: React.FC = () => {
     setCurrentPart(partNumber);
     setSelectedElement(null);
     setScrollTarget(null);
-    setHoveredElement(null);
     setQuery('');
     setAnalysis(null);
+    setContentsOpen(false);
   }, []);
 
   const navigateToElement = useCallback((elementId: string) => {
@@ -318,21 +358,29 @@ const App: React.FC = () => {
       return;
     }
 
+    setContentsOpen(false);
     sectionNode.scrollIntoView({
-      behavior: 'smooth',
+      behavior: scrollBehaviorFor(sectionNode),
       block: 'start'
     });
-  };
-
-  const focusSearch = () => {
-    searchInputRef.current?.focus();
   };
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth'
     });
+  };
+
+  const toggleFocusMode = () => {
+    const enabled = !focusMode;
+    setFocusMode(enabled);
+    saveFocusMode(enabled);
+  };
+
+  const closeContents = () => {
+    setContentsOpen(false);
+    contentsToggleRef.current?.focus();
   };
 
   if (loadedPart === null && !error) {
@@ -348,191 +396,152 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="app">
-      <div className="app-shell">
-        <aside className="app-rail" aria-label="Reader tools">
-          <button type="button" className="rail-logo" onClick={scrollToTop} aria-label="Scroll to top">
+    <div className={`app mode-${readingMode} ${focusMode ? 'focus-mode' : ''} ${selectedEntry ? 'has-selection' : ''}`}>
+      <header className="topbar">
+        <div className="brand">
+          <button type="button" className="brand-mark" onClick={scrollToTop} aria-label="Scroll to top">
             <img src={publicPath('spinoza-signet.png')} alt="" />
           </button>
-          <div className="rail-actions">
-            <button type="button" className="rail-button active" onClick={scrollToTop} aria-label="Overview">
-              <span>Home</span>
-            </button>
-            <button type="button" className="rail-button" onClick={focusSearch} aria-label="Search this part">
-              <span>Search</span>
-            </button>
-            <button
-              type="button"
-              className="rail-button"
-              onClick={() => selectedEntry && navigateToElement(selectedEntry.id)}
-              aria-label="Jump to selected passage"
-              disabled={!selectedEntry}
-            >
-              <span>Focus</span>
-            </button>
-            <button
-              type="button"
-              className="rail-button"
-              onClick={closePanel}
-              aria-label="Clear selection"
-              disabled={!selectedEntry}
-            >
-              <span>Clear</span>
-            </button>
+          <div className="brand-text">
+            <h1>The Ethics</h1>
+            <p>Spinoza, translated by R.H.M. Elwes</p>
           </div>
-        </aside>
+        </div>
 
-        <div className="app-stage">
-          <header className="app-header">
-            <div className="header-grid">
-              <div className="title-block">
-                <p className="eyebrow">Interactive Reader</p>
-                <h1>The Ethics</h1>
-                <p className="subtitle">Baruch Spinoza, translated by R.H.M. Elwes</p>
-                <p className="part-description">{currentPartMetadata.description}</p>
-              </div>
+        <label className={`reader-search ${searchOpen ? 'open' : ''}`}>
+          <span className="visually-hidden">Search within this part</span>
+          <input
+            ref={searchInputRef}
+            type="search"
+            value={query}
+            onChange={event => setQuery(event.target.value)}
+            placeholder={`Search Part ${currentPartMetadata.numeral}`}
+          />
+        </label>
 
-              <div className="header-actions">
-                <div className="part-switcher" aria-label="Select part">
-                  {Object.values(PARTS).map(part => (
+        <div className="topbar-actions">
+          <button
+            type="button"
+            className="topbar-button search-toggle"
+            aria-expanded={searchOpen}
+            onClick={() => setSearchOpen(open => !open)}
+          >
+            Search
+          </button>
+          <button
+            ref={contentsToggleRef}
+            type="button"
+            className="topbar-button contents-toggle"
+            aria-expanded={contentsOpen}
+            aria-controls="reader-contents"
+            onClick={() => setContentsOpen(open => !open)}
+          >
+            Contents
+          </button>
+          <button type="button" className="topbar-button focus-toggle" aria-pressed={focusMode} onClick={toggleFocusMode}>
+            Focus
+          </button>
+        </div>
+      </header>
+
+      {contentsOpen && <button type="button" className="contents-scrim" aria-label="Close contents" onClick={closeContents} />}
+
+      <main className="reader-layout">
+        <aside
+          ref={sidebarRef}
+          id="reader-contents"
+          className={`reader-sidebar ${contentsOpen ? 'open' : ''}`}
+          onKeyDown={event => {
+            if (event.key === 'Escape' && contentsOpen) {
+              closeContents();
+            }
+          }}
+        >
+          <div className="sidebar-stack">
+            <nav aria-label="Contents">
+              <p className="sidebar-kicker">Contents</p>
+              <ol className="contents-list">
+                {Object.values(PARTS).map(part => (
+                  <li key={part.number}>
                     <button
-                      key={part.number}
                       type="button"
                       className={`part-button ${currentPart === part.number ? 'active' : ''}`}
+                      aria-current={currentPart === part.number ? 'true' : undefined}
                       onClick={() => handlePartChange(part.number)}
                     >
                       <span>Part {part.numeral}</span>
                       <strong>{part.title}</strong>
                     </button>
-                  ))}
-                </div>
+                    {currentPart === part.number && sectionSummaries.length > 0 && (
+                      <ul className="section-links">
+                        {sectionSummaries.map(section => (
+                          <li key={section.kind}>
+                            <button type="button" onClick={() => jumpToSection(section.kind)}>
+                              <span>{section.label}</span>
+                              <strong>{section.count}</strong>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </nav>
 
-                <label className="reader-search">
-                  <span>Search within this part</span>
-                  <input
-                    ref={searchInputRef}
-                    type="search"
-                    value={query}
-                    onChange={event => setQuery(event.target.value)}
-                    placeholder="Search terms, ideas, references"
-                  />
-                </label>
-              </div>
+            <div className="sidebar-reading-mode">
+              <p className="sidebar-kicker">Language</p>
+              <ReadingModeToggle value={readingMode} onChange={setReadingMode} />
             </div>
-          </header>
+          </div>
+        </aside>
 
-          <main className="reader-layout">
-            <aside className="reader-sidebar">
-              <div className="sidebar-stack">
-                <div className="sidebar-card part-overview-card">
-                  <div className="part-overview-header">
-                    <div>
-                      <p className="sidebar-kicker">Current Part</p>
-                      <h2>{currentPartMetadata.title}</h2>
-                    </div>
-                    <img
-                      src={publicPath('spinoza-signet.png')}
-                      alt="Spinoza's signet ring"
-                      className="spinoza-signet"
-                    />
-                  </div>
-                  <p>{currentPartMetadata.strapline}</p>
-                </div>
-
-                <div className="sidebar-card sidebar-reading-mode">
-                  <div className="reading-mode">
-                    <span>View In</span>
-                    <ReadingModeToggle value={readingMode} onChange={setReadingMode} />
-                  </div>
-                </div>
-
-                <div className="sidebar-card">
-                  <div className="sidebar-heading">
-                    <h3>Sections</h3>
-                    <span>{totalPassageCount} passages</span>
-                  </div>
-                  <div className="section-links">
-                    {sectionSummaries.map(section => (
-                      <button key={section.kind} type="button" onClick={() => jumpToSection(section.kind)}>
-                        <span>{section.label}</span>
-                        <strong>{section.count}</strong>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {selectedEntry && (
-                  <div className="sidebar-card selection-card">
-                    <p className="sidebar-kicker">Selected passage</p>
-                    <h3>{formatElementLabel(selectedEntry)}</h3>
-                    <MetadataChips element={selectedEntry} />
-                    <PassagePreview element={selectedEntry} readingMode={readingMode} length={220} />
-                    <div className="selection-nav">
-                      <button
-                        type="button"
-                        onClick={() => previousEntry && navigateToElement(previousEntry.id)}
-                        disabled={!previousEntry}
-                      >
-                        Previous
-                      </button>
-                      <button type="button" onClick={() => nextEntry && navigateToElement(nextEntry.id)} disabled={!nextEntry}>
-                        Next
-                      </button>
-                    </div>
-                  </div>
-                )}
+        {!ready ? (
+          <section className="book-view part-status" aria-live="polite">
+            {error ? (
+              <div className="empty-state" role="alert">
+                <h3>{error}</h3>
+                <p>Check your connection and try again.</p>
+                <button type="button" className="part-retry" onClick={() => setPartAttempt(attempt => attempt + 1)}>
+                  Try again
+                </button>
               </div>
-            </aside>
-
-            {!ready ? (
-              <section className="book-view part-status" aria-live="polite">
-                {error ? (
-                  <div className="empty-state" role="alert">
-                    <h3>{error}</h3>
-                    <p>Check your connection and try again.</p>
-                    <button type="button" className="part-retry" onClick={() => setPartAttempt(attempt => attempt + 1)}>
-                      Try again
-                    </button>
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <h3>Loading Part {currentPartMetadata.numeral}…</h3>
-                  </div>
-                )}
-              </section>
             ) : (
-              <BookView
-                elements={orderedElements}
-                query={deferredQuery}
-                visibleIds={visibleIds}
-                selectedElement={selectedElement}
-                hoveredElement={hoveredElement}
-                onElementHover={setHoveredElement}
-                onElementSelect={handleSelectElement}
-                currentPart={currentPart}
-                partTitle={currentPartMetadata.title}
-                readingMode={readingMode}
-              />
+              <div className="empty-state">
+                <h3>Loading Part {currentPartMetadata.numeral}…</h3>
+              </div>
             )}
+          </section>
+        ) : (
+          <BookView
+            elements={orderedElements}
+            query={deferredQuery}
+            visibleIds={visibleIds}
+            selectedElement={selectedElement}
+            onElementSelect={handleSelectElement}
+            currentPart={currentPart}
+            partTitle={currentPartMetadata.title}
+            partNumeral={currentPartMetadata.numeral}
+            partDescription={currentPartMetadata.description}
+            readingMode={readingMode}
+          />
+        )}
 
-            <ReasoningPanel
-              selectedElement={selectedElement}
-              element={selectedEntry}
-              analysis={analysis}
-              focusRequest={panelFocusRequest}
-              onNavigateToElement={navigateToElement}
-              onClose={closePanel}
-              loading={analysisLoading}
-              error={analysisError}
-              onRetry={() => setAnalysisAttempt(attempt => attempt + 1)}
-              previousElementId={previousEntry?.id ?? null}
-              nextElementId={nextEntry?.id ?? null}
-              readingMode={readingMode}
-              onReadingModeChange={setReadingMode}
-            />
-          </main>
-        </div>
-      </div>
+        <ReasoningPanel
+          selectedElement={selectedElement}
+          element={selectedEntry}
+          analysis={analysis}
+          focusRequest={panelFocusRequest}
+          onNavigateToElement={navigateToElement}
+          onClose={closePanel}
+          loading={analysisLoading}
+          error={analysisError}
+          onRetry={() => setAnalysisAttempt(attempt => attempt + 1)}
+          previousElementId={previousEntry?.id ?? null}
+          nextElementId={nextEntry?.id ?? null}
+          readingMode={readingMode}
+        />
+      </main>
     </div>
   );
 };

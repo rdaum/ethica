@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './ReasoningPanel.css';
 import { formatElementLabel, formatPassageReference } from '../lib/ethica';
 import { PassageAnalysis, ReadingMode, SpinozaElement } from '../types';
-import { MetadataChips, PassagePreview, ReadingModeToggle } from './PassageMeta';
+import { MetadataChips, PassagePreview } from './PassageMeta';
 
 const COLLAPSED_LIST_SIZE = 12;
 const COLLAPSED_PATH_COUNT = 25;
@@ -19,7 +19,6 @@ interface ReasoningPanelProps {
   previousElementId: string | null;
   nextElementId: string | null;
   readingMode: ReadingMode;
-  onReadingModeChange: (mode: ReadingMode) => void;
   focusRequest: number;
 }
 
@@ -35,7 +34,6 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   previousElementId,
   nextElementId,
   readingMode,
-  onReadingModeChange,
   focusRequest
 }) => {
   const panelCardRef = useRef<HTMLDivElement | null>(null);
@@ -117,9 +115,6 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             <button type="button" className="close-button" onClick={onClose}>
               Close
             </button>
-            <div className="panel-reading-mode">
-              <ReadingModeToggle value={readingMode} onChange={onReadingModeChange} compact />
-            </div>
           </div>
         </div>
 
@@ -166,23 +161,21 @@ const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate 
         <div className="section-heading">
           <h3>Connections</h3>
         </div>
-        <div className="metric-grid">
-          <MetricCard label="Cites" value={metrics.cites} tone="ink" description="Passages this one directly relies on or refers to." />
-          <MetricCard label="Cited by" value={metrics.citedBy} tone="green" description="Passages that directly rely on or refer to this one." />
-          <MetricCard
+        <dl className="connection-stats">
+          <ConnectionStat label="Cites" value={metrics.cites} description="Passages this one directly relies on or refers to." />
+          <ConnectionStat label="Cited by" value={metrics.citedBy} description="Passages that directly rely on or refer to this one." />
+          <ConnectionStat
             label="All dependencies"
             value={metrics.totalDependencies}
-            tone="gold"
             description="Every passage this one rests on, following demonstrations back to their foundations."
           />
-          <MetricCard
+          <ConnectionStat
             label="All dependents"
             value={metrics.totalDependents}
-            tone="rose"
             description="Every passage that rests on this one, directly or through other demonstrations."
           />
-          <MetricCard label="Depth" value={metrics.depth} tone="ink" description="The longest chain of steps from this passage back to a foundation." />
-        </div>
+          <ConnectionStat label="Depth" value={metrics.depth} description="The longest chain of steps from this passage back to a foundation." />
+        </dl>
       </section>
 
       <section className="panel-section">
@@ -207,10 +200,10 @@ const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate 
   );
 };
 
-const MetricCard = ({ label, value, tone, description }: { label: string; value: number; tone: string; description: string }) => (
-  <div className={`metric-card ${tone}`} title={description}>
-    <span>{label}</span>
-    <strong>{value}</strong>
+const ConnectionStat = ({ label, value, description }: { label: string; value: number; description: string }) => (
+  <div className="connection-stat" title={description}>
+    <dt>{label}</dt>
+    <dd>{value}</dd>
   </div>
 );
 

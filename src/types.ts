@@ -71,7 +71,6 @@ export interface PartMetadata {
   number: number;
   numeral: string;
   title: string;
-  strapline: string;
   description: string;
 }
 

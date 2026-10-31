@@ -102,28 +102,26 @@ export const PassagePreview: React.FC<{ element: SpinozaElement; readingMode: Re
   return <p lang="en">{truncate(english, length)}</p>;
 };
 
-const READING_MODES: ReadonlyArray<readonly [ReadingMode, string, string]> = [
-  ['english', 'English', 'EN'],
-  ['latin', 'Latin', 'LA'],
-  ['bilingual', 'Bilingual', 'BI']
+const READING_MODES: ReadonlyArray<readonly [ReadingMode, string]> = [
+  ['english', 'English'],
+  ['latin', 'Latin'],
+  ['bilingual', 'Bilingual']
 ];
 
 export const ReadingModeToggle: React.FC<{
   value: ReadingMode;
   onChange: (mode: ReadingMode) => void;
-  compact?: boolean;
-}> = ({ value, onChange, compact = false }) => (
+}> = ({ value, onChange }) => (
   <div className="reading-mode-buttons" role="group" aria-label="Reading language">
-    {READING_MODES.map(([mode, label, shortLabel]) => (
+    {READING_MODES.map(([mode, label]) => (
       <button
         key={mode}
         type="button"
         aria-pressed={value === mode}
-        aria-label={label}
         className={`reading-mode-button ${value === mode ? 'active' : ''}`}
         onClick={() => onChange(mode)}
       >
-        {compact ? shortLabel : label}
+        {label}
       </button>
     ))}
   </div>

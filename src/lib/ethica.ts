@@ -26,7 +26,6 @@ export const PARTS: Record<number, PartMetadata> = {
     number: 1,
     numeral: 'I',
     title: 'Concerning God',
-    strapline: 'Substance, attributes, and the necessity of the divine nature.',
     description:
       'Part I establishes the metaphysical grammar of the Ethics: substance, attribute, mode, and the claim that whatever is, is in God.'
   },
@@ -34,7 +33,6 @@ export const PARTS: Record<number, PartMetadata> = {
     number: 2,
     numeral: 'II',
     title: 'On the Nature and Origin of the Mind',
-    strapline: 'Mind, body, adequacy, and the order and connection of ideas.',
     description:
       'Part II turns from metaphysics to cognition and embodiment, tracing how the human mind follows from the same order that governs nature.'
   },
@@ -42,7 +40,6 @@ export const PARTS: Record<number, PartMetadata> = {
     number: 3,
     numeral: 'III',
     title: 'On the Origin and Nature of the Emotions',
-    strapline: 'Desire, pleasure, pain, and the mechanics of the affects.',
     description:
       'Part III treats human affects as natural phenomena, explaining passions and actions through the same order that governs bodies and ideas.'
   },
@@ -50,7 +47,6 @@ export const PARTS: Record<number, PartMetadata> = {
     number: 4,
     numeral: 'IV',
     title: 'Of Human Bondage, or the Strength of the Emotions',
-    strapline: 'Conflict, bondage, utility, and the limits of finite power.',
     description:
       'Part IV examines how inadequate ideas and external causes bind us, while sketching the practical demands of life under reason.'
   },
@@ -58,7 +54,6 @@ export const PARTS: Record<number, PartMetadata> = {
     number: 5,
     numeral: 'V',
     title: 'Of the Power of the Understanding, or of Human Freedom',
-    strapline: 'The mind’s power, intellectual love of God, and blessedness.',
     description:
       'Part V develops the ethical culmination of the work: understanding, freedom, and the durable joy that follows from adequate knowledge.'
   }

@@ -69,12 +69,6 @@ test('the panel follows the reading mode and hides footnote markers', async ({ p
   await expect(page.locator('.selected-text [lang="la"]')).toBeVisible();
 });
 
-test('the sidebar names the selection generically', async ({ page }) => {
-  await page.goto('./#I.prop.1.proof');
-  await expect(page.locator('.selection-card')).toContainText('Selected passage');
-  await expect(page.locator('.selection-card')).toContainText('Proof');
-});
-
 test('highlighting text does not toggle the passage', async ({ page }) => {
   await page.goto('./');
   const passage = page.locator('[data-element-id="I.def.3"]');
