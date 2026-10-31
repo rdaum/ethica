@@ -80,8 +80,7 @@ const LANGUAGES: readonly Language[] = ['english', 'french', 'latin'];
 export const LanguagePicker: React.FC<{
   value: ReadingLanguages;
   onChange: (languages: ReadingLanguages) => void;
-  available?: readonly Language[];
-}> = ({ value: { primary, parallel }, onChange, available = LANGUAGES }) => {
+}> = ({ value: { primary, parallel }, onChange }) => {
   const t = getStrings(primary);
 
   return (
@@ -89,7 +88,7 @@ export const LanguagePicker: React.FC<{
     <div role="group" aria-label={t.readIn}>
       <p className="sidebar-kicker">{t.readIn}</p>
       <div className="reading-mode-buttons">
-        {available.map(language => (
+        {LANGUAGES.map(language => (
           <button
             key={language}
             type="button"
@@ -115,7 +114,7 @@ export const LanguagePicker: React.FC<{
         >
           {t.none}
         </button>
-        {available.filter(language => language !== primary).map(language => (
+        {LANGUAGES.filter(language => language !== primary).map(language => (
           <button
             key={language}
             type="button"

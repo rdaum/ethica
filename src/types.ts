@@ -85,6 +85,8 @@ export interface PartMetadata {
   numeral: string;
   title: string;
   description: string;
+  /** Unset for the Ethics, whose French titles predate the second work. */
+  french?: { title: string; description: string };
 }
 
 export interface ReaderSectionSummary {

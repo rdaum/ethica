@@ -21,7 +21,6 @@ import {
   mergeLatinText,
   parsePoliticalChapter,
   parseSpinozaXml,
-  restrictLanguages,
   summarizeSections
 } from './lib/ethica';
 import { getStrings } from './lib/strings';
@@ -132,7 +131,7 @@ const App: React.FC = () => {
   const [currentWork, setCurrentWork] = useState<WorkId>(initialLocation.work);
   const [currentPart, setCurrentPart] = useState(initialLocation.part);
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
-  const [storedLanguages, setStoredLanguages] = useState(readLanguages);
+  const [languages, setLanguages] = useState(readLanguages);
   const [selectedElement, setSelectedElement] = useState<string | null>(initialLocation.elementId);
   const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
   const [query, setQuery] = useState('');
@@ -150,7 +149,6 @@ const App: React.FC = () => {
   const sidebarRef = useRef<HTMLElement | null>(null);
   const deferredQuery = useDeferredValue(query);
   const currentWorkMetadata = WORKS[currentWork];
-  const languages = restrictLanguages(storedLanguages, currentWorkMetadata.languages);
   const t = getStrings(languages.primary);
   const currentKey = `${currentWork}:${currentPart}`;
   const analysisClient = useRef<AnalysisClient | null>(null);
@@ -439,12 +437,11 @@ const App: React.FC = () => {
   };
 
   const changeLanguages = (next: ReadingLanguages) => {
-    setStoredLanguages(next);
+    setLanguages(next);
     saveLanguages(next);
   };
 
   const showsFrench = languages.primary === 'french' || languages.parallel === 'french';
-  const frenchWithheld = (storedLanguages.primary === 'french' || storedLanguages.parallel === 'french') && !showsFrench;
 
   const toggleFocusMode = () => {
     const enabled = !focusMode;
@@ -581,8 +578,7 @@ const App: React.FC = () => {
             </nav>
 
             <div className="sidebar-reading-mode">
-              <LanguagePicker value={languages} onChange={changeLanguages} available={currentWorkMetadata.languages} />
-              {frenchWithheld && <p className="translation-source">{getStrings('french').frenchUnavailable}</p>}
+              <LanguagePicker value={languages} onChange={changeLanguages} />
               {currentWork === 'political' && (
                 <p className="translation-source">
                   {t.politicalSource}{' '}
@@ -594,9 +590,19 @@ const App: React.FC = () => {
                     {t.politicalLatinSourceLink}
                   </a>
                   .
+                  {showsFrench && (
+                    <>
+                      {' '}
+                      {t.politicalFrenchSource}{' '}
+                      <a href="https://fr.wikisource.org/wiki/Trait%C3%A9_politique" target="_blank" rel="noreferrer">
+                        {t.politicalFrenchSourceLink}
+                      </a>
+                      . {t.politicalFrenchCaveat}
+                    </>
+                  )}
                 </p>
               )}
-              {showsFrench && (
+              {showsFrench && currentWork === 'ethics' && (
                 <p className="translation-source">
                   {t.frenchSource}{' '}
                   <a href="https://fr.wikisource.org/wiki/%C3%89thique_(Appuhn,_1913)" target="_blank" rel="noreferrer">

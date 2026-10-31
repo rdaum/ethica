@@ -33,14 +33,14 @@ test.describe('Political Treatise', () => {
 
   test('links between the two works, marking the link as the editor’s', async ({ page }) => {
     await page.goto('./#III.prop.29');
-    const group = page.locator('.relationship-group', { hasText: 'linked here by the 1883 editor' });
+    const group = page.locator('.relationship-group', { hasText: 'linked here by editors' });
     await group.getByRole('button', { name: 'Pol. Treatise VII, § 6' }).click();
 
     await expect(page.getByRole('heading', { level: 1, name: 'Political Treatise' })).toBeVisible();
     await expect(page.locator(`${entry('TP.VII.6')}.selected`)).toBeVisible();
     await expect(page).toHaveURL(/#TP\.VII\.6$/);
 
-    await page.locator('.relationship-group', { hasText: 'supplied by the 1883 editor' }).getByRole('button').click();
+    await page.locator('.relationship-group', { hasText: 'supplied by editors' }).getByRole('button').click();
     await expect(page.getByRole('heading', { level: 1, name: 'The Ethics' })).toBeVisible();
     await expect(page.locator(`${entry('III.prop.29')}.selected`)).toBeVisible();
   });
@@ -67,17 +67,27 @@ test.describe('Political Treatise', () => {
     await expect(page.locator(entry('TP.II.2'))).toHaveCount(0);
   });
 
-  test('falls back from French without losing the preference', async ({ page }) => {
-    await page.goto('./');
+  test('reads in French with the right credit, labels and warning', async ({ page }) => {
+    await page.goto('./#TP.II');
     await page.getByRole('group', { name: 'Read in' }).getByRole('button', { name: 'Français' }).click();
-    await page.getByRole('button', { name: 'Traité politique' }).click();
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Political Treatise' })).toBeVisible();
-    await expect(page.getByText('n’est pas encore disponible en français')).toBeVisible();
-    await expect(page.getByRole('group', { name: 'Read in' }).getByRole('button')).toHaveCount(2);
+    await expect(page.getByRole('heading', { level: 1, name: 'Traité politique' })).toBeVisible();
+    await expect(page.locator('.brand-text p')).toHaveText('Spinoza, traduit par Émile Saisset');
+    await expect(page.locator('.book-intro h2')).toHaveText('Du droit naturel');
+    await expect(page.getByRole('button', { name: 'Article 24', exact: true })).toBeVisible();
+    await expect(page.locator(entry('TP.II.24'))).toContainText('Scholie de la Proposition 29');
+    await expect(page.locator('.translation-source')).toContainText('n’ont pas été relues');
+    await expect(page.locator('.translation-source a').last()).toHaveAttribute('href', /fr\.wikisource/);
 
-    await page.getByRole('button', { name: 'The Ethics' }).click();
-    await expect(page.getByRole('heading', { level: 1, name: 'L’Éthique' })).toBeVisible();
+    await page.getByRole('button', { name: 'L’Éthique' }).click();
+    await expect(page.locator('.brand-text p')).toContainText('Appuhn');
+    await expect(page.locator('.translation-source')).not.toContainText('n’ont pas été relues');
+  });
+
+  test('a note found only in the French links II.24 to the Ethics', async ({ page }) => {
+    await page.goto('./#TP.II.24');
+    await page.locator('.relationship-group', { hasText: 'supplied by editors' }).getByRole('button', { name: 'III, Prop. XXIX, Note' }).click();
+    await expect(page.locator(`${entry('III.prop.29.note')}.selected`)).toBeVisible();
   });
 
   test('the long title fits whole beside the top bar buttons on a phone', async ({ page }) => {

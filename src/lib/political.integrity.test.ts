@@ -29,7 +29,7 @@ const edges = (predicate: string) =>
   }));
 
 describe('Political Treatise text', () => {
-  test('has every chapter and section, in order, in both languages', () => {
+  test('has every chapter and section, in order, in all three languages', () => {
     expect(chapters.map(({ elements }) => elements.filter(element => element.type === 'section').length)).toEqual([7, 24, 18, 6, 7, 40, 31, 49, 15, 10, 4]);
 
     chapters.forEach(({ chapter, elements }) => {
@@ -39,6 +39,7 @@ describe('Political Treatise text', () => {
           expect(element.id).toBe(`TP.${chapter.numeral}.${index + 1}`);
           expect(element.text.trim()).not.toBe('');
           expect(element.latinText?.trim()).toBeTruthy();
+          expect(element.frenchText?.trim()).toBeTruthy();
         });
     });
   });
@@ -53,7 +54,7 @@ describe('Political Treatise text', () => {
   });
 
   test('keeps the source’s words, and none of its page furniture', () => {
-    const all = passages.flatMap(passage => [passage.text, passage.latinText ?? '']);
+    const all = passages.flatMap(passage => [passage.text, passage.latinText ?? '', passage.frenchText ?? '']);
     expect(all.filter(text => /recensere|\(\d+\)|`|�/.test(text))).toEqual([]);
     expect(passages.find(passage => passage.id === 'TP.II.12')?.text).toContain('versâ');
   });
@@ -68,6 +69,8 @@ describe('Political Treatise text', () => {
     expect(preface?.text).toContain('Dear Friend');
     expect(preface?.latinText).toContain('Amice dilecte');
     expect(preface?.latinText).not.toContain('In quo demonstratur');
+    expect(preface?.frenchText).toContain('Mon cher ami');
+    expect(preface?.frenchFootnotes?.[0].text).toContain('Opera posthuma');
   });
 
   test('keeps every footnote with its marker', () => {
@@ -77,6 +80,30 @@ describe('Political Treatise text', () => {
       const markers = [...passage.text.matchAll(/\[(\d+)\]/g)].map(match => match[1]);
       expect((passage.footnotes ?? []).map(note => note.number)).toEqual(markers);
     });
+  });
+
+  test('keeps every French note with its marker, including those missing from the transcription', () => {
+    passages.forEach(passage => {
+      const markers = [...(passage.frenchText ?? '').matchAll(/\[(\d+)\]/g)].map(match => match[1]);
+      expect((passage.frenchFootnotes ?? []).map(note => note.number)).toEqual(markers);
+    });
+
+    const section = passages.find(passage => passage.id === 'TP.II.24');
+    expect(section?.frenchText).toContain('notre Éthique[6] que');
+    expect(section?.frenchFootnotes).toEqual([{ number: '6', text: 'Éthique, partie 3, Scholie de la Proposition 29.' }]);
+    expect(passages.find(passage => passage.id === 'TP.VII.14')?.frenchFootnotes).toHaveLength(3);
+  });
+
+  test('the French keeps no bare note digits, scanning errors checked so far, or closing line', () => {
+    const texts = passages.map(passage => passage.frenchText ?? '');
+    expect(texts.filter(text => /Le reste manque|\bIes?\b|(?<!\p{L})â(?!\p{L})|\bVl\b|[“”]|soumis an\b/u.test(text))).toEqual([]);
+    // Only an ordinal, or a ratio in VIII.30's "1 est à 12" style, may follow without a word such as "article".
+    const bareDigits = passages.flatMap(passage =>
+      [...(passage.frenchText ?? '').matchAll(/(?<=\p{L}) (\d+)(?=[ .,;:])/gu)]
+        .filter(match => !/(?:article|articles|chapitre|et|comme|de|à|les|sur|pour|entre|sous|par|vers|sera|environ|moins|plus|que)$/.test((passage.frenchText ?? '').slice(0, match.index)))
+        .map(match => `${passage.id}: ${(passage.frenchText ?? '').slice(Math.max(0, match.index! - 20), match.index! + 4)}`)
+    );
+    expect(bareDigits).toEqual([]);
   });
 
   test('labels and reference names read properly', () => {
@@ -110,15 +137,17 @@ describe('Political Treatise graph', () => {
     expect(edges('cites')).toContainEqual({ from: 'TP.VIII.41', to: 'TP.VI.29' });
   });
 
-  test('the editor’s references into the Ethics are exactly those printed, and all exist', () => {
+  test('the editors’ references into the Ethics are exactly those printed, and all exist', () => {
     expect(edges('editorCites').map(({ from, to }) => `${from} ${to}`).sort()).toEqual([
       'TP.I.5 III.prop.31.note',
       'TP.I.5 III.prop.32.note',
       'TP.I.5 IV.prop.4.corollary',
       'TP.I.5 V.prop.42.note',
       'TP.II.1 II.prop.48',
+      'TP.II.1 II.prop.49',
       'TP.II.1 II.prop.49.note',
       'TP.II.1 IV.prop.37.note2',
+      'TP.II.24 III.prop.29.note',
       'TP.VII.6 III.prop.29'
     ]);
     expect(edges('editorCites').filter(({ to }) => !ethicsIds.has(to))).toEqual([]);

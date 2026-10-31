@@ -99,7 +99,7 @@ const BookView: React.FC<BookViewProps> = ({
       <div className="book-intro">
         <p className="book-kicker">{partHeading}</p>
         {/* The Latin of the treatise numbers its chapters without titling them. */}
-        <h2 lang={part.work === 'political' ? 'en' : undefined}>{partTitle}</h2>
+        <h2 lang={part.work === 'political' && languages.primary === 'latin' ? 'en' : undefined}>{partTitle}</h2>
         {partDescription && (
           <p className="book-description" lang={languages.primary === 'latin' ? 'en' : undefined}>
             {partDescription}

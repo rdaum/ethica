@@ -94,24 +94,19 @@ const CREDITS: Record<Language, Record<Language | 'none', string>> = {
 
 const POLITICAL_CREDITS: Record<string, string> = {
   english: 'Spinoza, translated by A.H. Gosset',
+  'english+french': 'Spinoza, translated by A.H. Gosset and Émile Saisset',
   'english+latin': 'Spinoza, translated by A.H. Gosset, with the Latin text',
+  french: 'Spinoza, traduit par Émile Saisset',
+  'french+english': 'Spinoza, traduit par Émile Saisset et A.H. Gosset',
+  'french+latin': 'Spinoza, traduit par Émile Saisset, avec le texte latin',
   latin: 'Spinoza, Latin text',
-  'latin+english': 'Spinoza, Latin text, translated by A.H. Gosset'
+  'latin+english': 'Spinoza, Latin text, translated by A.H. Gosset',
+  'latin+french': 'Spinoza, Latin text, translated by Émile Saisset'
 };
 
 /** Names the translators of whatever is on the page, including a language shown alongside. */
 export const formatTranslationCredit = ({ primary, parallel }: ReadingLanguages, work: WorkId = 'ethics'): string =>
   work === 'political' ? POLITICAL_CREDITS[parallel ? `${primary}+${parallel}` : primary] : CREDITS[primary][parallel ?? 'none'];
-
-/**
- * The reading languages a work can honor. The stored choice is left alone, so a language
- * this work lacks comes back on returning to a work that has it.
- */
-export const restrictLanguages = ({ primary, parallel }: ReadingLanguages, available: readonly Language[]): ReadingLanguages => {
-  const restrictedPrimary = available.includes(primary) ? primary : 'english';
-  const keepsParallel = parallel && parallel !== restrictedPrimary && available.includes(parallel);
-  return { primary: restrictedPrimary, parallel: keepsParallel ? parallel : null };
-};
 
 const FRENCH_PARTS: Record<number, Pick<PartMetadata, 'title' | 'description'>> = {
   1: {
@@ -162,7 +157,13 @@ const LATIN_PART_ORDINALS: Record<number, string> = {
 export const getPartText = (part: PartMetadata, language: Language): { heading: string; title: string; description?: string } => {
   if (part.work === 'political') {
     const word = { english: 'Chapter', french: 'Chapitre', latin: 'Caput' }[language];
-    return { heading: `${word} ${part.numeral}`, title: part.title, description: language === 'latin' ? undefined : part.description };
+    const heading = `${word} ${part.numeral}`;
+
+    if (language === 'french' && part.french) {
+      return { heading, ...part.french };
+    }
+
+    return { heading, title: part.title, description: language === 'latin' ? undefined : part.description };
   }
 
   if (language === 'french') {
@@ -177,6 +178,7 @@ export const getPartText = (part: PartMetadata, language: Language): { heading: 
 };
 
 const FRENCH_SECTION_LABELS: Record<string, string> = {
+  sections: 'Articles',
   preface: 'Préface',
   definitions: 'Définitions',
   definitions_of_emotions: 'Définitions des affections',
@@ -222,6 +224,7 @@ const LATIN_LABEL_WORDS: Array<[RegExp, string]> = [
 
 const FRENCH_LABEL_WORDS: Array<[RegExp, string]> = [
   [/^Appendix Introduction$/, 'Appendice'],
+  [/^Section/, 'Article'],
   [/^Alternate Proof$/, 'Autre démonstration'],
   [/^Proof of Corollary/, 'Démonstration du Corollaire'],
   [/^Proof$/, 'Démonstration'],
@@ -619,7 +622,7 @@ export const summarizeSections = (elements: SpinozaElement[], language: Language
 
 /** Builds the passages of one Political Treatise chapter from its generated file. */
 export const parsePoliticalChapter = (
-  entries: Array<Pick<SpinozaElement, 'id' | 'text' | 'latinText' | 'number' | 'footnotes'>>,
+  entries: Array<Pick<SpinozaElement, 'id' | 'text' | 'latinText' | 'frenchText' | 'number' | 'footnotes' | 'frenchFootnotes'>>,
   chapter: PartMetadata
 ): Map<string, SpinozaElement> =>
   new Map(

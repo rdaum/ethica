@@ -1,5 +1,7 @@
-// Parses the Political Treatise. The English (Gosset, 1883) and the Latin (Latin Wikisource)
-// number their sections alike, so a section's ID identifies it in both. IDs are `TP.II.5`.
+// Parses the Political Treatise. The English (Gosset, 1883), the Latin (Latin Wikisource) and the
+// French (Saisset, 1861) number their sections alike, so an ID such as `TP.II.5` fits all three.
+
+import { cleanInline } from './french.mjs';
 
 const ROMAN = { I: 1, V: 5, X: 10, L: 50, C: 100 };
 
@@ -176,6 +178,85 @@ export const parseLatin = html => {
   const letter = prefaceBlocks.findIndex(block => block.startsWith('Auctoris epistola'));
 
   return { preface: prefaceBlocks.slice(letter).join('\n\n'), chapters };
+};
+
+const withoutPageMarkup = html =>
+  html
+    .replace(/<(style|script)\b[\s\S]*?<\/\1>/g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<ol class="references">[\s\S]*?<\/ol>/g, '')
+    .replace(/<br\s*\/?>/g, ' ');
+
+const paragraphsOf = html => [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)].map(match => cleanInline(match[1])).filter(Boolean);
+
+/**
+ * Returns one chapter's numbered sections from a French Wikisource page. Each numeral must
+ * be the next one. A paragraph opening in lower case continues the last across a page break.
+ */
+export const parseFrenchChapter = html => {
+  const sections = [];
+
+  paragraphsOf(withoutPageMarkup(html)).forEach(paragraph => {
+    const match = paragraph.match(/^(\d+)\.[\s\u00a0]+(.*)$/s);
+
+    // The closing line, like the Latin's "Reliqua desiderantur".
+    if (paragraph === 'Le reste manque.') {
+      return;
+    }
+
+    if (match && Number(match[1]) === sections.length + 1) {
+      sections.push({ number: sections.length + 1, text: match[2] });
+    } else if (!sections.length) {
+      throw new Error(`Text before the first section: ${paragraph.slice(0, 60)}`);
+    } else {
+      const last = sections.at(-1);
+      last.text = `${last.text}${/^[a-zà-ÿ]/.test(paragraph) ? ' ' : '\n\n'}${paragraph}`;
+    }
+  });
+
+  return sections;
+};
+
+/** Returns the letter that serves as the preface, with its heading as the first paragraph. */
+export const parseFrenchPreface = html => {
+  const source = withoutPageMarkup(html);
+  const heading = cleanInline(source.match(/<h3\b[^>]*>([\s\S]*?)<\/h3>/)?.[1] ?? '');
+  return [heading, ...paragraphsOf(source)].filter(Boolean).join('\n\n');
+};
+
+/** Returns the notes a French Wikisource page lists, in order. */
+export const parseFrenchNotes = html => {
+  const list = html.match(/<ol class="references">([\s\S]*?)<\/ol>/)?.[1] ?? '';
+  return [...list.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/g)].map(match => cleanInline(match[1]).replace(/^↑\s*/, ''));
+};
+
+/**
+ * Pairs each "[n]" marker in a passage with note n. Fails if a marker has no note or a note
+ * has no marker, so nothing is lost silently.
+ */
+export const attachNotes = (passages, notesByNumber) => {
+  const used = new Set();
+
+  const result = passages.map(passage => {
+    const footnotes = [...passage.text.matchAll(/\[(\d+)\]/g)].map(([, number]) => {
+      if (!notesByNumber.has(number)) {
+        throw new Error(`${passage.id} has marker [${number}] with no note`);
+      }
+
+      used.add(number);
+      return { number, text: notesByNumber.get(number) };
+    });
+
+    return { ...passage, ...(footnotes.length ? { footnotes } : {}) };
+  });
+
+  const unused = [...notesByNumber.keys()].filter(number => !used.has(number));
+
+  if (unused.length) {
+    throw new Error(`Notes with no marker: ${unused.join(', ')}`);
+  }
+
+  return result;
 };
 
 const ENGLISH_ORDINALS = Object.fromEntries(

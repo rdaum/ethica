@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { extractEnglishReferences, extractLatinReferences, fromRoman, parseEnglish, parseLatin, sectionId } from './political.mjs';
+import { attachNotes, extractEnglishReferences, extractLatinReferences, fromRoman, parseEnglish, parseFrenchChapter, parseFrenchNotes, parseFrenchPreface, parseLatin, sectionId } from './political.mjs';
 
 describe('parseEnglish', () => {
   const source = [
@@ -139,4 +139,49 @@ describe('extractLatinReferences', () => {
 test('names sections by chapter numeral', () => {
   expect(sectionId(7, 6)).toBe('TP.VII.6');
   expect(fromRoman('XLIX')).toBe(49);
+});
+
+describe('French Wikisource pages', () => {
+  const html = [
+    '<div id="headertemplate"><p>Nothing</p></div>'.replace('<p>Nothing</p>', ''),
+    '<h3>LETTRE<br />À UN AMI<sup class="reference"><a href="#n"><span>&#91;</span>1<span>&#93;</span></a></sup>.</h3>',
+    '<p>1. Le premier<sup class="reference"><a href="#n"><span>&#91;</span>1<span>&#93;</span></a></sup> article.</p>',
+    '<p>qui continue ici.</p><p>Nouveau paragraphe.</p>',
+    '<p><span class="pagenum"></span></p>',
+    '<p>2. Le deuxième, cité par 3. Marqué.</p>',
+    '<p>Le reste manque.</p>',
+    '<ol class="references"><li id="n"><span><a>↑</a></span> <span>Voyez l’<i>Éthique</i>.</span></li></ol>'
+  ].join('');
+
+  test('finds numbered sections, joining text split by a page break', () => {
+    expect(parseFrenchChapter(html)).toEqual([
+      { number: 1, text: 'Le premier[1] article. qui continue ici.\n\nNouveau paragraphe.' },
+      { number: 2, text: 'Le deuxième, cité par 3. Marqué.' }
+    ]);
+  });
+
+  test('keeps the heading of the letter as its first paragraph', () => {
+    expect(parseFrenchPreface('<h3>LETTRE<br />À UN AMI.</h3><p>Mon cher ami.</p>')).toBe('LETTRE À UN AMI.\n\nMon cher ami.');
+  });
+
+  test('reads the notes, and fails on text before the first section', () => {
+    expect(parseFrenchNotes(html)).toEqual(['Voyez l’Éthique.']);
+    expect(() => parseFrenchChapter('<p>Sans numéro.</p>')).toThrow(/before the first section/);
+  });
+});
+
+describe('attachNotes', () => {
+  const notes = new Map([['1', 'Une note.']]);
+
+  test('pairs markers with notes', () => {
+    expect(attachNotes([{ id: 'a', text: 'Mot[1].' }, { id: 'b', text: 'Rien.' }], notes)).toEqual([
+      { id: 'a', text: 'Mot[1].', footnotes: [{ number: '1', text: 'Une note.' }] },
+      { id: 'b', text: 'Rien.' }
+    ]);
+  });
+
+  test('fails on a marker with no note, and on a note with no marker', () => {
+    expect(() => attachNotes([{ id: 'a', text: 'Mot[2].' }], notes)).toThrow(/no note/);
+    expect(() => attachNotes([{ id: 'a', text: 'Rien.' }], notes)).toThrow(/no marker/);
+  });
 });
