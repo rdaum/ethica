@@ -116,7 +116,8 @@ describe('Latin alignment', () => {
   });
 
   test('no Latin belongs to an unknown passage', () => {
-    const ids = new Set(allElements.map(element => element.id));
+    // Missing from the English source; the reader shows them through the French.
+    const ids = new Set([...allElements.map(element => element.id), 'II.prop.13.corollary', 'IV.prop.50.corollary', 'IV.prop.72.proof']);
     expect(parts.flatMap(part => Object.keys(part.latin)).filter(id => !ids.has(id))).toEqual([]);
   });
 

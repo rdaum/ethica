@@ -22,10 +22,11 @@ const LATIN_NOTE_FOR_COROLLARY = new Set(['IV.prop.10.corollary']);
 // Latin blocks with no English passage of their own, reviewed by hand. Any other
 // skipped block means the alignment has lost text, so generation fails.
 const EXPECTED_SKIPPED_LATIN = [
-  // These three are missing from the English source text, so no passage can hold them.
-  { before: 'II.prop.13.note', label: 'COROLLARIUM' },
-  { before: 'IV.prop.50.note', label: 'COROLLARIUM' },
-  { before: 'IV.prop.72.note', label: 'DEMONSTRATIO' }
+  // These three are missing from the English source text. The reader shows them through
+  // the French, so their Latin is kept under the IDs the French uses.
+  { before: 'II.prop.13.note', label: 'COROLLARIUM', id: 'II.prop.13.corollary' },
+  { before: 'IV.prop.50.note', label: 'COROLLARIUM', id: 'IV.prop.50.corollary' },
+  { before: 'IV.prop.72.note', label: 'DEMONSTRATIO', id: 'IV.prop.72.proof' }
 ];
 
 // Elwes gives this proof inside the proposition: "... its attributes (Def. iv.)."
@@ -821,6 +822,13 @@ const main = async () => {
           .join('\n')}`
       );
     }
+
+    skipped.forEach(block => {
+      const entry = EXPECTED_SKIPPED_LATIN.find(
+        candidate => candidate.before === block.before && block.text.startsWith(candidate.label)
+      );
+      aligned[entry.id] = block.text.slice(entry.label.length).replace(/^[\s.:]+/, '').trim();
+    });
 
     const missing = englishElements
       .map(element => element.id)
