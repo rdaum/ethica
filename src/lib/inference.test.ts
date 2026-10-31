@@ -82,6 +82,23 @@ describe('buildInferredStore', () => {
     );
   });
 
+  it('treats citations in notes as references rather than dependencies', async () => {
+    const explicitStore = await parseStore(`
+      @prefix ethics: <http://spinoza.org/ethics#> .
+
+      ethics:I.prop.1.note a ethics:Note ; ethics:cites ethics:I.prop.9 .
+      ethics:I.prop.1.proof a ethics:Proof ; ethics:cites ethics:I.def.1 .
+      ethics:I.prop.1 ethics:hasCorollary ethics:I.prop.1.corollary .
+    `);
+    const inferredStore = buildInferredStore(explicitStore);
+    const dependsUpon = 'http://spinoza.org/ethics#dependsUpon';
+    const node = (id: string) => `http://spinoza.org/ethics#${id}`;
+
+    expect(inferredStore.countQuads(node('I.prop.1.note'), dependsUpon, node('I.prop.9'), null)).toBe(0);
+    expect(inferredStore.countQuads(node('I.prop.1.proof'), dependsUpon, node('I.def.1'), null)).toBe(1);
+    expect(inferredStore.countQuads(node('I.prop.1.corollary'), dependsUpon, node('I.prop.1'), null)).toBe(1);
+  });
+
   it('handles dependency cycles without creating self-dependencies', async () => {
     const explicitStore = await parseStore(`
       @prefix ethics: <http://spinoza.org/ethics#> .

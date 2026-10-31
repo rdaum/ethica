@@ -1,7 +1,6 @@
 import { DataFactory, Store } from 'n3';
-import { backfillStore, mergeStores, parseN3ToStore, stripRulesFromN3 } from '../lib/ethica';
+import { mergeStores, parseN3ToStore, stripRulesFromN3 } from '../lib/ethica';
 import { buildInferredStore } from '../lib/inference';
-import { buildSupplementalStore } from '../lib/readerGraph';
 import { ReasoningAnalysis, ReasoningRelation, SpinozaElement, TransitiveChain, WeightAnalysis } from '../types';
 
 const ctx = globalThis as typeof globalThis & {
@@ -87,8 +86,7 @@ const loadPart = async (message: LoadPartMessage) => {
 
   const baseStore = await parseN3ToStore(message.n3Content);
   const eyeExplicitStore = await parseN3ToStore(stripRulesFromN3(message.eyeContent));
-  const supplementalStore = buildSupplementalStore(elements);
-  explicitStore = backfillStore(mergeStores(baseStore, eyeExplicitStore), supplementalStore);
+  explicitStore = mergeStores(baseStore, eyeExplicitStore);
   inferredStore = buildInferredStore(explicitStore);
   buildWeightedAdjacency();
 };

@@ -478,20 +478,6 @@ export const mergeStores = (...stores: Store[]): Store => {
   return merged;
 };
 
-export const backfillStore = (primary: Store, fallback: Store): Store => {
-  const merged = mergeStores(primary);
-
-  fallback.getQuads(null, null, null, null).forEach(candidate => {
-    const existing = merged.countQuads(candidate.subject, candidate.predicate, candidate.object, candidate.graph);
-
-    if (existing === 0) {
-      merged.addQuad(candidate);
-    }
-  });
-
-  return merged;
-};
-
 export const stripRulesFromN3 = (content: string): string =>
   content
     .split('\n')

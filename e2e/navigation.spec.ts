@@ -58,11 +58,11 @@ test('a relationship link crosses parts', async ({ page }) => {
   await page.goto('./#III.prop.6.proof');
   await expect(selected(page)).toHaveText('III.prop.6.proof');
 
-  await page.locator('.relationship-chip', { hasText: 'I.prop.25' }).first().click();
+  await page.locator('.relationship-chip', { hasText: 'I.prop.34' }).first().click();
 
-  await expect(selected(page)).toHaveText('I.prop.25');
+  await expect(selected(page)).toHaveText('I.prop.34');
   await expect(page.locator('.part-button.active')).toContainText('Part I');
-  await expect(page.locator('[data-element-id="I.prop.25"]')).toBeInViewport();
+  await expect(page.locator('[data-element-id="I.prop.34"]')).toBeInViewport();
 });
 
 test('editing the hash navigates', async ({ page }) => {

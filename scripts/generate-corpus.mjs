@@ -3,10 +3,15 @@
 import fs from 'fs';
 import path from 'path';
 import { XMLParser } from 'fast-xml-parser';
+import { extractCitations } from './lib/citations.mjs';
 
 const ROOT = process.cwd();
 const RAW_TEXT_PATH = path.join(ROOT, 'ethica.txt');
 const PUBLIC_DIR = path.join(ROOT, 'public');
+// Where the English source misprints a reference. Checked against the Latin, which
+// reads "per propositionem 4 partis III" here.
+const CITATION_CORRECTIONS = { 'IV.prop.1.proof': { 'IV.prop.3': 'III.prop.4' } };
+
 // Elwes adds this cross-reference as a separate note. In the Latin it is only a
 // parenthesis inside the axiom, so it has no passage of its own to align to.
 const EDITORIAL_ELEMENT_IDS = new Set(['II.ax.5.note']);
@@ -34,8 +39,6 @@ const PARTS = {
   }
 };
 
-const PART_NUMERALS = ['I', 'II', 'III', 'IV', 'V'];
-
 const GENERATED_RULES = `
 @prefix ethics: <http://spinoza.org/ethics#> .
 
@@ -60,11 +63,18 @@ const main = async () => {
     parseXmlFile(path.join(PUBLIC_DIR, `ethica_${partNumber}.xml`), partNumber)
   );
 
-  const explicitGraph = buildExplicitGraph(corpusParts).join('\n');
+  const { lines, citationProblems } = buildExplicitGraph(corpusParts);
+  const explicitGraph = lines.join('\n');
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic.n3'), explicitGraph);
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic-eye.n3'), `${explicitGraph}\n\n${GENERATED_RULES}\n`);
 
   console.log('Generated Parts I-V XML and regenerated graph data for Parts I-V.');
+
+  if (process.argv.includes('--report-citations')) {
+    citationProblems.forEach(problem => console.log(JSON.stringify(problem)));
+  } else if (citationProblems.length) {
+    console.log(`${citationProblems.length} citations were unresolved or approximate; rerun with --report-citations to list them.`);
+  }
 };
 
 const parseAllParts = rawText => {
@@ -813,94 +823,60 @@ const parseXmlFile = (filePath, partNumber) => {
   const partChildren = partNode.part;
   const entries = [];
 
-  const walk = (children, sectionKind = '') => {
+  const addEntry = (tag, attrs, content, sectionKind, parentId, partNumberForEntry) => {
+    entries.push({
+      id: attrs['@_id'],
+      tag,
+      partNumber: partNumberForEntry,
+      number: attrs['@_number'],
+      sectionKind,
+      text: collectOwnText(content),
+      parentId
+    });
+  };
+
+  const walk = (children, sectionKind, parentId) => {
     for (const node of children) {
       const tag = Object.keys(node).find(key => key !== ':@');
       const attrs = node[':@'] ?? {};
       const content = node[tag] ?? [];
 
       if (tag === 'section') {
-        walk(content, attrs['@_type'] ?? sectionKind);
+        const type = attrs['@_type'] ?? sectionKind;
+
+        if (type === 'preface' || type === 'chapter') {
+          addEntry(type, attrs, content, type, null, partNumber);
+        } else {
+          walk(content, type, null);
+        }
       }
 
       if (['def', 'axiom', 'postulate', 'prop', 'lemma', 'proof', 'corollary', 'note', 'explanation', 'introduction'].includes(tag)) {
-        const text = collectText(content);
-        entries.push({
-          id: attrs['@_id'],
-          tag,
-          partNumber,
-          number: attrs['@_number'],
-          sectionKind,
-          text,
-          parentId: null
-        });
-
-        content.forEach(child => {
-          const childTag = Object.keys(child).find(key => key !== ':@');
-          if (['proof', 'corollary', 'note', 'explanation'].includes(childTag)) {
-            const childAttrs = child[':@'] ?? {};
-            entries.push({
-              id: childAttrs['@_id'],
-              tag: childTag,
-              partNumber,
-              sectionKind,
-              text: collectText(child[childTag] ?? []),
-              parentId: attrs['@_id']
-            });
-          }
-        });
-
-        walk(content, sectionKind);
+        addEntry(tag, attrs, content, sectionKind, parentId, partNumber);
+        walk(content, sectionKind, attrs['@_id']);
       }
     }
   };
 
-  walk(partChildren, '');
-  return dedupeEntries(entries);
+  walk(partChildren, '', null);
+  return entries.filter(entry => entry.id);
 };
 
-const collectText = nodes => {
-  const chunks = [];
-  const walk = items => {
-    for (const node of items) {
-      const tag = Object.keys(node).find(key => key !== ':@');
-      if (tag === '#text') {
-        const text = String(node['#text'] ?? '').trim();
-        if (text) {
-          chunks.push(text);
-        }
-        continue;
-      }
-      if (tag === 'text') {
-        walk(node.text ?? []);
-        continue;
-      }
-      if (tag === 'continuation') {
-        walk(node.continuation ?? []);
-        continue;
-      }
-      if (Array.isArray(node[tag])) {
-        walk(node[tag]);
-      }
-    }
-  };
-  walk(nodes);
-  return chunks.join(' ').replace(/\s+/g, ' ').trim();
-};
-
-const dedupeEntries = entries => {
-  const seen = new Set();
-  return entries.filter(entry => {
-    if (!entry.id || seen.has(entry.id)) {
-      return false;
-    }
-    seen.add(entry.id);
-    return true;
-  });
-};
+// Only the passage's own words: a parent must not inherit its children's citations,
+// and footnotes are the translator's rather than Spinoza's.
+const collectOwnText = nodes =>
+  nodes
+    .filter(node => node.text || node.continuation)
+    .flatMap(node => node.text ?? node.continuation)
+    .map(node => String(node['#text'] ?? '').trim())
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const buildExplicitGraph = entries => {
   const validIds = new Set(entries.map(entry => entry.id).filter(Boolean));
+  const citationProblems = [];
   const lines = [
     '# Generated from XML corpus. Do not hand-edit.',
     '@prefix ethics: <http://spinoza.org/ethics#> .',
@@ -925,6 +901,8 @@ const buildExplicitGraph = entries => {
     'ethics:Corollary a rdfs:Class .',
     'ethics:Note a rdfs:Class .',
     'ethics:Explanation a rdfs:Class .',
+    'ethics:Preface a rdfs:Class .',
+    'ethics:Appendix a rdfs:Class .',
     ''
   ];
 
@@ -942,7 +920,11 @@ const buildExplicitGraph = entries => {
                 ? 'Corollary'
                 : entry.tag === 'explanation'
                   ? 'Explanation'
-                  : 'Note';
+                  : entry.tag === 'preface'
+                    ? 'Preface'
+                    : entry.tag === 'chapter' || entry.tag === 'introduction'
+                      ? 'Appendix'
+                      : 'Note';
 
     const triples = [`ethics:${entry.id} a ethics:${className} ;`, `    ethics:partNumber ${entry.partNumber} ;`];
 
@@ -954,7 +936,9 @@ const buildExplicitGraph = entries => {
       triples.push(`    ethics:partOf ethics:${entry.parentId} ;`);
     }
 
-    const citations = extractCitations(entry.text, entry.id).filter(citation => validIds.has(citation));
+    const { citations: extracted, problems } = extractCitations(entry.text, entry.id, validIds);
+    const citations = extracted.map(citation => CITATION_CORRECTIONS[entry.id]?.[citation] ?? citation);
+    citationProblems.push(...problems);
     if (citations.length) {
       triples.push(`    ethics:cites ${citations.map(citation => `ethics:${citation}`).join(', ')} ;`);
     }
@@ -978,143 +962,7 @@ const buildExplicitGraph = entries => {
     lines.push('');
   });
 
-  return lines;
-};
-
-const extractCitations = (text, currentId) => {
-  const citations = new Set();
-  const currentPart = currentId.split('.')[0];
-
-  const explicitRef =
-    /\b(?:Pt\.?|Part)\s*([ivx]+)\.?,?\s*(?:(Prop(?:osition)?|Def(?:inition)?s?|Deff\.?|Ax(?:iom)?|Lemma|Post(?:ulate)?)\.?\s*)?([ivxlcdm]+)(?:,?\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
-  const compactQualified =
-    /(?:^|[\s,(;])((?:i{1,3}|iv|v))\.\s*(Prop(?:osition)?|Def(?:inition)?s?|Deff\.?|Ax(?:iom)?|Lemma|Post(?:ulate)?)\.?\s*([ivxlcdm]+)(?:\.\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
-  const compactProp = /(?:^|[\s,(;])((?:i{1,3}|iv|v))\.\s*([ivxlcdm]+)(?:\.\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
-  const localProp = /(?:^|[\s,(;])(?:Prop(?:osition)?\.?)\s*([ivxlcdm]+)(?:,?\s*Coroll?(?:ary)?\.?\s*([ivxlcdm]+)?)?/gi;
-  const definitions = /(?:^|[\s,(;])(?:Def(?:inition)?s?|Deff\.?)\.?\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
-  const axioms = /(?:^|[\s,(;])(?:Ax(?:iom)?)\.?\s*([ivxlcdm]+)(?:\s*(?:and|,)\s*([ivxlcdm]+))?/gi;
-  const lemmas = /(?:^|[\s,(;])Lemma\s+([ivxlcdm]+)/gi;
-  const posts = /(?:^|[\s,(;])(?:Post(?:ulate)?)\.?\s*([ivxlcdm]+)/gi;
-
-  const push = (part, kind, number, suffix = '') => {
-    if (!part || !number) {
-      return;
-    }
-    const id = `${part}.${kind}.${number}${suffix ? `.${suffix}` : ''}`;
-    if (id !== currentId) {
-      citations.add(id);
-    }
-  };
-
-  collectRegex(explicitRef, text, match => {
-    const part = normalizePartNumeral(match[1]);
-    const kindToken = (match[2] ?? 'Prop').toLowerCase();
-    const number = romanToNumber(match[3]);
-    const corollary = match[4] ? romanToNumber(match[4]) : null;
-
-    if (!part || !number) {
-      return;
-    }
-
-    const kind =
-      kindToken.startsWith('def')
-        ? 'def'
-        : kindToken.startsWith('ax')
-          ? 'ax'
-          : kindToken.startsWith('lemma')
-            ? 'lemma'
-            : kindToken.startsWith('post')
-              ? 'post'
-              : 'prop';
-
-    push(part, kind, number, corollary && kind === 'prop' ? `corollary${corollary}` : '');
-  });
-  collectRegex(compactQualified, text, match => {
-    const part = normalizePartNumeral(match[1]);
-    const kindToken = match[2].toLowerCase();
-    const number = romanToNumber(match[3]);
-    const corollary = match[4] ? romanToNumber(match[4]) : null;
-
-    if (!part || !number) {
-      return;
-    }
-
-    const kind =
-      kindToken.startsWith('def')
-        ? 'def'
-        : kindToken.startsWith('ax')
-          ? 'ax'
-          : kindToken.startsWith('lemma')
-            ? 'lemma'
-            : kindToken.startsWith('post')
-              ? 'post'
-              : 'prop';
-
-    push(part, kind, number, corollary && kind === 'prop' ? `corollary${corollary}` : '');
-  });
-  collectRegex(compactProp, text, match => {
-    push(normalizePartNumeral(match[1]), 'prop', romanToNumber(match[2]), match[3] ? `corollary${romanToNumber(match[3])}` : '');
-  });
-  collectRegex(localProp, text, match => {
-    push(currentPart, 'prop', romanToNumber(match[1]), match[2] ? `corollary${romanToNumber(match[2])}` : '');
-  });
-  collectRegex(definitions, text, match => {
-    [match[1], match[2]].filter(Boolean).forEach(value => push(currentPart, 'def', romanToNumber(value)));
-  });
-  collectRegex(axioms, text, match => {
-    [match[1], match[2]].filter(Boolean).forEach(value => push(currentPart, 'ax', romanToNumber(value)));
-  });
-  collectRegex(lemmas, text, match => {
-    push(currentPart, 'lemma', romanToNumber(match[1]));
-  });
-  collectRegex(posts, text, match => {
-    push(currentPart, 'post', romanToNumber(match[1]));
-  });
-
-  return [...citations];
-};
-
-const normalizePartNumeral = value => {
-  const numeral = intToRoman(romanToNumber(value));
-  return numeral && PART_NUMERALS.includes(numeral) ? numeral : null;
-};
-
-const collectRegex = (regex, text, callback) => {
-  let match = regex.exec(text);
-  while (match) {
-    callback(match);
-    match = regex.exec(text);
-  }
-};
-
-const intToRoman = value => {
-  if (!value) {
-    return null;
-  }
-  const lookup = [
-    [1000, 'M'],
-    [900, 'CM'],
-    [500, 'D'],
-    [400, 'CD'],
-    [100, 'C'],
-    [90, 'XC'],
-    [50, 'L'],
-    [40, 'XL'],
-    [10, 'X'],
-    [9, 'IX'],
-    [5, 'V'],
-    [4, 'IV'],
-    [1, 'I']
-  ];
-  let result = '';
-  let remaining = value;
-  lookup.forEach(([magnitude, symbol]) => {
-    while (remaining >= magnitude) {
-      result += symbol;
-      remaining -= magnitude;
-    }
-  });
-  return result;
+  return { lines, citationProblems };
 };
 
 main().catch(error => {
