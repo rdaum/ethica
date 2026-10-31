@@ -17,6 +17,14 @@ const CITATION_CORRECTIONS = { 'IV.prop.1.proof': { 'IV.prop.3': 'III.prop.4' } 
 // parenthesis inside the axiom, so it has no passage of its own to align to.
 const EDITORIAL_ELEMENT_IDS = new Set(['II.ax.5.note']);
 
+// Passages missing from the English source but present in the Latin and French. They have
+// no English text to scan, so their citations are read from the printed Latin and French.
+const PASSAGES_MISSING_FROM_ENGLISH = [
+  { id: 'II.prop.13.corollary', tag: 'corollary', parentId: 'II.prop.13', partNumber: 2, citations: [] },
+  { id: 'IV.prop.50.corollary', tag: 'corollary', parentId: 'IV.prop.50', partNumber: 4, citations: [] },
+  { id: 'IV.prop.72.proof', tag: 'proof', parentId: 'IV.prop.72', partNumber: 4, citations: ['IV.prop.24', 'IV.prop.31.corollary'] }
+];
+
 const PARTS = {
   I: {
     number: 1,
@@ -53,7 +61,7 @@ const main = async () => {
     parseXmlFile(path.join(PUBLIC_DIR, `ethica_${partNumber}.xml`), partNumber)
   );
 
-  const { lines, citationProblems } = buildExplicitGraph(corpusParts);
+  const { lines, citationProblems } = buildExplicitGraph([...corpusParts, ...PASSAGES_MISSING_FROM_ENGLISH]);
   const explicitGraph = lines.join('\n');
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic.n3'), explicitGraph);
 
@@ -921,7 +929,9 @@ const buildExplicitGraph = entries => {
       triples.push(`    ethics:partOf ethics:${entry.parentId} ;`);
     }
 
-    const { citations: extracted, problems } = extractCitations(entry.text, entry.id, validIds);
+    const { citations: extracted, problems } = entry.citations
+      ? { citations: entry.citations, problems: [] }
+      : extractCitations(entry.text, entry.id, validIds);
     const citations = extracted.map(citation => CITATION_CORRECTIONS[entry.id]?.[citation] ?? citation);
     citationProblems.push(...problems);
     if (citations.length) {

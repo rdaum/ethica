@@ -10,7 +10,8 @@ beforeAll(async () => {
 const allIds = [1, 2, 3, 4, 5].flatMap(part => [
   ...parseSpinozaXml(fs.readFileSync(path.join(process.cwd(), 'public', `ethica_${part}.xml`), 'utf8')).keys()
 ]);
-const known = new Set(allIds);
+// Missing from the English source, but real passages shown through the French and Latin.
+const known = new Set([...allIds, 'II.prop.13.corollary', 'IV.prop.50.corollary', 'IV.prop.72.proof']);
 
 describe('analysis of the real graph', () => {
   test('a proposition reports what its proof rests on', () => {

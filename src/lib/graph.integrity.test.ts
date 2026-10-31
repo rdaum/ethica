@@ -12,7 +12,9 @@ const local = (value: string) => value.replace(ETHICS, '');
 const explicit = new Store(new Parser().parse(publicFile('ethica-logic.n3')));
 const inferred = buildInferredStore(explicit);
 const elements = [1, 2, 3, 4, 5].flatMap(part => [...parseSpinozaXml(publicFile(`ethica_${part}.xml`)).values()]);
-const validIds = new Set(elements.map(element => element.id));
+// Missing from the English source, but in the graph from the Latin and French.
+const MISSING_FROM_ENGLISH = ['II.prop.13.corollary', 'IV.prop.50.corollary', 'IV.prop.72.proof'];
+const validIds = new Set([...elements.map(element => element.id), ...MISSING_FROM_ENGLISH]);
 
 const edges = (store: Store, predicate: string) =>
   store.getQuads(null, `${ETHICS}${predicate}`, null, null).map(candidate => ({
@@ -114,9 +116,18 @@ describe('citation graph', () => {
   test('the number of imperfect citations cannot grow', () => {
     const problems = elements.flatMap(element => extractCitations(element.text, element.id, validIds).problems);
 
-    // Each remaining case cites a suffix the English source lacks, such as the corollary
-    // of II.xiii. which is missing from the source text. All resolve to the proposition.
+    // Each remaining case cites a suffix the source text lacks. Both resolve to the proposition.
     expect(problems.filter((problem: { status: string }) => problem.status === 'unresolved')).toEqual([]);
-    expect(problems.length).toBeLessThanOrEqual(3);
+    expect(problems.length).toBeLessThanOrEqual(2);
+  });
+
+  test('passages missing from the English take part in the graph', () => {
+    const cites = edges(explicit, 'cites');
+    const proofTargets = cites.filter(edge => edge.from === 'IV.prop.72.proof').map(edge => edge.to);
+    expect(proofTargets.sort()).toEqual(['IV.prop.24', 'IV.prop.31.corollary']);
+    expect(edges(explicit, 'provedBy')).toContainEqual({ from: 'IV.prop.72', to: 'IV.prop.72.proof' });
+    expect(edges(explicit, 'hasCorollary')).toContainEqual({ from: 'II.prop.13', to: 'II.prop.13.corollary' });
+    expect(edges(explicit, 'hasCorollary')).toContainEqual({ from: 'IV.prop.50', to: 'IV.prop.50.corollary' });
+    expect(cites).toContainEqual({ from: 'II.prop.17.note', to: 'II.prop.13.corollary' });
   });
 });
