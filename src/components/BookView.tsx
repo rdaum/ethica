@@ -6,11 +6,10 @@ import {
   getPartText,
   getPassageText,
   LANGUAGE_CODES,
-  LANGUAGE_NAMES,
-  PARTS
+  LANGUAGE_NAMES
 } from '../lib/ethica';
 import { getStrings } from '../lib/strings';
-import { Language, ReadingLanguages, SpinozaElement } from '../types';
+import { Language, PartMetadata, ReadingLanguages, SpinozaElement } from '../types';
 
 interface BookViewProps {
   elements: SpinozaElement[];
@@ -18,7 +17,7 @@ interface BookViewProps {
   visibleIds: Set<string>;
   onElementSelect: (elementId: string | null, viaKeyboard?: boolean) => void;
   selectedElement: string | null;
-  currentPart: number;
+  part: PartMetadata;
   languages: ReadingLanguages;
 }
 
@@ -27,10 +26,10 @@ const BookView: React.FC<BookViewProps> = ({
   visibleIds,
   onElementSelect,
   selectedElement,
-  currentPart,
+  part,
   languages
 }) => {
-  const { heading: partHeading, title: partTitle, description: partDescription } = getPartText(PARTS[currentPart], languages.primary);
+  const { heading: partHeading, title: partTitle, description: partDescription } = getPartText(part, languages.primary);
   const t = getStrings(languages.primary);
 
   const childrenByParent = new Map<string, SpinozaElement[]>();
@@ -99,7 +98,8 @@ const BookView: React.FC<BookViewProps> = ({
     <section className="book-view" lang={LANGUAGE_CODES[languages.primary]} aria-label={`${partHeading}: ${partTitle}`}>
       <div className="book-intro">
         <p className="book-kicker">{partHeading}</p>
-        <h2>{partTitle}</h2>
+        {/* The Latin of the treatise numbers its chapters without titling them. */}
+        <h2 lang={part.work === 'political' ? 'en' : undefined}>{partTitle}</h2>
         {partDescription && (
           <p className="book-description" lang={languages.primary === 'latin' ? 'en' : undefined}>
             {partDescription}

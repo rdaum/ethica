@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Parser, Store } from 'n3';
-import { EditorialKind, Footnote, Language, PartMetadata, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from '../types';
+import { EditorialKind, Footnote, Language, PartMetadata, ReaderSectionSummary, ReadingLanguages, SpinozaElement, WorkId } from '../types';
 
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
@@ -92,8 +92,26 @@ const CREDITS: Record<Language, Record<Language | 'none', string>> = {
   }
 };
 
+const POLITICAL_CREDITS: Record<string, string> = {
+  english: 'Spinoza, translated by A.H. Gosset',
+  'english+latin': 'Spinoza, translated by A.H. Gosset, with the Latin text',
+  latin: 'Spinoza, Latin text',
+  'latin+english': 'Spinoza, Latin text, translated by A.H. Gosset'
+};
+
 /** Names the translators of whatever is on the page, including a language shown alongside. */
-export const formatTranslationCredit = ({ primary, parallel }: ReadingLanguages): string => CREDITS[primary][parallel ?? 'none'];
+export const formatTranslationCredit = ({ primary, parallel }: ReadingLanguages, work: WorkId = 'ethics'): string =>
+  work === 'political' ? POLITICAL_CREDITS[parallel ? `${primary}+${parallel}` : primary] : CREDITS[primary][parallel ?? 'none'];
+
+/**
+ * The reading languages a work can honor. The stored choice is left alone, so a language
+ * this work lacks comes back on returning to a work that has it.
+ */
+export const restrictLanguages = ({ primary, parallel }: ReadingLanguages, available: readonly Language[]): ReadingLanguages => {
+  const restrictedPrimary = available.includes(primary) ? primary : 'english';
+  const keepsParallel = parallel && parallel !== restrictedPrimary && available.includes(parallel);
+  return { primary: restrictedPrimary, parallel: keepsParallel ? parallel : null };
+};
 
 const FRENCH_PARTS: Record<number, Pick<PartMetadata, 'title' | 'description'>> = {
   1: {
@@ -142,6 +160,11 @@ const LATIN_PART_ORDINALS: Record<number, string> = {
 
 /** The part's heading, title and introduction in the reading language. */
 export const getPartText = (part: PartMetadata, language: Language): { heading: string; title: string; description?: string } => {
+  if (part.work === 'political') {
+    const word = { english: 'Chapter', french: 'Chapitre', latin: 'Caput' }[language];
+    return { heading: `${word} ${part.numeral}`, title: part.title, description: language === 'latin' ? undefined : part.description };
+  }
+
   if (language === 'french') {
     return { ...FRENCH_PARTS[part.number], heading: `Partie ${part.numeral}` };
   }
@@ -167,6 +190,7 @@ const FRENCH_SECTION_LABELS: Record<string, string> = {
 };
 
 const LATIN_SECTION_LABELS: Record<string, string> = {
+  sections: 'Articuli',
   preface: 'Praefatio',
   definitions: 'Definitiones',
   definitions_of_emotions: 'Affectuum Definitiones',
@@ -181,6 +205,7 @@ const LATIN_SECTION_LABELS: Record<string, string> = {
 
 const LATIN_LABEL_WORDS: Array<[RegExp, string]> = [
   [/^Appendix Introduction$/, 'Appendix'],
+  [/^Section/, 'Articulus'],
   [/^Alternate Proof$/, 'Aliter'],
   [/^Proof of Corollary/, 'Demonstratio Corollarii'],
   [/^Proof$/, 'Demonstratio'],
@@ -270,6 +295,10 @@ export const formatElementLabel = (element: Pick<SpinozaElement, 'id' | 'type' |
 
   if (element.type === 'appendix') {
     return 'Appendix';
+  }
+
+  if (element.type === 'section') {
+    return `Section ${element.number}`;
   }
 
   const subElementLabel = formatSubElementLabel(element);
@@ -364,6 +393,12 @@ const formatReferenceSuffix = (segment: string, words: typeof REFERENCE_WORDS.en
 
 /** A label that names a passage from anywhere in the book, such as "I, Prop. XXV, Corollary". */
 export const formatPassageReference = (id: string, language: Language = 'english'): string => {
+  if (id.startsWith('TP.')) {
+    const work = language === 'french' ? 'Traité pol.' : 'Pol. Treatise';
+    const [, chapter, section] = id.split('.');
+    return chapter === 'preface' ? `${work}, ${language === 'french' ? 'Préface' : 'Preface'}` : `${work} ${chapter}, § ${section}`;
+  }
+
   const words = language === 'french' ? REFERENCE_WORDS.french : REFERENCE_WORDS.english;
   const [part, kind, number, ...rest] = id.split('.');
 
@@ -581,6 +616,27 @@ export const summarizeSections = (elements: SpinozaElement[], language: Language
     label: getLocalizedSectionLabel(kind, language)
   }));
 };
+
+/** Builds the passages of one Political Treatise chapter from its generated file. */
+export const parsePoliticalChapter = (
+  entries: Array<Pick<SpinozaElement, 'id' | 'text' | 'latinText' | 'number' | 'footnotes'>>,
+  chapter: PartMetadata
+): Map<string, SpinozaElement> =>
+  new Map(
+    entries.map((entry, index): [string, SpinozaElement] => {
+      const isPreface = entry.id === 'TP.preface';
+      const base = {
+        ...entry,
+        type: (isPreface ? 'preface' : 'section') as SpinozaElement['type'],
+        sectionKind: isPreface ? 'preface' : 'sections',
+        heading: isPreface ? 'Preface' : undefined,
+        partNumber: chapter.number,
+        partNumeral: chapter.numeral,
+        sortIndex: index + 1
+      };
+      return [entry.id, { ...base, canonicalLabel: formatElementLabel(base) }];
+    })
+  );
 
 export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> => {
   const parser = new XMLParser({

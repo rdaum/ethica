@@ -7,6 +7,8 @@ const result: PassageAnalysis = {
   usedBy: [],
   cites: [],
   citedBy: [],
+  editorCites: [],
+  editorCitedBy: [],
   structure: { parent: null, proofs: [], corollaries: [], notes: [] },
   dependencyPaths: [],
   dependentPaths: [],

@@ -8,7 +8,7 @@ import createReasoningWorker from './lib/createReasoningWorker';
 import { publicPath } from './lib/publicPath';
 import {
   buildReaderUrl,
-  getPartNumberFromElementId,
+  locateElement,
   parseReaderHash,
   sameReaderLocation
 } from './lib/readerUrl';
@@ -19,12 +19,14 @@ import {
   getVisibleElementIds,
   mergeFrenchText,
   mergeLatinText,
+  parsePoliticalChapter,
   parseSpinozaXml,
-  PARTS,
+  restrictLanguages,
   summarizeSections
 } from './lib/ethica';
 import { getStrings } from './lib/strings';
-import { Footnote, PassageAnalysis, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from './types';
+import { getWorkTitle, POLITICAL_CHAPTERS, WORKS } from './lib/works';
+import { Footnote, PassageAnalysis, ReaderSectionSummary, ReadingLanguages, SpinozaElement, WorkId } from './types';
 
 const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
 
@@ -112,14 +114,25 @@ const fetchPart = async (part: number): Promise<Map<string, SpinozaElement>> => 
   return parsed;
 };
 
+const fetchPoliticalChapter = async (chapter: number): Promise<Map<string, SpinozaElement>> => {
+  const { elements } = await (await fetchOk(`political_${chapter}.json`)).json();
+  return parsePoliticalChapter(elements, POLITICAL_CHAPTERS[chapter]);
+};
+
+const fetchGraph = async (): Promise<string> => {
+  const graphs = await Promise.all(['ethica-logic.n3', 'political-logic.n3'].map(async path => (await fetchOk(path)).text()));
+  return graphs.join('\n');
+};
+
 const App: React.FC = () => {
   const [initialLocation] = useState(() => parseReaderHash(window.location.hash));
   const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [currentWork, setCurrentWork] = useState<WorkId>(initialLocation.work);
   const [currentPart, setCurrentPart] = useState(initialLocation.part);
-  const [loadedPart, setLoadedPart] = useState<number | null>(null);
-  const [languages, setLanguages] = useState(readLanguages);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const [storedLanguages, setStoredLanguages] = useState(readLanguages);
   const [selectedElement, setSelectedElement] = useState<string | null>(initialLocation.elementId);
   const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
   const [query, setQuery] = useState('');
@@ -136,15 +149,16 @@ const App: React.FC = () => {
   const contentsToggleRef = useRef<HTMLButtonElement | null>(null);
   const sidebarRef = useRef<HTMLElement | null>(null);
   const deferredQuery = useDeferredValue(query);
+  const currentWorkMetadata = WORKS[currentWork];
+  const languages = restrictLanguages(storedLanguages, currentWorkMetadata.languages);
   const t = getStrings(languages.primary);
+  const currentKey = `${currentWork}:${currentPart}`;
   const analysisClient = useRef<AnalysisClient | null>(null);
-  const partCache = useRef(new Map<number, Map<string, SpinozaElement>>());
-  const previousPart = useRef(initialLocation.part);
+  const partCache = useRef(new Map<string, Map<string, SpinozaElement>>());
+  const previousKey = useRef(currentKey);
 
   useEffect(() => {
-    const client = createAnalysisClient(createReasoningWorker, async () =>
-      (await fetchOk('ethica-logic.n3')).text()
-    );
+    const client = createAnalysisClient(createReasoningWorker, fetchGraph);
 
     analysisClient.current = client;
     client.preload();
@@ -163,15 +177,16 @@ const App: React.FC = () => {
       setError(false);
 
       try {
-        const parsedElements = partCache.current.get(currentPart) ?? (await fetchPart(currentPart));
-        partCache.current.set(currentPart, parsedElements);
+        const parsedElements =
+          partCache.current.get(currentKey) ?? (await (currentWork === 'political' ? fetchPoliticalChapter(currentPart) : fetchPart(currentPart)));
+        partCache.current.set(currentKey, parsedElements);
 
         if (cancelled) {
           return;
         }
 
         setElements(parsedElements);
-        setLoadedPart(currentPart);
+        setLoadedKey(currentKey);
         setLoading(false);
       } catch (loadError) {
         if (cancelled) {
@@ -189,11 +204,11 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [currentPart, partAttempt]);
+  }, [currentWork, currentPart, currentKey, partAttempt]);
 
   // A part change commits before the load effect marks it as loading, so readiness
   // also requires that the elements in state belong to the current part.
-  const ready = !loading && loadedPart === currentPart;
+  const ready = !loading && loadedKey === currentKey;
 
   useEffect(() => {
     if (!ready || !scrollTarget) {
@@ -202,7 +217,7 @@ const App: React.FC = () => {
 
     if (!elements.has(scrollTarget)) {
       // The hash named a passage that does not exist in this part.
-      window.history.replaceState(null, '', buildReaderUrl({ part: currentPart, elementId: null }));
+      window.history.replaceState(null, '', buildReaderUrl({ work: currentWork, part: currentPart, elementId: null }));
       setSelectedElement(null);
       setScrollTarget(null);
       return;
@@ -232,19 +247,19 @@ const App: React.FC = () => {
     }, 1800);
 
     setScrollTarget(null);
-  }, [ready, scrollTarget, elements, currentPart, deferredQuery]);
+  }, [ready, scrollTarget, elements, currentWork, currentPart, deferredQuery]);
 
   useEffect(() => {
-    if (!ready || previousPart.current === currentPart) {
+    if (!ready || previousKey.current === currentKey) {
       return;
     }
 
-    previousPart.current = currentPart;
+    previousKey.current = currentKey;
 
     if (!scrollTarget) {
       window.scrollTo({ top: 0 });
     }
-  }, [ready, currentPart, scrollTarget]);
+  }, [ready, currentKey, scrollTarget]);
 
   useEffect(() => {
     let cancelled = false;
@@ -312,17 +327,18 @@ const App: React.FC = () => {
   // State to URL: comparing parsed locations means a state change that came from the
   // URL itself (initial load, back, forward, a hash edit) never adds a history entry.
   useEffect(() => {
-    const location = { part: currentPart, elementId: selectedElement };
+    const location = { work: currentWork, part: currentPart, elementId: selectedElement };
 
     if (!sameReaderLocation(parseReaderHash(window.location.hash), location)) {
       window.history.pushState(null, '', buildReaderUrl(location));
     }
-  }, [currentPart, selectedElement]);
+  }, [currentWork, currentPart, selectedElement]);
 
   // URL to state: browser history and hand-edited hashes.
   useEffect(() => {
     const handleLocationChange = () => {
       const location = parseReaderHash(window.location.hash);
+      setCurrentWork(location.work);
       setCurrentPart(location.part);
       setSelectedElement(location.elementId);
       setScrollTarget(location.elementId);
@@ -345,7 +361,8 @@ const App: React.FC = () => {
   const visibleTopLevelElements = topLevelElements.filter(element => visibleIds.has(element.id));
   const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements, languages.primary);
   const selectedEntry = selectedElement ? currentElements.get(selectedElement) : undefined;
-  const currentPartMetadata = PARTS[currentPart];
+  const currentPartMetadata = currentWorkMetadata.parts[currentPart];
+  const currentPartHeading = getPartText(currentPartMetadata, languages.primary).heading;
   const selectableEntries = orderedElements.filter(element => visibleIds.has(element.id));
   const selectedIndex = selectedElement ? selectableEntries.findIndex(element => element.id === selectedElement) : -1;
   const previousEntry = selectedIndex > 0 ? selectableEntries[selectedIndex - 1] : null;
@@ -381,11 +398,19 @@ const App: React.FC = () => {
     setContentsOpen(false);
   }, []);
 
-  const navigateToElement = useCallback((elementId: string) => {
-    const targetPart = getPartNumberFromElementId(elementId);
+  const handleWorkChange = (work: WorkId) => {
+    if (work !== currentWork) {
+      setCurrentWork(work);
+      handlePartChange(1);
+    }
+  };
 
-    if (targetPart) {
-      setCurrentPart(targetPart);
+  const navigateToElement = useCallback((elementId: string) => {
+    const target = locateElement(elementId);
+
+    if (target) {
+      setCurrentWork(target.work);
+      setCurrentPart(target.part);
     }
 
     setSelectedElement(elementId);
@@ -414,11 +439,12 @@ const App: React.FC = () => {
   };
 
   const changeLanguages = (next: ReadingLanguages) => {
-    setLanguages(next);
+    setStoredLanguages(next);
     saveLanguages(next);
   };
 
   const showsFrench = languages.primary === 'french' || languages.parallel === 'french';
+  const frenchWithheld = (storedLanguages.primary === 'french' || storedLanguages.parallel === 'french') && !showsFrench;
 
   const toggleFocusMode = () => {
     const enabled = !focusMode;
@@ -431,7 +457,7 @@ const App: React.FC = () => {
     contentsToggleRef.current?.focus();
   };
 
-  if (loadedPart === null && !error) {
+  if (loadedKey === null && !error) {
     return (
       <div className="app loading-shell">
         <div className="loading-card">
@@ -451,8 +477,8 @@ const App: React.FC = () => {
             <img src={publicPath('spinoza-signet.png')} alt="" />
           </button>
           <div className="brand-text">
-            <h1>The Ethics</h1>
-            <p>{formatTranslationCredit(languages)}</p>
+            <h1>{getWorkTitle(currentWork, languages.primary)}</h1>
+            <p>{formatTranslationCredit(languages, currentWork)}</p>
           </div>
         </div>
 
@@ -463,7 +489,7 @@ const App: React.FC = () => {
             type="search"
             value={query}
             onChange={event => setQuery(event.target.value)}
-            placeholder={t.searchPlaceholder(currentPartMetadata.numeral)}
+            placeholder={t.searchPlaceholder(currentPartHeading)}
           />
         </label>
 
@@ -506,10 +532,27 @@ const App: React.FC = () => {
           }}
         >
           <div className="sidebar-stack">
+            <div role="group" aria-label={t.works}>
+              <p className="sidebar-kicker">{t.works}</p>
+              <div className="reading-mode-buttons">
+                {Object.values(WORKS).map(work => (
+                  <button
+                    key={work.id}
+                    type="button"
+                    aria-pressed={currentWork === work.id}
+                    className={`reading-mode-button ${currentWork === work.id ? 'active' : ''}`}
+                    onClick={() => handleWorkChange(work.id)}
+                  >
+                    {getWorkTitle(work.id, languages.primary)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <nav aria-label={t.contents}>
               <p className="sidebar-kicker">{t.contents}</p>
               <ol className="contents-list">
-                {Object.values(PARTS).map(part => (
+                {Object.values(currentWorkMetadata.parts).map(part => (
                   <li key={part.number}>
                     <button
                       type="button"
@@ -538,7 +581,21 @@ const App: React.FC = () => {
             </nav>
 
             <div className="sidebar-reading-mode">
-              <LanguagePicker value={languages} onChange={changeLanguages} />
+              <LanguagePicker value={languages} onChange={changeLanguages} available={currentWorkMetadata.languages} />
+              {frenchWithheld && <p className="translation-source">{getStrings('french').frenchUnavailable}</p>}
+              {currentWork === 'political' && (
+                <p className="translation-source">
+                  {t.politicalSource}{' '}
+                  <a href="https://constitution.org/2-Authors/bs/poltreat.txt" target="_blank" rel="noreferrer">
+                    {t.politicalSourceLink}
+                  </a>
+                  . {t.politicalLatinSource}{' '}
+                  <a href="https://la.wikisource.org/wiki/Tractatus_Politicus" target="_blank" rel="noreferrer">
+                    {t.politicalLatinSourceLink}
+                  </a>
+                  .
+                </p>
+              )}
               {showsFrench && (
                 <p className="translation-source">
                   {t.frenchSource}{' '}
@@ -564,7 +621,7 @@ const App: React.FC = () => {
               </div>
             ) : (
               <div className="empty-state">
-                <h3>{t.loadingPart(currentPartMetadata.numeral)}</h3>
+                <h3>{t.loadingPart(currentPartHeading)}</h3>
               </div>
             )}
           </section>
@@ -575,7 +632,7 @@ const App: React.FC = () => {
             visibleIds={visibleIds}
             selectedElement={selectedElement}
             onElementSelect={handleSelectElement}
-            currentPart={currentPart}
+            part={currentPartMetadata}
             languages={languages}
           />
         )}
@@ -593,6 +650,7 @@ const App: React.FC = () => {
           previousElementId={previousEntry?.id ?? null}
           nextElementId={nextEntry?.id ?? null}
           languages={languages}
+          work={currentWork}
         />
       </main>
     </div>

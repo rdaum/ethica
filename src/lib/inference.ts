@@ -7,9 +7,9 @@ const { namedNode, quad } = DataFactory;
 
 const ethicsNode = (value: string) => namedNode(`${ETHICS}${value}`);
 
-// Notes and prefaces may look ahead or argue in passing, so their citations are
-// references rather than steps in the demonstration.
-const NON_DEMONSTRATIVE_CLASSES = new Set(['Note', 'Explanation', 'Preface', 'Appendix']);
+// Notes and prefaces may look ahead or argue in passing, and the Political Treatise's
+// sections argue in prose, so their citations are references rather than demonstration.
+const NON_DEMONSTRATIVE_CLASSES = new Set(['Note', 'Explanation', 'Preface', 'Appendix', 'Section']);
 
 export const buildInferredStore = (explicitStore: Store): Store => {
   const inferredStore = new Store();

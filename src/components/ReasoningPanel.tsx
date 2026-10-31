@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ReasoningPanel.css';
 import { formatLocalizedLabel, formatPassageReference } from '../lib/ethica';
-import { PassageAnalysis, ReadingLanguages, SpinozaElement } from '../types';
+import { PassageAnalysis, ReadingLanguages, SpinozaElement, WorkId } from '../types';
 import { getStrings, Strings } from '../lib/strings';
 import { Language } from '../types';
 import { MetadataChips, PassagePreview } from './PassageMeta';
@@ -22,6 +22,7 @@ interface ReasoningPanelProps {
   nextElementId: string | null;
   languages: ReadingLanguages;
   focusRequest: number;
+  work: WorkId;
 }
 
 const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
@@ -36,7 +37,8 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   previousElementId,
   nextElementId,
   languages,
-  focusRequest
+  focusRequest,
+  work
 }) => {
   const t = getStrings(languages.primary);
   const panelCardRef = useRef<HTMLDivElement | null>(null);
@@ -72,7 +74,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         <div className="panel-card">
           <p className="panel-kicker">{t.analysis}</p>
           <h2>{t.choosePassage}</h2>
-          <p>{t.choosePassageHelp}</p>
+          <p>{work === 'political' ? t.chooseSectionHelp : t.choosePassageHelp}</p>
         </div>
       </aside>
     );
@@ -137,7 +139,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             </button>
           </div>
         ) : (
-          analysis && <AnalysisDetails key={selectedElement} analysis={analysis} navigate={navigate} t={t} language={languages.primary} />
+          analysis && <AnalysisDetails key={selectedElement} analysis={analysis} navigate={navigate} t={t} language={languages.primary} work={work} />
         )}
       </div>
     </aside>
@@ -148,7 +150,7 @@ type Navigate = (id: string, event: React.MouseEvent) => void;
 
 type Localized = { t: Strings; language: Language };
 
-const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate } & Localized> = ({ analysis, navigate, t, language }) => {
+const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate; work: WorkId } & Localized> = ({ analysis, navigate, t, language, work }) => {
   const { structure, metrics } = analysis;
   const structureGroups: Array<[string, string[]]> = [
     [t.partOf, structure.parent ? [structure.parent] : []],
@@ -157,7 +159,7 @@ const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate 
     [t.notes, structure.notes]
   ];
   const hasRelations =
-    analysis.dependsOn.length + analysis.usedBy.length + analysis.cites.length + analysis.citedBy.length > 0 ||
+    analysis.dependsOn.length + analysis.usedBy.length + analysis.cites.length + analysis.citedBy.length + analysis.editorCites.length + analysis.editorCitedBy.length > 0 ||
     structureGroups.some(([, ids]) => ids.length > 0);
   const localized = { navigate, t, language };
 
@@ -170,9 +172,14 @@ const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate 
         <dl className="connection-stats">
           <ConnectionStat label={t.cites} value={metrics.cites} description={t.citesHelp} />
           <ConnectionStat label={t.citedBy} value={metrics.citedBy} description={t.citedByHelp} />
-          <ConnectionStat label={t.allDependencies} value={metrics.totalDependencies} description={t.allDependenciesHelp} />
-          <ConnectionStat label={t.allDependents} value={metrics.totalDependents} description={t.allDependentsHelp} />
-          <ConnectionStat label={t.depth} value={metrics.depth} description={t.depthHelp} />
+          {/* The treatise argues in prose, so it has no chains of demonstration to count. */}
+          {work === 'ethics' && (
+            <>
+              <ConnectionStat label={t.allDependencies} value={metrics.totalDependencies} description={t.allDependenciesHelp} />
+              <ConnectionStat label={t.allDependents} value={metrics.totalDependents} description={t.allDependentsHelp} />
+              <ConnectionStat label={t.depth} value={metrics.depth} description={t.depthHelp} />
+            </>
+          )}
         </dl>
       </section>
 
@@ -187,6 +194,8 @@ const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate 
         <RelationshipGroup title={t.usedBy} ids={analysis.usedBy} {...localized} />
         <RelationshipGroup title={t.cites} ids={analysis.cites} {...localized} />
         <RelationshipGroup title={t.mentionedIn} ids={analysis.citedBy} {...localized} />
+        <RelationshipGroup title={t.editorCites} ids={analysis.editorCites} {...localized} />
+        <RelationshipGroup title={t.editorCitedBy} ids={analysis.editorCitedBy} {...localized} />
         {structureGroups.map(([title, ids]) => (
           <RelationshipGroup key={title} title={title} ids={ids} {...localized} />
         ))}

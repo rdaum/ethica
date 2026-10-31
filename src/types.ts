@@ -9,7 +9,8 @@ export type ElementType =
   | 'lemma'
   | 'postulate'
   | 'explanation'
-  | 'appendix';
+  | 'appendix'
+  | 'section';
 
 export type EditorialKind = 'english_only_addition' | 'synthetic_heading' | 'normalization';
 
@@ -41,6 +42,8 @@ export interface SpinozaElement {
 
 export type Language = 'english' | 'french' | 'latin';
 
+export type WorkId = 'ethics' | 'political';
+
 /** The language to read in, and optionally a second one shown beside it. */
 export interface ReadingLanguages {
   primary: Language;
@@ -54,6 +57,9 @@ export interface PassageAnalysis {
   /** References from a note or preface, which are not steps in a demonstration. */
   cites: string[];
   citedBy: string[];
+  /** References a later editor supplied, which are not the author's own. */
+  editorCites: string[];
+  editorCitedBy: string[];
   structure: {
     parent: string | null;
     proofs: string[];
@@ -73,6 +79,8 @@ export interface PassageAnalysis {
 }
 
 export interface PartMetadata {
+  /** Unset for the Ethics. */
+  work?: WorkId;
   number: number;
   numeral: string;
   title: string;

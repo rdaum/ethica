@@ -5,7 +5,7 @@ import { PassageAnalysis } from '../types';
 
 const ETHICS = 'http://spinoza.org/ethics#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
-const NON_DEMONSTRATIVE_CLASSES = new Set(['Note', 'Explanation', 'Preface', 'Appendix']);
+const NON_DEMONSTRATIVE_CLASSES = new Set(['Note', 'Explanation', 'Preface', 'Appendix', 'Section']);
 
 type Adjacency = Map<string, string[]>;
 
@@ -109,6 +109,8 @@ export const analyzeElement = (id: string): PassageAnalysis => {
   const dependents = (dependedOnBy.get(id) ?? []).filter(notStructural);
   const cites = isDemonstrative(id) ? [] : objectsOf(id, 'cites').filter(notStructural);
   const citedBy = subjectsOf(id, 'cites').filter(source => !isDemonstrative(source) && notStructural(source));
+  const editorCites = objectsOf(id, 'editorCites');
+  const editorCitedBy = subjectsOf(id, 'editorCites');
 
   const dependencyPaths = shortestPaths(id, dependsOn).filter(path => notStructural(path[path.length - 1]));
   const dependentPaths = shortestPaths(id, dependedOnBy).filter(path => notStructural(path[path.length - 1]));
@@ -120,12 +122,14 @@ export const analyzeElement = (id: string): PassageAnalysis => {
     usedBy: dependents,
     cites,
     citedBy,
+    editorCites,
+    editorCitedBy,
     structure: { parent, proofs, corollaries, notes },
     dependencyPaths: dependencyPaths.filter(path => !directSet.has(path[path.length - 1])),
     dependentPaths: dependentPaths.filter(path => !dependentSet.has(path[path.length - 1])),
     metrics: {
-      cites: direct.length + cites.length,
-      citedBy: dependents.length + citedBy.length,
+      cites: direct.length + cites.length + editorCites.length,
+      citedBy: dependents.length + citedBy.length + editorCitedBy.length,
       totalDependencies: dependencyPaths.length,
       totalDependents: dependentPaths.length,
       depth: longestChain(id)

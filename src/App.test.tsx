@@ -148,7 +148,7 @@ const installFetchMock = () =>
       return fetchResponse({ elements: latinByPart[2] });
     }
 
-    if (url.includes('ethica-logic.n3')) {
+    if (url.includes('-logic.n3')) {
       return fetchResponse('@prefix ethics: <http://spinoza.org/ethics#> .');
     }
 
@@ -160,6 +160,8 @@ const analysisWith = (overrides: Partial<PassageAnalysis> = {}): PassageAnalysis
   usedBy: [],
   cites: [],
   citedBy: [],
+  editorCites: [],
+  editorCitedBy: [],
   structure: { parent: null, proofs: [], corollaries: [], notes: [] },
   dependencyPaths: [],
   dependentPaths: [],
