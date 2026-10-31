@@ -7,8 +7,7 @@
     "fast-xml-parser": "^4.3.2",
     "n3": "^1.17.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "web-vitals": "^2.1.4"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "start": "vite",
@@ -39,7 +38,6 @@
     "@playwright/test": "^1.64.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "@types/n3": "^1.16.4",
     "@types/node": "^20.19.39",
     "@types/react": "^18.2.45",

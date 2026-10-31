@@ -5,12 +5,9 @@ node_modules/
 
 # React app build output
 build/
-spinoza-reader/build/
-spinoza-reader/node_modules/
 
 # Testing
 /coverage
-spinoza-reader/coverage/
 
 # Runtime data
 pids
@@ -36,7 +33,6 @@ pids
 .env.development.local
 .env.test.local
 .env.production.local
-spinoza-reader/.env*
 
 # IDE and editor files
 .vscode/
@@ -59,13 +55,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-spinoza-reader/npm-debug.log*
-spinoza-reader/yarn-debug.log*
-spinoza-reader/yarn-error.log*
 
 # ESLint cache
 .eslintcache
-spinoza-reader/.eslintcache
 
 # Optional stylelint cache
 .stylelintcache
