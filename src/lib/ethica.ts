@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Parser, Store } from 'n3';
-import { EditorialKind, Footnote, Language, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
+import { EditorialKind, Footnote, Language, PartMetadata, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from '../types';
 
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
@@ -71,11 +71,29 @@ export const LANGUAGE_CODES: Record<Language, string> = {
   latin: 'la'
 };
 
-export const TRANSLATION_CREDITS: Record<Language, string> = {
-  english: 'Spinoza, translated by R.H.M. Elwes',
-  french: 'Spinoza, traduit par Charles Appuhn',
-  latin: 'Spinoza, Latin text'
+const CREDITS: Record<Language, Record<Language | 'none', string>> = {
+  english: {
+    none: 'Spinoza, translated by R.H.M. Elwes',
+    english: '',
+    french: 'Spinoza, translated by R.H.M. Elwes and Charles Appuhn',
+    latin: 'Spinoza, translated by R.H.M. Elwes, with the Latin text'
+  },
+  french: {
+    none: 'Spinoza, traduit par Charles Appuhn',
+    english: 'Spinoza, traduit par Charles Appuhn et R.H.M. Elwes',
+    french: '',
+    latin: 'Spinoza, traduit par Charles Appuhn, avec le texte latin'
+  },
+  latin: {
+    none: 'Spinoza, Latin text',
+    english: 'Spinoza, Latin text, translated by R.H.M. Elwes',
+    french: 'Spinoza, Latin text, translated by Charles Appuhn',
+    latin: ''
+  }
 };
+
+/** Names the translators of whatever is on the page, including a language shown alongside. */
+export const formatTranslationCredit = ({ primary, parallel }: ReadingLanguages): string => CREDITS[primary][parallel ?? 'none'];
 
 const FRENCH_PARTS: Record<number, Pick<PartMetadata, 'title' | 'description'>> = {
   1: {
@@ -598,7 +616,6 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
     const partNumber = PARTS_BY_NUMERAL[partNumeral]?.number ?? romanNumeralToInteger(partNumeral);
     const isEditorial = Boolean(element.isEditorial);
     const editorialKind = element.editorialKind ?? inferEditorialKind(element);
-    const sourceAuthority = element.sourceAuthority ?? inferSourceAuthority(isEditorial);
     const variantLabel = element.variantLabel ?? inferVariantLabel(element.id, element.type);
     const canonicalLabel = element.canonicalLabel ?? formatElementLabel(element);
 
@@ -609,7 +626,6 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
       canonicalLabel,
       isEditorial,
       editorialKind,
-      sourceAuthority,
       variantLabel,
       sortIndex: element.sortIndex ?? nextSortIndex()
     });
@@ -899,6 +915,3 @@ const inferEditorialKind = (
 
   return undefined;
 };
-
-const inferSourceAuthority = (isEditorial: boolean): SourceAuthority =>
-  isEditorial ? 'english_structural' : 'latin_governed';

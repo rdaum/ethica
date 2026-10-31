@@ -6,7 +6,7 @@ Live site: [rdaum.github.io/ethica](https://rdaum.github.io/ethica/)
 
 ## What it does
 
-- Reads Parts I-V in the Elwes translation, in English, Latin, or side by side
+- Reads Parts I-V in English (Elwes), French (Appuhn) or Latin, or any two side by side
 - Keeps the book's structure: definitions, axioms, propositions, proofs, corollaries and their proofs, notes, lemmas, postulates, prefaces and appendices
 - Shows what each passage rests on and what rests on it, with shortest dependency paths you can follow step by step
 - Searches within a part, across both languages

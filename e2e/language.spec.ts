@@ -23,6 +23,7 @@ test('any two languages can sit side by side, and choosing the second swaps them
   await page.goto('./#I.prop.1');
   await readIn(page).getByRole('button', { name: 'Français' }).click();
   await compareWith(page).getByRole('button', { name: 'Latin' }).click();
+  await expect(page.locator('.brand-text p')).toHaveText('Spinoza, traduit par Charles Appuhn, avec le texte latin');
 
   const columns = page.locator('[data-element-id="I.prop.1"] > .entry-body .parallel-column');
   await expect(columns).toHaveCount(2);

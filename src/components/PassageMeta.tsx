@@ -22,14 +22,6 @@ const getMetadataChips = (element: SpinozaElement, t: Strings): MetadataChip[] =
     chips.push({ label: t.chipHeading, tone: 'gold', description: t.chipHeadingHelp });
   }
 
-  if (element.sourceAuthority === 'latin_governed') {
-    chips.push({ label: t.chipLatin, tone: 'green', description: t.chipLatinHelp });
-  }
-
-  if (element.sourceAuthority === 'english_structural') {
-    chips.push({ label: t.chipEnglish, tone: 'rose', description: t.chipEnglishHelp });
-  }
-
   return chips;
 };
 

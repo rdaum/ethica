@@ -1,4 +1,4 @@
-import { formatElementLabel, formatLocalizedLabel, formatPassageReference, getPassageText, getVisibleElementIds, matchesQuery, mergeFrenchText } from './ethica';
+import { formatElementLabel, formatLocalizedLabel, formatPassageReference, formatTranslationCredit, getPassageText, getVisibleElementIds, matchesQuery, mergeFrenchText } from './ethica';
 import { parseSpinozaXml } from './ethica';
 import { SpinozaElement } from '../types';
 
@@ -52,7 +52,6 @@ describe('parseSpinozaXml', () => {
     expect(elements.find(element => element.id === 'II.prop.1')?.canonicalLabel).toBe('Proposition I');
     expect(elements.find(element => element.id === 'II.phys_ax.1.note')?.isEditorial).toBe(true);
     expect(elements.find(element => element.id === 'II.phys_ax.1.note')?.editorialKind).toBe('english_only_addition');
-    expect(elements.find(element => element.id === 'II.phys_ax.1.note')?.sourceAuthority).toBe('english_structural');
     expect(elements.find(element => element.id === 'II.prop.2.proof2')?.variantLabel).toBe('proof2');
   });
 
@@ -74,7 +73,6 @@ describe('parseSpinozaXml', () => {
     expect(elements.get('IV.appendix.introduction')?.editorialKind).toBe('synthetic_heading');
     expect(elements.get('IV.appendix.introduction')?.isEditorial).toBe(false);
     expect(elements.get('IV.appendix.chapter.1')?.canonicalLabel).toBe('Caput I');
-    expect(elements.get('IV.appendix.chapter.1')?.sourceAuthority).toBe('latin_governed');
   });
 });
 
@@ -196,6 +194,16 @@ describe('reading languages', () => {
     [{ id: 'III.preface', type: 'preface' }, 'Praefatio']
   ] as const)('labels %o in Latin', (element, label) => {
     expect(formatLocalizedLabel(element, 'latin')).toBe(label);
+  });
+
+  it.each([
+    ['english', null, 'Spinoza, translated by R.H.M. Elwes'],
+    ['english', 'french', 'Spinoza, translated by R.H.M. Elwes and Charles Appuhn'],
+    ['french', null, 'Spinoza, traduit par Charles Appuhn'],
+    ['french', 'english', 'Spinoza, traduit par Charles Appuhn et R.H.M. Elwes'],
+    ['latin', 'french', 'Spinoza, Latin text, translated by Charles Appuhn']
+  ] as const)('credits %s with %s', (primary, parallel, credit) => {
+    expect(formatTranslationCredit({ primary, parallel })).toBe(credit);
   });
 
   it('writes missing-passage messages in the reading language', () => {

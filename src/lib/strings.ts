@@ -61,11 +61,7 @@ const ENGLISH = {
   chipEditorial: 'Editorial',
   chipEditorialHelp: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.',
   chipHeading: 'Normalized Heading',
-  chipHeadingHelp: 'This heading is a normalized reader aid created to label a section consistently.',
-  chipLatin: 'Latin-Based',
-  chipLatinHelp: 'The reader derives this passage structure and its analysis from the Latin source text.',
-  chipEnglish: 'English-Based',
-  chipEnglishHelp: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
+  chipHeadingHelp: 'This heading is a normalized reader aid created to label a section consistently.'
 };
 
 export type Strings = typeof ENGLISH;
@@ -131,11 +127,7 @@ const FRENCH: Strings = {
   chipEditorial: 'Éditorial',
   chipEditorialHelp: 'Ce passage a été ajouté ou séparé par l’édition ; il ne forme pas un passage distinct dans la source latine.',
   chipHeading: 'Titre normalisé',
-  chipHeadingHelp: 'Ce titre est une aide à la lecture, créée pour nommer une section de façon cohérente.',
-  chipLatin: 'D’après le latin',
-  chipLatinHelp: 'La structure de ce passage et son analyse viennent de la source latine.',
-  chipEnglish: 'D’après l’anglais',
-  chipEnglishHelp: 'La structure de ce passage ou son analyse viennent de choix éditoriaux de l’édition anglaise.'
+  chipHeadingHelp: 'Ce titre est une aide à la lecture, créée pour nommer une section de façon cohérente.'
 };
 
 /** The interface follows the French reader; Latin readers get the English interface. */

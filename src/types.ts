@@ -13,8 +13,6 @@ export type ElementType =
 
 export type EditorialKind = 'english_only_addition' | 'synthetic_heading' | 'normalization';
 
-export type SourceAuthority = 'latin_governed' | 'english_structural';
-
 export interface Footnote {
   number: string;
   text: string;
@@ -38,7 +36,6 @@ export interface SpinozaElement {
   canonicalLabel?: string;
   isEditorial?: boolean;
   editorialKind?: EditorialKind;
-  sourceAuthority?: SourceAuthority;
   variantLabel?: string;
 }
 

@@ -13,6 +13,7 @@ import {
   sameReaderLocation
 } from './lib/readerUrl';
 import {
+  formatTranslationCredit,
   getPartText,
   LANGUAGE_CODES,
   getVisibleElementIds,
@@ -20,8 +21,7 @@ import {
   mergeLatinText,
   parseSpinozaXml,
   PARTS,
-  summarizeSections,
-  TRANSLATION_CREDITS
+  summarizeSections
 } from './lib/ethica';
 import { getStrings } from './lib/strings';
 import { Footnote, PassageAnalysis, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from './types';
@@ -452,7 +452,7 @@ const App: React.FC = () => {
           </button>
           <div className="brand-text">
             <h1>The Ethics</h1>
-            <p>{TRANSLATION_CREDITS[languages.primary]}</p>
+            <p>{formatTranslationCredit(languages)}</p>
           </div>
         </div>
 
