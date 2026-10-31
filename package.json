@@ -18,6 +18,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "generate:latin": "node scripts/generate-latin.mjs",
+    "generate:french": "node scripts/generate-french.mjs",
     "generate:corpus": "node scripts/generate-corpus.mjs && node scripts/generate-latin.mjs",
     "deploy": "npm run build && gh-pages -d build"
   },
