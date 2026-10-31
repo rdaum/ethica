@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import './ReasoningPanel.css';
 import { formatLocalizedLabel, formatPassageReference } from '../lib/ethica';
 import { PassageAnalysis, ReadingLanguages, SpinozaElement } from '../types';
+import { getStrings, Strings } from '../lib/strings';
+import { Language } from '../types';
 import { MetadataChips, PassagePreview } from './PassageMeta';
 
 const COLLAPSED_LIST_SIZE = 12;
@@ -14,7 +16,7 @@ interface ReasoningPanelProps {
   onNavigateToElement: (elementId: string) => void;
   onClose: () => void;
   loading: boolean;
-  error: string | null;
+  error: boolean;
   onRetry: () => void;
   previousElementId: string | null;
   nextElementId: string | null;
@@ -36,6 +38,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   languages,
   focusRequest
 }) => {
+  const t = getStrings(languages.primary);
   const panelCardRef = useRef<HTMLDivElement | null>(null);
   const keyboardNavigation = useRef(false);
 
@@ -67,9 +70,9 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
     return (
       <aside className="reasoning-panel empty">
         <div className="panel-card">
-          <p className="panel-kicker">Analysis</p>
-          <h2>Choose a passage</h2>
-          <p>Select a definition, axiom, proposition, proof, or note to see what it rests on and what rests on it.</p>
+          <p className="panel-kicker">{t.analysis}</p>
+          <h2>{t.choosePassage}</h2>
+          <p>{t.choosePassageHelp}</p>
         </div>
       </aside>
     );
@@ -81,7 +84,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         ref={panelCardRef}
         className="panel-card pinned"
         tabIndex={-1}
-        aria-label={`Analysis of ${formatLocalizedLabel(element, languages.primary)}`}
+        aria-label={t.analysisOf(formatLocalizedLabel(element, languages.primary))}
         onKeyDown={event => {
           if (event.key === 'Escape') {
             onClose();
@@ -90,10 +93,10 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
       >
         <div className="reasoning-header">
           <div>
-            <p className="panel-kicker">Analysis</p>
+            <p className="panel-kicker">{t.analysis}</p>
             <h2>{formatLocalizedLabel(element, languages.primary)}</h2>
             <p className="panel-id">{element.id}</p>
-            <MetadataChips element={element} />
+            <MetadataChips element={element} t={t} />
           </div>
           <div className="panel-actions">
             <button
@@ -102,7 +105,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
               onClick={event => previousElementId && navigate(previousElementId, event)}
               disabled={!previousElementId}
             >
-              Previous
+              {t.previous}
             </button>
             <button
               type="button"
@@ -110,10 +113,10 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
               onClick={event => nextElementId && navigate(nextElementId, event)}
               disabled={!nextElementId}
             >
-              Next
+              {t.next}
             </button>
             <button type="button" className="close-button" onClick={onClose}>
-              Close
+              {t.close}
             </button>
           </div>
         </div>
@@ -124,17 +127,17 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
 
         {loading ? (
           <div className="analysis-loading">
-            <p>Tracing relations and dependencies…</p>
+            <p>{t.tracing}</p>
           </div>
         ) : error ? (
           <div className="analysis-error" role="alert">
-            <p>{error}</p>
+            <p>{t.analysisError}</p>
             <button type="button" className="nav-button" onClick={onRetry}>
-              Try again
+              {t.tryAgain}
             </button>
           </div>
         ) : (
-          analysis && <AnalysisDetails key={selectedElement} analysis={analysis} navigate={navigate} />
+          analysis && <AnalysisDetails key={selectedElement} analysis={analysis} navigate={navigate} t={t} language={languages.primary} />
         )}
       </div>
     </aside>
@@ -143,59 +146,54 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
 
 type Navigate = (id: string, event: React.MouseEvent) => void;
 
-const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate }> = ({ analysis, navigate }) => {
+type Localized = { t: Strings; language: Language };
+
+const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate } & Localized> = ({ analysis, navigate, t, language }) => {
   const { structure, metrics } = analysis;
   const structureGroups: Array<[string, string[]]> = [
-    ['Part of', structure.parent ? [structure.parent] : []],
-    ['Proofs', structure.proofs],
-    ['Corollaries', structure.corollaries],
-    ['Notes', structure.notes]
+    [t.partOf, structure.parent ? [structure.parent] : []],
+    [t.proofs, structure.proofs],
+    [t.corollaries, structure.corollaries],
+    [t.notes, structure.notes]
   ];
   const hasRelations =
     analysis.dependsOn.length + analysis.usedBy.length + analysis.cites.length + analysis.citedBy.length > 0 ||
     structureGroups.some(([, ids]) => ids.length > 0);
+  const localized = { navigate, t, language };
 
   return (
     <>
       <section className="panel-section">
         <div className="section-heading">
-          <h3>Connections</h3>
+          <h3>{t.connections}</h3>
         </div>
         <dl className="connection-stats">
-          <ConnectionStat label="Cites" value={metrics.cites} description="Passages this one directly relies on or refers to." />
-          <ConnectionStat label="Cited by" value={metrics.citedBy} description="Passages that directly rely on or refer to this one." />
-          <ConnectionStat
-            label="All dependencies"
-            value={metrics.totalDependencies}
-            description="Every passage this one rests on, following demonstrations back to their foundations."
-          />
-          <ConnectionStat
-            label="All dependents"
-            value={metrics.totalDependents}
-            description="Every passage that rests on this one, directly or through other demonstrations."
-          />
-          <ConnectionStat label="Depth" value={metrics.depth} description="The longest chain of steps from this passage back to a foundation." />
+          <ConnectionStat label={t.cites} value={metrics.cites} description={t.citesHelp} />
+          <ConnectionStat label={t.citedBy} value={metrics.citedBy} description={t.citedByHelp} />
+          <ConnectionStat label={t.allDependencies} value={metrics.totalDependencies} description={t.allDependenciesHelp} />
+          <ConnectionStat label={t.allDependents} value={metrics.totalDependents} description={t.allDependentsHelp} />
+          <ConnectionStat label={t.depth} value={metrics.depth} description={t.depthHelp} />
         </dl>
       </section>
 
       <section className="panel-section">
         <div className="section-heading">
-          <h3>Relationships</h3>
+          <h3>{t.relationships}</h3>
         </div>
 
-        {!hasRelations && <p className="muted-copy">No relationships were found for this passage.</p>}
+        {!hasRelations && <p className="muted-copy">{t.noRelationships}</p>}
 
-        <RelationshipGroup title="Depends on" ids={analysis.dependsOn} navigate={navigate} />
-        <RelationshipGroup title="Used by" ids={analysis.usedBy} navigate={navigate} />
-        <RelationshipGroup title="Cites" ids={analysis.cites} navigate={navigate} />
-        <RelationshipGroup title="Mentioned in" ids={analysis.citedBy} navigate={navigate} />
+        <RelationshipGroup title={t.dependsOn} ids={analysis.dependsOn} {...localized} />
+        <RelationshipGroup title={t.usedBy} ids={analysis.usedBy} {...localized} />
+        <RelationshipGroup title={t.cites} ids={analysis.cites} {...localized} />
+        <RelationshipGroup title={t.mentionedIn} ids={analysis.citedBy} {...localized} />
         {structureGroups.map(([title, ids]) => (
-          <RelationshipGroup key={title} title={title} ids={ids} navigate={navigate} />
+          <RelationshipGroup key={title} title={title} ids={ids} {...localized} />
         ))}
       </section>
 
-      <PathSection title="All dependencies" paths={analysis.dependencyPaths} navigate={navigate} />
-      <PathSection title="All dependents" paths={analysis.dependentPaths} navigate={navigate} />
+      <PathSection title={t.dependenciesThrough} paths={analysis.dependencyPaths} {...localized} />
+      <PathSection title={t.dependentsThrough} paths={analysis.dependentPaths} {...localized} />
     </>
   );
 };
@@ -207,7 +205,7 @@ const ConnectionStat = ({ label, value, description }: { label: string; value: n
   </div>
 );
 
-const RelationshipGroup: React.FC<{ title: string; ids: string[]; navigate: Navigate }> = ({ title, ids, navigate }) => {
+const RelationshipGroup: React.FC<{ title: string; ids: string[]; navigate: Navigate } & Localized> = ({ title, ids, navigate, t, language }) => {
   const [expanded, setExpanded] = useState(false);
 
   if (ids.length === 0) {
@@ -224,20 +222,20 @@ const RelationshipGroup: React.FC<{ title: string; ids: string[]; navigate: Navi
       <div className="relationship-list">
         {visible.map(id => (
           <button key={id} type="button" className="relationship-chip" data-target-id={id} onClick={event => navigate(id, event)}>
-            <span>{formatPassageReference(id)}</span>
+            <span>{formatPassageReference(id, language)}</span>
           </button>
         ))}
       </div>
       {ids.length > COLLAPSED_LIST_SIZE && (
         <button type="button" className="show-more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-          {expanded ? 'Show fewer' : `Show all ${ids.length}`}
+          {expanded ? t.showFewer : t.showAll(ids.length)}
         </button>
       )}
     </div>
   );
 };
 
-const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Navigate }> = ({ title, paths, navigate }) => {
+const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Navigate } & Localized> = ({ title, paths, navigate, t, language }) => {
   const [expanded, setExpanded] = useState(false);
 
   if (paths.length === 0) {
@@ -250,7 +248,7 @@ const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Naviga
     <section className="panel-section">
       <details className="path-details">
         <summary>
-          <span>{title} through other passages</span>
+          <span>{title}</span>
           <span className="relationship-count">{paths.length}</span>
         </summary>
         <ol className="path-list">
@@ -264,7 +262,7 @@ const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Naviga
                     </span>
                   )}
                   <button type="button" className="path-step" data-target-id={step} onClick={event => navigate(step, event)}>
-                    {formatPassageReference(step)}
+                    {formatPassageReference(step, language)}
                   </button>
                 </React.Fragment>
               ))}
@@ -273,7 +271,7 @@ const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Naviga
         </ol>
         {paths.length > COLLAPSED_PATH_COUNT && (
           <button type="button" className="show-more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-            {expanded ? 'Show fewer' : `Show all ${paths.length}`}
+            {expanded ? t.showFewer : t.showAll(paths.length)}
           </button>
         )}
       </details>

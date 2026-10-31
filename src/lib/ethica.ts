@@ -105,11 +105,35 @@ const FRENCH_PARTS: Record<number, Pick<PartMetadata, 'title' | 'description'>> 
   }
 };
 
-/** The part's title and introduction. Latin keeps the English ones, like its passage labels. */
-export const getPartText = (part: PartMetadata, language: Language) =>
-  language === 'french'
-    ? { ...FRENCH_PARTS[part.number], heading: `Partie ${part.numeral}` }
-    : { title: part.title, description: part.description, heading: `Part ${part.numeral}` };
+// The titles and headings Spinoza's Latin uses. There is no Latin introduction to a part.
+const LATIN_PART_TITLES: Record<number, string> = {
+  1: 'De Deo',
+  2: 'De Natura et Origine Mentis',
+  3: 'De Origine et Natura Affectuum',
+  4: 'De Servitute Humana seu de Affectuum Viribus',
+  5: 'De Potentia Intellectus seu de Libertate Humana'
+};
+
+const LATIN_PART_ORDINALS: Record<number, string> = {
+  1: 'Pars Prima',
+  2: 'Pars Secunda',
+  3: 'Pars Tertia',
+  4: 'Pars Quarta',
+  5: 'Pars Quinta'
+};
+
+/** The part's heading, title and introduction in the reading language. */
+export const getPartText = (part: PartMetadata, language: Language): { heading: string; title: string; description?: string } => {
+  if (language === 'french') {
+    return { ...FRENCH_PARTS[part.number], heading: `Partie ${part.numeral}` };
+  }
+
+  if (language === 'latin') {
+    return { title: LATIN_PART_TITLES[part.number], heading: LATIN_PART_ORDINALS[part.number] };
+  }
+
+  return { title: part.title, description: part.description, heading: `Part ${part.numeral}` };
+};
 
 const FRENCH_SECTION_LABELS: Record<string, string> = {
   preface: 'Préface',
@@ -123,6 +147,35 @@ const FRENCH_SECTION_LABELS: Record<string, string> = {
   postulates: 'Postulats',
   appendix: 'Appendice'
 };
+
+const LATIN_SECTION_LABELS: Record<string, string> = {
+  preface: 'Praefatio',
+  definitions: 'Definitiones',
+  definitions_of_emotions: 'Affectuum Definitiones',
+  general_definition: 'Affectus Generalis Definitio',
+  axioms: 'Axiomata',
+  propositions: 'Propositiones',
+  physical_axioms: 'Axiomata de Corporibus',
+  lemmas: 'Lemmata',
+  postulates: 'Postulata',
+  appendix: 'Appendix'
+};
+
+const LATIN_LABEL_WORDS: Array<[RegExp, string]> = [
+  [/^Appendix Introduction$/, 'Appendix'],
+  [/^Alternate Proof$/, 'Aliter'],
+  [/^Proof of Corollary/, 'Demonstratio Corollarii'],
+  [/^Proof$/, 'Demonstratio'],
+  [/^Corollary/, 'Corollarium'],
+  [/^Note/, 'Scholium'],
+  [/^Explanation$/, 'Explicatio'],
+  [/^Definition/, 'Definitio'],
+  [/^Axiom/, 'Axioma'],
+  [/^Proposition/, 'Propositio'],
+  [/^Postulate/, 'Postulatum'],
+  [/^Preface$/, 'Praefatio'],
+  [/^Affect/, 'Definitio']
+];
 
 const FRENCH_LABEL_WORDS: Array<[RegExp, string]> = [
   [/^Appendix Introduction$/, 'Appendice'],
@@ -148,12 +201,14 @@ export const formatLocalizedLabel = (
   language: Language
 ): string => {
   const label = formatElementLabel(element);
-  const rule = language === 'french' ? FRENCH_LABEL_WORDS.find(([pattern]) => pattern.test(label)) : undefined;
+  const rules = { english: [], french: FRENCH_LABEL_WORDS, latin: LATIN_LABEL_WORDS }[language];
+  const rule = rules.find(([pattern]) => pattern.test(label));
   return rule ? label.replace(rule[0], rule[1]) : label;
 };
 
 export const getLocalizedSectionLabel = (sectionKind: string, language: Language): string =>
-  (language === 'french' ? FRENCH_SECTION_LABELS[sectionKind] : undefined) ?? getSectionLabel(sectionKind);
+  (language === 'english' ? undefined : { french: FRENCH_SECTION_LABELS, latin: LATIN_SECTION_LABELS }[language][sectionKind]) ??
+  getSectionLabel(sectionKind);
 
 interface OrderedNode {
   [key: string]: unknown;
@@ -257,13 +312,22 @@ export const stripFootnoteMarkers = (text: string): string => text.replace(/\[\d
 
 const romanOf = (digits: string): string => toRoman(Number.parseInt(digits, 10));
 
-const SUFFIX_LABELS: Record<string, string> = {
-  corollary: 'Corollary',
-  note: 'Note',
-  explanation: 'Explanation'
+const REFERENCE_WORDS = {
+  english: {
+    corollary: 'Corollary', note: 'Note', explanation: 'Explanation', proof: 'Proof', alternate: 'Alternate Proof',
+    prop: 'Prop.', def: 'Def.', ax: 'Ax.', post: 'Post.', lemma: 'Lemma', physAx: 'Physical Ax.',
+    afterLemma: 'after Lemma III', affect: 'Def. of the Emotions', general: 'General Def. of the Emotions',
+    preface: 'Preface', appendix: 'Appendix'
+  },
+  french: {
+    corollary: 'Corollaire', note: 'Scolie', explanation: 'Explication', proof: 'Démonstration', alternate: 'Autre démonstration',
+    prop: 'Prop.', def: 'Déf.', ax: 'Ax.', post: 'Post.', lemma: 'Lemme', physAx: 'Ax. sur les corps',
+    afterLemma: 'après le Lemme III', affect: 'Déf. des affections', general: 'Déf. générale des affections',
+    preface: 'Préface', appendix: 'Appendice'
+  }
 };
 
-const formatReferenceSuffix = (segment: string): string => {
+const formatReferenceSuffix = (segment: string, words: typeof REFERENCE_WORDS.english): string => {
   const match = segment.match(/^(proof|corollary|note|explanation)(\d*)$/);
 
   if (!match) {
@@ -273,75 +337,91 @@ const formatReferenceSuffix = (segment: string): string => {
   const [, kind, digits] = match;
 
   if (kind === 'proof') {
-    return digits ? 'Alternate Proof' : 'Proof';
+    return digits ? words.alternate : words.proof;
   }
 
-  return digits ? `${SUFFIX_LABELS[kind]} ${romanOf(digits)}` : SUFFIX_LABELS[kind];
+  const word = words[kind as 'corollary' | 'note' | 'explanation'];
+  return digits ? `${word} ${romanOf(digits)}` : word;
 };
 
 /** A label that names a passage from anywhere in the book, such as "I, Prop. XXV, Corollary". */
-export const formatPassageReference = (id: string): string => {
+export const formatPassageReference = (id: string, language: Language = 'english'): string => {
+  const words = language === 'french' ? REFERENCE_WORDS.french : REFERENCE_WORDS.english;
   const [part, kind, number, ...rest] = id.split('.');
 
   const base = (() => {
     switch (kind) {
       case 'prop':
-        return `Prop. ${romanOf(number)}`;
+        return `${words.prop} ${romanOf(number)}`;
       case 'def':
-        return `Def. ${romanOf(number)}`;
+        return `${words.def} ${romanOf(number)}`;
       case 'ax':
-        return `Ax. ${romanOf(number)}`;
+        return `${words.ax} ${romanOf(number)}`;
       case 'post':
-        return `Post. ${romanOf(number)}`;
+        return `${words.post} ${romanOf(number)}`;
       case 'lemma':
-        return `Lemma ${romanOf(number)}`;
+        return `${words.lemma} ${romanOf(number)}`;
       case 'phys_ax':
-        return `Physical Ax. ${romanOf(number)}`;
+        return `${words.physAx} ${romanOf(number)}`;
       case 'phys_ax2':
-        return `Ax. ${romanOf(number)} after Lemma III`;
+        return `${words.ax} ${romanOf(number)} ${words.afterLemma}`;
       case 'phys_def':
-        return 'Def. after Lemma III';
+        return `${words.def} ${words.afterLemma}`;
       case 'affect':
-        return `Def. of the Emotions ${romanOf(number)}`;
+        return `${words.affect} ${romanOf(number)}`;
       case 'general_definition':
-        return 'General Def. of the Emotions';
+        return words.general;
       case 'preface':
-        return 'Preface';
+        return words.preface;
       case 'appendix':
-        return number === 'chapter' ? `Appendix ${romanOf(rest[0])}` : 'Appendix';
+        return number === 'chapter' ? `${words.appendix} ${romanOf(rest[0])}` : words.appendix;
       default:
         return id;
     }
   })();
 
   const suffixes = kind === 'prop' || kind === 'def' || kind === 'ax' || kind === 'post' || kind === 'lemma' || kind === 'affect' ? rest : [];
-  return [part, base, ...suffixes.map(formatReferenceSuffix)].join(', ');
+  return [part, base, ...suffixes.map(suffix => formatReferenceSuffix(suffix, words))].join(', ');
 };
 
-const missingTextMessage = (language: Language, { isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string => {
-  if (language === 'english') {
-    return 'This passage is missing from the English source text. Choose French or Latin to read it.';
+const LANGUAGE_NAMES_IN = {
+  english: { french: 'French', latin: 'Latin' },
+  french: { french: 'français', latin: 'latin' }
+};
+
+// Written in the language the reader has chosen to read in, or English for Latin readers.
+const missingTextMessage = (missing: Language, reader: Language, { isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string => {
+  const french = reader === 'french';
+
+  if (missing === 'english') {
+    return french
+      ? 'Ce passage manque au texte anglais. Choisissez le français ou le latin pour le lire.'
+      : 'This passage is missing from the English source text. Choose French or Latin to read it.';
   }
+
+  const name = LANGUAGE_NAMES_IN[french ? 'french' : 'english'][missing];
 
   if (isEditorial) {
-    return `This note was added by the English edition and has no separate ${language === 'french' ? 'French' : 'Latin'} passage.`;
+    return french
+      ? `Cette note a été ajoutée par l’édition anglaise et n’a pas de passage distinct en ${name}.`
+      : `This note was added by the English edition and has no separate ${name} passage.`;
   }
 
-  return `${language === 'french' ? 'French' : 'Latin'} text is not available for this passage.`;
+  return french ? `Le texte en ${name} n’est pas disponible pour ce passage.` : `${name} text is not available for this passage.`;
 };
 
 export interface PassageText {
   text: string;
-  /** False when the text is an explanation, in English, of why the passage is missing. */
+  /** False when the text is a message explaining why the passage is missing. */
   available: boolean;
   footnotes?: Footnote[];
 }
 
 /** A passage's text in one language, or a message saying why there is none. */
-export const getPassageText = (element: SpinozaElement, language: Language): PassageText => {
+export const getPassageText = (element: SpinozaElement, language: Language, reader: Language = language): PassageText => {
   const text = { english: element.text, french: element.frenchText, latin: element.latinText }[language];
   const footnotes = { english: element.footnotes, french: element.frenchFootnotes, latin: undefined }[language];
-  return text ? { text, available: true, footnotes } : { text: missingTextMessage(language, element), available: false };
+  return text ? { text, available: true, footnotes } : { text: missingTextMessage(language, reader, element), available: false };
 };
 
 // So "ame" finds "âme", and a typed apostrophe finds the book's curly one.

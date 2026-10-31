@@ -14,6 +14,7 @@ import {
 } from './lib/readerUrl';
 import {
   getPartText,
+  LANGUAGE_CODES,
   getVisibleElementIds,
   mergeFrenchText,
   mergeLatinText,
@@ -22,6 +23,7 @@ import {
   summarizeSections,
   TRANSLATION_CREDITS
 } from './lib/ethica';
+import { getStrings } from './lib/strings';
 import { Footnote, PassageAnalysis, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from './types';
 
 const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
@@ -114,7 +116,7 @@ const App: React.FC = () => {
   const [initialLocation] = useState(() => parseReaderHash(window.location.hash));
   const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
   const [currentPart, setCurrentPart] = useState(initialLocation.part);
   const [loadedPart, setLoadedPart] = useState<number | null>(null);
   const [languages, setLanguages] = useState(readLanguages);
@@ -124,7 +126,7 @@ const App: React.FC = () => {
   const [partAttempt, setPartAttempt] = useState(0);
   const [analysisAttempt, setAnalysisAttempt] = useState(0);
   const [analysisLoading, setAnalysisLoading] = useState(false);
-  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisError, setAnalysisError] = useState(false);
   const [analysis, setAnalysis] = useState<PassageAnalysis | null>(null);
   const [panelFocusRequest, setPanelFocusRequest] = useState(0);
   const [focusMode, setFocusMode] = useState(readFocusMode);
@@ -134,6 +136,7 @@ const App: React.FC = () => {
   const contentsToggleRef = useRef<HTMLButtonElement | null>(null);
   const sidebarRef = useRef<HTMLElement | null>(null);
   const deferredQuery = useDeferredValue(query);
+  const t = getStrings(languages.primary);
   const analysisClient = useRef<AnalysisClient | null>(null);
   const partCache = useRef(new Map<number, Map<string, SpinozaElement>>());
   const previousPart = useRef(initialLocation.part);
@@ -157,7 +160,7 @@ const App: React.FC = () => {
 
     const loadPartData = async () => {
       setLoading(true);
-      setError(null);
+      setError(false);
 
       try {
         const parsedElements = partCache.current.get(currentPart) ?? (await fetchPart(currentPart));
@@ -176,7 +179,7 @@ const App: React.FC = () => {
         }
 
         console.error('Failed to load reader data:', loadError);
-        setError('This part of the text could not be loaded.');
+        setError(true);
         setLoading(false);
       }
     };
@@ -247,7 +250,7 @@ const App: React.FC = () => {
     let cancelled = false;
 
     const analyzeSelectedElement = async () => {
-      setAnalysisError(null);
+      setAnalysisError(false);
 
       if (!selectedElement || !ready || !elements.has(selectedElement)) {
         setAnalysis(null);
@@ -277,7 +280,7 @@ const App: React.FC = () => {
 
         console.error('Analysis failed:', analysisFailure);
         setAnalysis(null);
-        setAnalysisError('The relationships for this passage could not be loaded.');
+        setAnalysisError(true);
         setAnalysisLoading(false);
       }
     };
@@ -288,6 +291,11 @@ const App: React.FC = () => {
       cancelled = true;
     };
   }, [selectedElement, elements, ready, analysisAttempt]);
+
+  // Screen readers and browsers take the page's language from here.
+  useEffect(() => {
+    document.documentElement.lang = LANGUAGE_CODES[languages.primary === 'french' ? 'french' : 'english'];
+  }, [languages.primary]);
 
   useEffect(() => {
     if (contentsOpen) {
@@ -428,8 +436,8 @@ const App: React.FC = () => {
       <div className="app loading-shell">
         <div className="loading-card">
           <p className="eyebrow">Ethica</p>
-          <h1>Loading Spinoza&apos;s Ethics</h1>
-          <p>Preparing the text, structure, and inference graph for reading.</p>
+          <h1>{t.loadingTitle}</h1>
+          <p>{t.loadingBody}</p>
         </div>
       </div>
     );
@@ -439,7 +447,7 @@ const App: React.FC = () => {
     <div className={`app ${languages.parallel ? 'has-parallel' : ''} ${focusMode ? 'focus-mode' : ''} ${selectedEntry ? 'has-selection' : ''}`}>
       <header className="topbar">
         <div className="brand">
-          <button type="button" className="brand-mark" onClick={scrollToTop} aria-label="Scroll to top">
+          <button type="button" className="brand-mark" onClick={scrollToTop} aria-label={t.scrollToTop}>
             <img src={publicPath('spinoza-signet.png')} alt="" />
           </button>
           <div className="brand-text">
@@ -449,13 +457,13 @@ const App: React.FC = () => {
         </div>
 
         <label className={`reader-search ${searchOpen ? 'open' : ''}`}>
-          <span className="visually-hidden">Search within this part</span>
+          <span className="visually-hidden">{t.searchLabel}</span>
           <input
             ref={searchInputRef}
             type="search"
             value={query}
             onChange={event => setQuery(event.target.value)}
-            placeholder={`Search Part ${currentPartMetadata.numeral}`}
+            placeholder={t.searchPlaceholder(currentPartMetadata.numeral)}
           />
         </label>
 
@@ -466,7 +474,7 @@ const App: React.FC = () => {
             aria-expanded={searchOpen}
             onClick={() => setSearchOpen(open => !open)}
           >
-            Search
+            {t.search}
           </button>
           <button
             ref={contentsToggleRef}
@@ -476,15 +484,15 @@ const App: React.FC = () => {
             aria-controls="reader-contents"
             onClick={() => setContentsOpen(open => !open)}
           >
-            Contents
+            {t.contents}
           </button>
           <button type="button" className="topbar-button focus-toggle" aria-pressed={focusMode} onClick={toggleFocusMode}>
-            Focus
+            {t.focus}
           </button>
         </div>
       </header>
 
-      {contentsOpen && <button type="button" className="contents-scrim" aria-label="Close contents" onClick={closeContents} />}
+      {contentsOpen && <button type="button" className="contents-scrim" aria-label={t.closeContents} onClick={closeContents} />}
 
       <main className="reader-layout">
         <aside
@@ -498,8 +506,8 @@ const App: React.FC = () => {
           }}
         >
           <div className="sidebar-stack">
-            <nav aria-label="Contents">
-              <p className="sidebar-kicker">Contents</p>
+            <nav aria-label={t.contents}>
+              <p className="sidebar-kicker">{t.contents}</p>
               <ol className="contents-list">
                 {Object.values(PARTS).map(part => (
                   <li key={part.number}>
@@ -533,9 +541,9 @@ const App: React.FC = () => {
               <LanguagePicker value={languages} onChange={changeLanguages} />
               {showsFrench && (
                 <p className="translation-source">
-                  French: Charles Appuhn, Garnier, 1913, from{' '}
+                  {t.frenchSource}{' '}
                   <a href="https://fr.wikisource.org/wiki/%C3%89thique_(Appuhn,_1913)" target="_blank" rel="noreferrer">
-                    French Wikisource
+                    {t.frenchSourceLink}
                   </a>
                   .
                 </p>
@@ -548,15 +556,15 @@ const App: React.FC = () => {
           <section className="book-view part-status" aria-live="polite">
             {error ? (
               <div className="empty-state" role="alert">
-                <h3>{error}</h3>
-                <p>Check your connection and try again.</p>
+                <h3>{t.partLoadError}</h3>
+                <p>{t.partLoadHelp}</p>
                 <button type="button" className="part-retry" onClick={() => setPartAttempt(attempt => attempt + 1)}>
-                  Try again
+                  {t.tryAgain}
                 </button>
               </div>
             ) : (
               <div className="empty-state">
-                <h3>Loading Part {currentPartMetadata.numeral}…</h3>
+                <h3>{t.loadingPart(currentPartMetadata.numeral)}</h3>
               </div>
             )}
           </section>

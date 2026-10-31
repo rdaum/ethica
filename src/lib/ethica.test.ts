@@ -1,4 +1,4 @@
-import { formatElementLabel, formatLocalizedLabel, getPassageText, getVisibleElementIds, matchesQuery, mergeFrenchText } from './ethica';
+import { formatElementLabel, formatLocalizedLabel, formatPassageReference, getPassageText, getVisibleElementIds, matchesQuery, mergeFrenchText } from './ethica';
 import { parseSpinozaXml } from './ethica';
 import { SpinozaElement } from '../types';
 
@@ -187,7 +187,29 @@ describe('reading languages', () => {
     expect(formatLocalizedLabel(element, 'french')).toBe(label);
   });
 
-  it('keeps English labels for Latin, as before', () => {
-    expect(formatLocalizedLabel({ id: 'I.prop.1.proof', type: 'proof' }, 'latin')).toBe('Proof');
+  it.each([
+    [{ id: 'I.prop.1.proof', type: 'proof' }, 'Demonstratio'],
+    [{ id: 'I.prop.11.proof2', type: 'proof' }, 'Aliter'],
+    [{ id: 'I.prop.8.note2', type: 'note' }, 'Scholium II'],
+    [{ id: 'I.prop.1', type: 'proposition' }, 'Propositio I'],
+    [{ id: 'I.def.3', type: 'definition' }, 'Definitio III'],
+    [{ id: 'III.preface', type: 'preface' }, 'Praefatio']
+  ] as const)('labels %o in Latin', (element, label) => {
+    expect(formatLocalizedLabel(element, 'latin')).toBe(label);
+  });
+
+  it('writes missing-passage messages in the reading language', () => {
+    const corollary = mergeFrenchText(part(), { 'II.prop.1.corollary': 'Corollaire.' }).get('II.prop.1.corollary')!;
+    expect(getPassageText(corollary, 'english', 'french').text).toMatch(/^Ce passage manque/);
+    expect(getPassageText(corollary, 'english', 'latin').text).toMatch(/^This passage is missing/);
+  });
+
+  it.each([
+    ['III.prop.13.note', 'III, Prop. XIII, Scolie'],
+    ['I.prop.11.proof2', 'I, Prop. XI, Autre démonstration'],
+    ['III.affect.18', 'III, Déf. des affections XVIII'],
+    ['IV.appendix.chapter.2', 'IV, Appendice II']
+  ])('names %s in French', (id, reference) => {
+    expect(formatPassageReference(id, 'french')).toBe(reference);
   });
 });

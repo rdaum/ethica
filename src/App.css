@@ -482,6 +482,11 @@ input:focus-visible {
     display: none;
   }
 
+  .brand-text h1 {
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+  }
+
   .search-toggle,
   .contents-toggle {
     display: block;
@@ -544,5 +549,21 @@ input:focus-visible {
     width: 100%;
     border: 0;
     background: rgba(0, 0, 0, 0.28);
+  }
+}
+
+/* Keep the longer French buttons clear of the title on the narrowest phones. */
+@media (max-width: 380px) {
+  .topbar-button {
+    padding-inline: 0.45rem;
+    font-size: 0.88rem;
+  }
+
+  .brand-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }

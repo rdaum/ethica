@@ -9,6 +9,7 @@ import {
   LANGUAGE_NAMES,
   PARTS
 } from '../lib/ethica';
+import { getStrings } from '../lib/strings';
 import { Language, ReadingLanguages, SpinozaElement } from '../types';
 
 interface BookViewProps {
@@ -30,6 +31,7 @@ const BookView: React.FC<BookViewProps> = ({
   languages
 }) => {
   const { heading: partHeading, title: partTitle, description: partDescription } = getPartText(PARTS[currentPart], languages.primary);
+  const t = getStrings(languages.primary);
 
   const childrenByParent = new Map<string, SpinozaElement[]>();
 
@@ -98,13 +100,17 @@ const BookView: React.FC<BookViewProps> = ({
       <div className="book-intro">
         <p className="book-kicker">{partHeading}</p>
         <h2>{partTitle}</h2>
-        <p className="book-description">{partDescription}</p>
+        {partDescription && (
+          <p className="book-description" lang={languages.primary === 'latin' ? 'en' : undefined}>
+            {partDescription}
+          </p>
+        )}
       </div>
 
       {visibleElements.length === 0 && (
         <div className="empty-state">
-          <h3>No passages match that search.</h3>
-          <p>Try a proposition number, a key term, or a cited concept.</p>
+          <h3>{t.noMatchTitle}</h3>
+          <p>{t.noMatchHelp}</p>
         </div>
       )}
 
@@ -149,23 +155,23 @@ const renderEntryBody = (element: SpinozaElement, { primary, parallel }: Reading
           <p className="parallel-label" lang={LANGUAGE_CODES[language]}>
             {LANGUAGE_NAMES[language]}
           </p>
-          {renderLanguage(element, language)}
+          {renderLanguage(element, language, primary)}
         </div>
       ))}
     </div>
   ) : (
-    renderLanguage(element, primary)
+    renderLanguage(element, primary, primary)
   );
 
-const renderLanguage = (element: SpinozaElement, language: Language) => {
-  const { text, available, footnotes } = getPassageText(element, language);
-  const code = available ? LANGUAGE_CODES[language] : 'en';
+const renderLanguage = (element: SpinozaElement, language: Language, reader: Language) => {
+  const { text, available, footnotes } = getPassageText(element, language, reader);
+  const code = LANGUAGE_CODES[available ? language : reader === 'french' ? 'french' : 'english'];
 
   return (
     <>
       <div className={available ? undefined : 'entry-missing'}>{renderParagraphs(text, code)}</div>
       {footnotes && (
-        <ol className="entry-footnotes" lang={code} aria-label="Footnotes">
+        <ol className="entry-footnotes" lang={code} aria-label={getStrings(reader).footnotes}>
           {footnotes.map(footnote => (
             <li key={footnote.number} value={Number(footnote.number)}>
               {footnote.text}

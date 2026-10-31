@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPassageText, LANGUAGE_CODES, LANGUAGE_NAMES, stripFootnoteMarkers } from '../lib/ethica';
+import { getStrings, Strings } from '../lib/strings';
 import { Language, ReadingLanguages, SpinozaElement } from '../types';
 
 type MetadataChip = {
@@ -8,59 +9,39 @@ type MetadataChip = {
   description: string;
 };
 
-const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {
+const getMetadataChips = (element: SpinozaElement, t: Strings): MetadataChip[] => {
   const chips: MetadataChip[] = [];
 
   if (element.variantLabel) {
-    chips.push({
-      label: 'Alternate',
-      tone: 'ink',
-      description: 'Spinoza gives this as another proof of the same proposition.'
-    });
+    chips.push({ label: t.chipAlternate, tone: 'ink', description: t.chipAlternateHelp });
   }
 
   if (element.isEditorial) {
-    chips.push({
-      label: 'Editorial',
-      tone: 'rose',
-      description: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.'
-    });
+    chips.push({ label: t.chipEditorial, tone: 'rose', description: t.chipEditorialHelp });
   } else if (element.editorialKind === 'synthetic_heading') {
-    chips.push({
-      label: 'Normalized Heading',
-      tone: 'gold',
-      description: 'This heading is a normalized reader aid created to label a section consistently.'
-    });
+    chips.push({ label: t.chipHeading, tone: 'gold', description: t.chipHeadingHelp });
   }
 
   if (element.sourceAuthority === 'latin_governed') {
-    chips.push({
-      label: 'Latin-Based',
-      tone: 'green',
-      description: 'The reader derives this passage structure and its analysis from the Latin source text.'
-    });
+    chips.push({ label: t.chipLatin, tone: 'green', description: t.chipLatinHelp });
   }
 
   if (element.sourceAuthority === 'english_structural') {
-    chips.push({
-      label: 'English-Based',
-      tone: 'rose',
-      description: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
-    });
+    chips.push({ label: t.chipEnglish, tone: 'rose', description: t.chipEnglishHelp });
   }
 
   return chips;
 };
 
-export const MetadataChips: React.FC<{ element: SpinozaElement }> = ({ element }) => {
-  const chips = getMetadataChips(element);
+export const MetadataChips: React.FC<{ element: SpinozaElement; t: Strings }> = ({ element, t }) => {
+  const chips = getMetadataChips(element, t);
 
   if (chips.length === 0) {
     return null;
   }
 
   return (
-    <div className="metadata-chips" aria-label="Passage metadata">
+    <div className="metadata-chips" aria-label={t.passageMetadata}>
       {chips.map(chip => (
         <span
           key={`${chip.tone}-${chip.label}`}
@@ -77,9 +58,14 @@ export const MetadataChips: React.FC<{ element: SpinozaElement }> = ({ element }
 
 const truncate = (text: string, length: number): string => (text.length > length ? `${text.slice(0, length).trim()}…` : text);
 
-const PreviewParagraph: React.FC<{ element: SpinozaElement; language: Language; length: number }> = ({ element, language, length }) => {
-  const { text, available } = getPassageText(element, language);
-  return <p lang={available ? LANGUAGE_CODES[language] : 'en'}>{truncate(stripFootnoteMarkers(text), length)}</p>;
+const PreviewParagraph: React.FC<{ element: SpinozaElement; language: Language; reader: Language; length: number }> = ({
+  element,
+  language,
+  reader,
+  length
+}) => {
+  const { text, available } = getPassageText(element, language, reader);
+  return <p lang={LANGUAGE_CODES[available ? language : reader === 'french' ? 'french' : 'english']}>{truncate(stripFootnoteMarkers(text), length)}</p>;
 };
 
 /** A short excerpt of a passage that follows the reader's chosen languages. */
@@ -90,11 +76,11 @@ export const PassagePreview: React.FC<{ element: SpinozaElement; languages: Read
 }) =>
   parallel ? (
     <div className="selection-preview-grid">
-      <PreviewParagraph element={element} language={primary} length={length / 2} />
-      <PreviewParagraph element={element} language={parallel} length={length / 2} />
+      <PreviewParagraph element={element} language={primary} reader={primary} length={length / 2} />
+      <PreviewParagraph element={element} language={parallel} reader={primary} length={length / 2} />
     </div>
   ) : (
-    <PreviewParagraph element={element} language={primary} length={length} />
+    <PreviewParagraph element={element} language={primary} reader={primary} length={length} />
   );
 
 const LANGUAGES: readonly Language[] = ['english', 'french', 'latin'];
@@ -102,10 +88,13 @@ const LANGUAGES: readonly Language[] = ['english', 'french', 'latin'];
 export const LanguagePicker: React.FC<{
   value: ReadingLanguages;
   onChange: (languages: ReadingLanguages) => void;
-}> = ({ value: { primary, parallel }, onChange }) => (
+}> = ({ value: { primary, parallel }, onChange }) => {
+  const t = getStrings(primary);
+
+  return (
   <div className="language-picker">
-    <div role="group" aria-label="Read in">
-      <p className="sidebar-kicker">Read in</p>
+    <div role="group" aria-label={t.readIn}>
+      <p className="sidebar-kicker">{t.readIn}</p>
       <div className="reading-mode-buttons">
         {LANGUAGES.map(language => (
           <button
@@ -122,8 +111,8 @@ export const LanguagePicker: React.FC<{
         ))}
       </div>
     </div>
-    <div role="group" aria-label="Compare with">
-      <p className="sidebar-kicker">Compare with</p>
+    <div role="group" aria-label={t.compareWith}>
+      <p className="sidebar-kicker">{t.compareWith}</p>
       <div className="reading-mode-buttons">
         <button
           type="button"
@@ -131,7 +120,7 @@ export const LanguagePicker: React.FC<{
           className={`reading-mode-button ${parallel === null ? 'active' : ''}`}
           onClick={() => onChange({ primary, parallel: null })}
         >
-          None
+          {t.none}
         </button>
         {LANGUAGES.filter(language => language !== primary).map(language => (
           <button
@@ -148,4 +137,5 @@ export const LanguagePicker: React.FC<{
       </div>
     </div>
   </div>
-);
+  );
+};
