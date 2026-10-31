@@ -42,43 +42,29 @@ export interface SpinozaElement {
 
 export type ReadingMode = 'english' | 'latin' | 'bilingual';
 
-export interface ReasoningRelation {
-  subject: string;
-  predicate: string;
-  object: string;
-  inferred?: boolean;
-}
-
-export interface TransitiveChain {
-  type: string;
-  start: string;
-  end: string;
-  relationship: string;
-  inferred: boolean;
-  path: Array<{
-    from: string;
-    to: string;
-    relationship: string;
-    depth?: number;
-  }>;
-  length?: number;
-}
-
-export interface WeightAnalysis {
-  elementId: string;
-  inboundWeight: number;
-  outboundWeight: number;
-  transitiveInfluence: number;
-  foundationalScore: number;
-  relationshipBreakdown: Record<string, unknown>;
-  dependencyDepth: number;
-  influenceReach: number;
-}
-
-export interface ReasoningAnalysis {
-  reasoning: ReasoningRelation[];
-  transitiveChains: TransitiveChain[];
-  weightAnalysis: WeightAnalysis | null;
+export interface PassageAnalysis {
+  /** What a demonstration rests on directly, including through its own proofs. */
+  dependsOn: string[];
+  usedBy: string[];
+  /** References from a note or preface, which are not steps in a demonstration. */
+  cites: string[];
+  citedBy: string[];
+  structure: {
+    parent: string | null;
+    proofs: string[];
+    corollaries: string[];
+    notes: string[];
+  };
+  /** Shortest routes to passages that are only reached through others, nearest first. */
+  dependencyPaths: string[][];
+  dependentPaths: string[][];
+  metrics: {
+    cites: number;
+    citedBy: number;
+    totalDependencies: number;
+    totalDependents: number;
+    depth: number;
+  };
 }
 
 export interface PartMetadata {

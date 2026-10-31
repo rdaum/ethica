@@ -162,6 +162,71 @@ const formatSubElementLabel = ({ id, type }: Pick<SpinozaElement, 'id' | 'type'>
   return null;
 };
 
+export const stripFootnoteMarkers = (text: string): string => text.replace(/\[\d+\]/g, '');
+
+const romanOf = (digits: string): string => toRoman(Number.parseInt(digits, 10));
+
+const SUFFIX_LABELS: Record<string, string> = {
+  corollary: 'Corollary',
+  note: 'Note',
+  explanation: 'Explanation'
+};
+
+const formatReferenceSuffix = (segment: string): string => {
+  const match = segment.match(/^(proof|corollary|note|explanation)(\d*)$/);
+
+  if (!match) {
+    return humanizeToken(segment);
+  }
+
+  const [, kind, digits] = match;
+
+  if (kind === 'proof') {
+    return digits ? 'Alternate Proof' : 'Proof';
+  }
+
+  return digits ? `${SUFFIX_LABELS[kind]} ${romanOf(digits)}` : SUFFIX_LABELS[kind];
+};
+
+/** A label that names a passage from anywhere in the book, such as "I, Prop. XXV, Corollary". */
+export const formatPassageReference = (id: string): string => {
+  const [part, kind, number, ...rest] = id.split('.');
+
+  const base = (() => {
+    switch (kind) {
+      case 'prop':
+        return `Prop. ${romanOf(number)}`;
+      case 'def':
+        return `Def. ${romanOf(number)}`;
+      case 'ax':
+        return `Ax. ${romanOf(number)}`;
+      case 'post':
+        return `Post. ${romanOf(number)}`;
+      case 'lemma':
+        return `Lemma ${romanOf(number)}`;
+      case 'phys_ax':
+        return `Physical Ax. ${romanOf(number)}`;
+      case 'phys_ax2':
+        return `Ax. ${romanOf(number)} after Lemma III`;
+      case 'phys_def':
+        return 'Def. after Lemma III';
+      case 'affect':
+        return `Def. of the Emotions ${romanOf(number)}`;
+      case 'general_definition':
+        return 'General Def. of the Emotions';
+      case 'preface':
+        return 'Preface';
+      case 'appendix':
+        return number === 'chapter' ? `Appendix ${romanOf(rest[0])}` : 'Appendix';
+      default:
+        return id;
+    }
+  })();
+
+  const suffixes = kind === 'prop' || kind === 'def' || kind === 'ax' || kind === 'post' || kind === 'lemma' || kind === 'affect' ? rest : [];
+  return [part, base, ...suffixes.map(formatReferenceSuffix)].join(', ');
+};
+
 export const missingLatinMessage = ({ isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string =>
   isEditorial
     ? 'This note was added by the English edition and has no separate Latin passage.'

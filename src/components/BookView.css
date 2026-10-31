@@ -266,3 +266,19 @@
 .child-entry .entry-children {
   margin-top: 0.8rem;
 }
+
+.entry-select {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.entry-select:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}

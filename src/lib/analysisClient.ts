@@ -1,4 +1,4 @@
-import { ReasoningAnalysis } from '../types';
+import { PassageAnalysis } from '../types';
 
 export type AnalysisRequest =
   | { type: 'loadGraph'; requestId: number; n3Content: string }
@@ -6,7 +6,7 @@ export type AnalysisRequest =
 
 export type AnalysisResponse =
   | { type: 'graphLoaded'; requestId: number }
-  | { type: 'analysis'; requestId: number; result: ReasoningAnalysis }
+  | { type: 'analysis'; requestId: number; result: PassageAnalysis }
   | { type: 'error'; requestId: number; message: string };
 
 type Pending = { resolve: (value: never) => void; reject: (error: Error) => void };
@@ -55,7 +55,7 @@ export const createAnalysisClient = (createWorker: () => Worker, fetchGraph: () 
       if (message.type === 'error') {
         entry?.reject(new Error(message.message));
       } else if (message.type === 'analysis') {
-        (entry?.resolve as ((value: ReasoningAnalysis) => void) | undefined)?.(message.result);
+        (entry?.resolve as ((value: PassageAnalysis) => void) | undefined)?.(message.result);
       } else {
         (entry?.resolve as ((value: void) => void) | undefined)?.();
       }
@@ -99,9 +99,9 @@ export const createAnalysisClient = (createWorker: () => Worker, fetchGraph: () 
         // The failure is reported when a passage is actually analyzed, which also retries.
       });
     },
-    analyze: async (elementId: string): Promise<ReasoningAnalysis> => {
+    analyze: async (elementId: string): Promise<PassageAnalysis> => {
       await ensureGraph();
-      return request<ReasoningAnalysis>({ type: 'analyze', elementId });
+      return request<PassageAnalysis>({ type: 'analyze', elementId });
     },
     dispose: () => {
       reset();

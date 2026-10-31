@@ -1,23 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './ReasoningPanel.css';
-import { formatElementLabel } from '../lib/ethica';
-import {
-  ReadingMode,
-  ReasoningRelation,
-  SpinozaElement,
-  TransitiveChain,
-  WeightAnalysis
-} from '../types';
+import { formatElementLabel, formatPassageReference } from '../lib/ethica';
+import { PassageAnalysis, ReadingMode, SpinozaElement } from '../types';
+import { MetadataChips, PassagePreview, ReadingModeToggle } from './PassageMeta';
+
+const COLLAPSED_LIST_SIZE = 12;
+const COLLAPSED_PATH_COUNT = 25;
 
 interface ReasoningPanelProps {
   selectedElement: string | null;
   element?: SpinozaElement;
-  reasoning: ReasoningRelation[];
-  transitiveChains: TransitiveChain[];
-  weightAnalysis: WeightAnalysis | null;
+  analysis: PassageAnalysis | null;
   onNavigateToElement: (elementId: string) => void;
   onClose: () => void;
-  currentPart: number;
   loading: boolean;
   error: string | null;
   onRetry: () => void;
@@ -25,37 +20,50 @@ interface ReasoningPanelProps {
   nextElementId: string | null;
   readingMode: ReadingMode;
   onReadingModeChange: (mode: ReadingMode) => void;
+  focusRequest: number;
 }
 
 const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   selectedElement,
   element,
-  reasoning,
-  transitiveChains,
-  weightAnalysis,
+  analysis,
   onNavigateToElement,
   onClose,
-  currentPart,
   loading,
   error,
   onRetry,
   previousElementId,
   nextElementId,
   readingMode,
-  onReadingModeChange
+  onReadingModeChange,
+  focusRequest
 }) => {
   const panelCardRef = useRef<HTMLDivElement | null>(null);
+  const keyboardNavigation = useRef(false);
 
   useEffect(() => {
-    if (!selectedElement) {
-      return;
-    }
-
-    panelCardRef.current?.scrollTo({
-      top: 0,
-      behavior: 'auto'
-    });
+    panelCardRef.current?.scrollTo({ top: 0, behavior: 'auto' });
   }, [selectedElement]);
+
+  // A keyboard user's focus must follow them: a link they activated may no longer exist.
+  useEffect(() => {
+    if (element && keyboardNavigation.current) {
+      keyboardNavigation.current = false;
+      panelCardRef.current?.focus({ preventScroll: true });
+    }
+  }, [element]);
+
+  useEffect(() => {
+    if (focusRequest > 0) {
+      panelCardRef.current?.focus({ preventScroll: true });
+    }
+  }, [focusRequest]);
+
+  const navigate = (id: string, event: React.MouseEvent) => {
+    // A click with no pointer details came from the keyboard.
+    keyboardNavigation.current = event.detail === 0;
+    onNavigateToElement(id);
+  };
 
   if (!selectedElement || !element) {
     return (
@@ -63,36 +71,25 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         <div className="panel-card">
           <p className="panel-kicker">Analysis</p>
           <h2>Choose a passage</h2>
-          <p>
-            Select a definition, axiom, proposition, proof, or note to inspect its logical
-            relations and inferred dependencies.
-          </p>
+          <p>Select a definition, axiom, proposition, proof, or note to see what it rests on and what rests on it.</p>
         </div>
       </aside>
     );
   }
 
-  const groupedReasoning = reasoning.reduce<Record<string, ReasoningRelation[]>>((groups, relation) => {
-    const key = relation.predicate;
-    groups[key] = groups[key] ?? [];
-    groups[key].push(relation);
-    return groups;
-  }, {});
-
-  const orderedReasoningGroups = Object.entries(groupedReasoning).sort(([left], [right]) => {
-    const leftRank = predicateRank(left);
-    const rightRank = predicateRank(right);
-
-    if (leftRank !== rightRank) {
-      return leftRank - rightRank;
-    }
-
-    return formatPredicate(left).localeCompare(formatPredicate(right));
-  });
-
   return (
     <aside className="reasoning-panel">
-      <div ref={panelCardRef} className="panel-card pinned">
+      <div
+        ref={panelCardRef}
+        className="panel-card pinned"
+        tabIndex={-1}
+        aria-label={`Analysis of ${formatElementLabel(element)}`}
+        onKeyDown={event => {
+          if (event.key === 'Escape') {
+            onClose();
+          }
+        }}
+      >
         <div className="reasoning-header">
           <div>
             <p className="panel-kicker">Analysis</p>
@@ -104,7 +101,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             <button
               type="button"
               className="nav-button"
-              onClick={() => previousElementId && onNavigateToElement(previousElementId)}
+              onClick={event => previousElementId && navigate(previousElementId, event)}
               disabled={!previousElementId}
             >
               Previous
@@ -112,7 +109,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             <button
               type="button"
               className="nav-button"
-              onClick={() => nextElementId && onNavigateToElement(nextElementId)}
+              onClick={event => nextElementId && navigate(nextElementId, event)}
               disabled={!nextElementId}
             >
               Next
@@ -120,34 +117,19 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             <button type="button" className="close-button" onClick={onClose}>
               Close
             </button>
-            <div className="panel-reading-mode" aria-label="Reading language">
-              <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
-                {([
-                  ['english', 'EN'],
-                  ['latin', 'LA'],
-                  ['bilingual', 'BI']
-                ] as const).map(([mode, label]) => (
-                  <button
-                    key={mode}
-                    type="button"
-                    role="tab"
-                    aria-selected={readingMode === mode}
-                    className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
-                    onClick={() => onReadingModeChange(mode)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+            <div className="panel-reading-mode">
+              <ReadingModeToggle value={readingMode} onChange={onReadingModeChange} compact />
             </div>
           </div>
         </div>
 
-        <p className="selected-text">{truncateText(element.text)}</p>
+        <div className="selected-text">
+          <PassagePreview element={element} readingMode={readingMode} length={300} />
+        </div>
 
         {loading ? (
           <div className="analysis-loading">
-            <p>Tracing relations and inferred dependencies…</p>
+            <p>Tracing relations and dependencies…</p>
           </div>
         ) : error ? (
           <div className="analysis-error" role="alert">
@@ -157,223 +139,153 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
             </button>
           </div>
         ) : (
-          <>
-            {weightAnalysis && (
-              <section className="panel-section">
-                <div className="section-heading">
-                  <h3>Logical Weight</h3>
-                </div>
-                <div className="metric-grid">
-                  <MetricCard label="Foundational" value={weightAnalysis.foundationalScore} tone="gold" />
-                  <MetricCard label="Inbound" value={weightAnalysis.inboundWeight} tone="green" />
-                  <MetricCard label="Outbound" value={weightAnalysis.outboundWeight} tone="ink" />
-                  <MetricCard label="Reach" value={weightAnalysis.influenceReach} tone="rose" />
-                </div>
-              </section>
-            )}
-
-            <section className="panel-section">
-              <div className="section-heading">
-                <h3>Relationships</h3>
-                <span>{reasoning.length}</span>
-              </div>
-
-              {Object.keys(groupedReasoning).length === 0 ? (
-                <p className="muted-copy">No explicit or inferred relationships were found for this passage.</p>
-              ) : (
-                orderedReasoningGroups.map(([predicate, relations]) => (
-                  <div key={predicate} className="relationship-group">
-                    <h4>{formatPredicate(predicate)}</h4>
-                    <div className="relationship-list">
-                      {relations.map((relation, index) => {
-                        const targetId =
-                          relation.subject === selectedElement ? relation.object : relation.subject;
-                        return (
-                          <button
-                            key={`${predicate}-${targetId}-${index}`}
-                            type="button"
-                            className={`relationship-chip ${relation.inferred ? 'inferred' : ''}`}
-                            onClick={() => onNavigateToElement(targetId)}
-                          >
-                            <span>{formatElementReference(targetId, currentPart)}</span>
-                            {relation.inferred && <em>Inferred</em>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))
-              )}
-            </section>
-
-            {transitiveChains.length > 0 && (
-              <section className="panel-section">
-                <div className="section-heading">
-                  <h3>Dependency Paths</h3>
-                  <span>{transitiveChains.length}</span>
-                </div>
-                <div className="chain-list">
-                  {transitiveChains.slice(0, 12).map((chain, index) => (
-                    <button
-                      key={`${chain.start}-${chain.end}-${index}`}
-                      type="button"
-                      className="chain-item"
-                      onClick={() => onNavigateToElement(chain.end)}
-                    >
-                      <strong>{formatElementReference(chain.start, currentPart)}</strong>
-                      <span>{humanizeRelationship(chain.relationship)}</span>
-                      <strong>{formatElementReference(chain.end, currentPart)}</strong>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
+          analysis && <AnalysisDetails key={selectedElement} analysis={analysis} navigate={navigate} />
         )}
       </div>
     </aside>
   );
 };
 
-const MetricCard = ({ label, value, tone }: { label: string; value: number; tone: string }) => (
-  <div className={`metric-card ${tone}`}>
+type Navigate = (id: string, event: React.MouseEvent) => void;
+
+const AnalysisDetails: React.FC<{ analysis: PassageAnalysis; navigate: Navigate }> = ({ analysis, navigate }) => {
+  const { structure, metrics } = analysis;
+  const structureGroups: Array<[string, string[]]> = [
+    ['Part of', structure.parent ? [structure.parent] : []],
+    ['Proofs', structure.proofs],
+    ['Corollaries', structure.corollaries],
+    ['Notes', structure.notes]
+  ];
+  const hasRelations =
+    analysis.dependsOn.length + analysis.usedBy.length + analysis.cites.length + analysis.citedBy.length > 0 ||
+    structureGroups.some(([, ids]) => ids.length > 0);
+
+  return (
+    <>
+      <section className="panel-section">
+        <div className="section-heading">
+          <h3>Connections</h3>
+        </div>
+        <div className="metric-grid">
+          <MetricCard label="Cites" value={metrics.cites} tone="ink" description="Passages this one directly relies on or refers to." />
+          <MetricCard label="Cited by" value={metrics.citedBy} tone="green" description="Passages that directly rely on or refer to this one." />
+          <MetricCard
+            label="All dependencies"
+            value={metrics.totalDependencies}
+            tone="gold"
+            description="Every passage this one rests on, following demonstrations back to their foundations."
+          />
+          <MetricCard
+            label="All dependents"
+            value={metrics.totalDependents}
+            tone="rose"
+            description="Every passage that rests on this one, directly or through other demonstrations."
+          />
+          <MetricCard label="Depth" value={metrics.depth} tone="ink" description="The longest chain of steps from this passage back to a foundation." />
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <div className="section-heading">
+          <h3>Relationships</h3>
+        </div>
+
+        {!hasRelations && <p className="muted-copy">No relationships were found for this passage.</p>}
+
+        <RelationshipGroup title="Depends on" ids={analysis.dependsOn} navigate={navigate} />
+        <RelationshipGroup title="Used by" ids={analysis.usedBy} navigate={navigate} />
+        <RelationshipGroup title="Cites" ids={analysis.cites} navigate={navigate} />
+        <RelationshipGroup title="Mentioned in" ids={analysis.citedBy} navigate={navigate} />
+        {structureGroups.map(([title, ids]) => (
+          <RelationshipGroup key={title} title={title} ids={ids} navigate={navigate} />
+        ))}
+      </section>
+
+      <PathSection title="All dependencies" paths={analysis.dependencyPaths} navigate={navigate} />
+      <PathSection title="All dependents" paths={analysis.dependentPaths} navigate={navigate} />
+    </>
+  );
+};
+
+const MetricCard = ({ label, value, tone, description }: { label: string; value: number; tone: string; description: string }) => (
+  <div className={`metric-card ${tone}`} title={description}>
     <span>{label}</span>
-    <strong>{value.toFixed(1)}</strong>
+    <strong>{value}</strong>
   </div>
 );
 
-type MetadataChip = {
-  label: string;
-  tone: string;
-  description: string;
-};
+const RelationshipGroup: React.FC<{ title: string; ids: string[]; navigate: Navigate }> = ({ title, ids, navigate }) => {
+  const [expanded, setExpanded] = useState(false);
 
-const MetadataChips = ({ element }: { element: SpinozaElement }) => {
-  const chips = getMetadataChips(element);
-
-  if (chips.length === 0) {
+  if (ids.length === 0) {
     return null;
   }
 
+  const visible = expanded ? ids : ids.slice(0, COLLAPSED_LIST_SIZE);
+
   return (
-    <div className="panel-metadata-chips" aria-label="Passage metadata">
-      {chips.map(chip => (
-        <span
-          key={`${chip.tone}-${chip.label}`}
-          className={`panel-metadata-chip ${chip.tone}`}
-          title={chip.description}
-          aria-label={`${chip.label}: ${chip.description}`}
-        >
-          {chip.label}
-        </span>
-      ))}
+    <div className="relationship-group">
+      <h4>
+        {title} <span className="relationship-count">{ids.length}</span>
+      </h4>
+      <div className="relationship-list">
+        {visible.map(id => (
+          <button key={id} type="button" className="relationship-chip" data-target-id={id} onClick={event => navigate(id, event)}>
+            <span>{formatPassageReference(id)}</span>
+          </button>
+        ))}
+      </div>
+      {ids.length > COLLAPSED_LIST_SIZE && (
+        <button type="button" className="show-more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+          {expanded ? 'Show fewer' : `Show all ${ids.length}`}
+        </button>
+      )}
     </div>
   );
 };
 
-const truncateText = (text: string): string => {
-  if (text.length <= 300) {
-    return text;
+const PathSection: React.FC<{ title: string; paths: string[][]; navigate: Navigate }> = ({ title, paths, navigate }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  if (paths.length === 0) {
+    return null;
   }
 
-  return `${text.slice(0, 300).trim()}…`;
-};
+  const visible = expanded ? paths : paths.slice(0, COLLAPSED_PATH_COUNT);
 
-const formatPredicate = (predicate: string): string => {
-  const inverseLabels: Record<string, string> = {
-    inverse_dependsUpon: 'Is Depended On By',
-    inverse_transitivelyDependsOn: 'Is Transitively Depended On By',
-    inverse_derivedFrom: 'Derives',
-    inverse_explainsElement: 'Is Explained By',
-    inverse_cites: 'Is Cited By',
-    inverse_provedBy: 'Proves',
-    inverse_hasCorollary: 'Is Corollary Of',
-    inverse_partOf: 'Contains',
-    inverse_type: 'Type Of'
-  };
-
-  if (inverseLabels[predicate]) {
-    return inverseLabels[predicate];
-  }
-
-  return predicate
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, letter => letter.toUpperCase())
-    .trim();
-};
-
-const humanizeRelationship = (relationship: string): string =>
-  relationship.replace(/([A-Z])/g, ' $1').toLowerCase();
-
-const formatElementReference = (elementId: string, currentPart: number): string => {
-  const showPart = !elementId.startsWith(`${currentPart === 1 ? 'I' : 'II'}.`);
-  const label = elementId.split('.').length > 1 ? elementId : elementId;
-  return showPart ? label : label.replace(/^[IVX]+\./, '');
-};
-
-const predicateRank = (predicate: string): number => {
-  const normalized = predicate.replace(/^inverse_/, '');
-
-  if (normalized.includes('transitively')) {
-    return 2;
-  }
-
-  return 1;
-};
-
-const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {
-  const chips: MetadataChip[] = [];
-
-  if (element.variantLabel) {
-    chips.push({
-      label: formatVariantLabel(element.variantLabel),
-      tone: 'ink',
-      description: 'This passage is an alternate numbered section, such as a second proof or second note.'
-    });
-  }
-
-  if (element.isEditorial) {
-    chips.push({
-      label: 'Editorial',
-      tone: 'rose',
-      description: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.'
-    });
-  } else if (element.editorialKind === 'synthetic_heading') {
-    chips.push({
-      label: 'Normalized Heading',
-      tone: 'gold',
-      description: 'This heading is a normalized reader aid created to label a section consistently.'
-    });
-  }
-
-  if (element.sourceAuthority === 'latin_governed') {
-    chips.push({
-      label: 'Latin-Based',
-      tone: 'green',
-      description: 'The reader derives this passage structure and its analysis from the Latin source text.'
-    });
-  }
-
-  if (element.sourceAuthority === 'english_structural') {
-    chips.push({
-      label: 'English-Based',
-      tone: 'rose',
-      description: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
-    });
-  }
-
-  return chips;
-};
-
-const formatVariantLabel = (variantLabel: string): string => {
-  const match = variantLabel.match(/^([a-z]+)(\d+)$/i);
-
-  if (!match) {
-    return variantLabel;
-  }
-
-  const [, kind, index] = match;
-  return `${kind[0].toUpperCase()}${kind.slice(1)} ${index}`;
+  return (
+    <section className="panel-section">
+      <details className="path-details">
+        <summary>
+          <span>{title} through other passages</span>
+          <span className="relationship-count">{paths.length}</span>
+        </summary>
+        <ol className="path-list">
+          {visible.map(path => (
+            <li key={path[path.length - 1]} className="path-row">
+              {path.slice(1).map((step, index) => (
+                <React.Fragment key={step}>
+                  {index > 0 && (
+                    <span className="path-arrow" aria-hidden="true">
+                      →
+                    </span>
+                  )}
+                  <button type="button" className="path-step" data-target-id={step} onClick={event => navigate(step, event)}>
+                    {formatPassageReference(step)}
+                  </button>
+                </React.Fragment>
+              ))}
+            </li>
+          ))}
+        </ol>
+        {paths.length > COLLAPSED_PATH_COUNT && (
+          <button type="button" className="show-more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+            {expanded ? 'Show fewer' : `Show all ${paths.length}`}
+          </button>
+        )}
+      </details>
+    </section>
+  );
 };
 
 export default ReasoningPanel;

@@ -1,8 +1,17 @@
 import { vi } from 'vitest';
 import { AnalysisRequest, createAnalysisClient } from './analysisClient';
-import { ReasoningAnalysis } from '../types';
+import { PassageAnalysis } from '../types';
 
-const result: ReasoningAnalysis = { reasoning: [], transitiveChains: [], weightAnalysis: null };
+const result: PassageAnalysis = {
+  dependsOn: [],
+  usedBy: [],
+  cites: [],
+  citedBy: [],
+  structure: { parent: null, proofs: [], corollaries: [], notes: [] },
+  dependencyPaths: [],
+  dependentPaths: [],
+  metrics: { cites: 0, citedBy: 0, totalDependencies: 0, totalDependents: 0, depth: 0 }
+};
 
 class ScriptedWorker {
   onmessage: ((event: { data: unknown }) => void) | null = null;

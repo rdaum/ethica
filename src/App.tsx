@@ -1,5 +1,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import BookView from './components/BookView';
+import { MetadataChips, PassagePreview, ReadingModeToggle } from './components/PassageMeta';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import { AnalysisClient, createAnalysisClient } from './lib/analysisClient';
@@ -13,21 +14,13 @@ import {
 } from './lib/readerUrl';
 import {
   formatElementLabel,
-  missingLatinMessage,
   getVisibleElementIds,
   mergeLatinText,
   parseSpinozaXml,
   PARTS,
   summarizeSections
 } from './lib/ethica';
-import {
-  ReaderSectionSummary,
-  ReadingMode,
-  ReasoningRelation,
-  SpinozaElement,
-  TransitiveChain,
-  WeightAnalysis
-} from './types';
+import { PassageAnalysis, ReaderSectionSummary, ReadingMode, SpinozaElement } from './types';
 
 const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
 
@@ -75,9 +68,8 @@ const App: React.FC = () => {
   const [analysisAttempt, setAnalysisAttempt] = useState(0);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [reasoning, setReasoning] = useState<ReasoningRelation[]>([]);
-  const [transitiveChains, setTransitiveChains] = useState<TransitiveChain[]>([]);
-  const [weightAnalysis, setWeightAnalysis] = useState<WeightAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<PassageAnalysis | null>(null);
+  const [panelFocusRequest, setPanelFocusRequest] = useState(0);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const deferredQuery = useDeferredValue(query);
   const analysisClient = useRef<AnalysisClient | null>(null);
@@ -196,9 +188,7 @@ const App: React.FC = () => {
       setAnalysisError(null);
 
       if (!selectedElement || !ready || !elements.has(selectedElement)) {
-        setReasoning([]);
-        setTransitiveChains([]);
-        setWeightAnalysis(null);
+        setAnalysis(null);
         setAnalysisLoading(false);
         return;
       }
@@ -216,9 +206,7 @@ const App: React.FC = () => {
           return;
         }
 
-        setReasoning(result.reasoning);
-        setTransitiveChains(result.transitiveChains);
-        setWeightAnalysis(result.weightAnalysis);
+        setAnalysis(result);
         setAnalysisLoading(false);
       } catch (analysisFailure) {
         if (cancelled) {
@@ -226,9 +214,7 @@ const App: React.FC = () => {
         }
 
         console.error('Analysis failed:', analysisFailure);
-        setReasoning([]);
-        setTransitiveChains([]);
-        setWeightAnalysis(null);
+        setAnalysis(null);
         setAnalysisError('The relationships for this passage could not be loaded.');
         setAnalysisLoading(false);
       }
@@ -287,8 +273,22 @@ const App: React.FC = () => {
       ? selectableEntries[selectedIndex + 1]
       : null;
 
-  const handleSelectElement = (elementId: string | null) => {
+  const handleSelectElement = (elementId: string | null, viaKeyboard = false) => {
     setSelectedElement(elementId);
+
+    if (elementId && viaKeyboard) {
+      setPanelFocusRequest(request => request + 1);
+    }
+  };
+
+  const closePanel = () => {
+    const closing = selectedElement;
+    setSelectedElement(null);
+
+    // Return keyboard users to the passage they came from.
+    if (closing) {
+      document.querySelector<HTMLElement>(`[data-element-id="${CSS.escape(closing)}"] .entry-select`)?.focus({ preventScroll: true });
+    }
   };
 
   const handlePartChange = useCallback((partNumber: number) => {
@@ -297,9 +297,7 @@ const App: React.FC = () => {
     setScrollTarget(null);
     setHoveredElement(null);
     setQuery('');
-    setReasoning([]);
-    setTransitiveChains([]);
-    setWeightAnalysis(null);
+    setAnalysis(null);
   }, []);
 
   const navigateToElement = useCallback((elementId: string) => {
@@ -375,7 +373,7 @@ const App: React.FC = () => {
             <button
               type="button"
               className="rail-button"
-              onClick={() => handleSelectElement(null)}
+              onClick={closePanel}
               aria-label="Clear selection"
               disabled={!selectedEntry}
             >
@@ -442,26 +440,9 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="sidebar-card sidebar-reading-mode">
-                  <div className="reading-mode" aria-label="Reading language">
+                  <div className="reading-mode">
                     <span>View In</span>
-                    <div className="reading-mode-buttons" role="tablist" aria-label="Reading language">
-                      {([
-                        ['english', 'English'],
-                        ['latin', 'Latin'],
-                        ['bilingual', 'Bilingual']
-                      ] as const).map(([mode, label]) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          role="tab"
-                          aria-selected={readingMode === mode}
-                          className={`reading-mode-button ${readingMode === mode ? 'active' : ''}`}
-                          onClick={() => setReadingMode(mode)}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                    <ReadingModeToggle value={readingMode} onChange={setReadingMode} />
                   </div>
                 </div>
 
@@ -482,10 +463,10 @@ const App: React.FC = () => {
 
                 {selectedEntry && (
                   <div className="sidebar-card selection-card">
-                    <p className="sidebar-kicker">Selected Note</p>
+                    <p className="sidebar-kicker">Selected passage</p>
                     <h3>{formatElementLabel(selectedEntry)}</h3>
                     <MetadataChips element={selectedEntry} />
-                    {renderSelectionPreview(selectedEntry, readingMode)}
+                    <PassagePreview element={selectedEntry} readingMode={readingMode} length={220} />
                     <div className="selection-nav">
                       <button
                         type="button"
@@ -537,12 +518,10 @@ const App: React.FC = () => {
             <ReasoningPanel
               selectedElement={selectedElement}
               element={selectedEntry}
-              reasoning={reasoning}
-              transitiveChains={transitiveChains}
-              weightAnalysis={weightAnalysis}
+              analysis={analysis}
+              focusRequest={panelFocusRequest}
               onNavigateToElement={navigateToElement}
-              onClose={() => handleSelectElement(null)}
-              currentPart={currentPart}
+              onClose={closePanel}
               loading={analysisLoading}
               error={analysisError}
               onRetry={() => setAnalysisAttempt(attempt => attempt + 1)}
@@ -556,109 +535,6 @@ const App: React.FC = () => {
       </div>
     </div>
   );
-};
-
-const truncateText = (text: string, length = 220): string => (text.length > length ? `${text.slice(0, length)}…` : text);
-
-type MetadataChip = {
-  label: string;
-  tone: string;
-  description: string;
-};
-
-const MetadataChips = ({ element }: { element: SpinozaElement }) => {
-  const chips = getMetadataChips(element);
-
-  if (chips.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="metadata-chips" aria-label="Passage metadata">
-      {chips.map(chip => (
-        <span
-          key={`${chip.tone}-${chip.label}`}
-          className={`metadata-chip ${chip.tone}`}
-          title={chip.description}
-          aria-label={`${chip.label}: ${chip.description}`}
-        >
-          {chip.label}
-        </span>
-      ))}
-    </div>
-  );
-};
-
-const renderSelectionPreview = (element: SpinozaElement, readingMode: ReadingMode) => {
-  if (readingMode === 'latin') {
-    return <p>{truncateText(element.latinText || missingLatinMessage(element))}</p>;
-  }
-
-  if (readingMode === 'bilingual') {
-    return (
-      <div className="selection-preview-grid">
-        <p>{truncateText(element.text, 140)}</p>
-        <p>{truncateText(element.latinText || missingLatinMessage(element), 140)}</p>
-      </div>
-    );
-  }
-
-  return <p>{truncateText(element.text)}</p>;
-};
-
-const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {
-  const chips: MetadataChip[] = [];
-
-  if (element.variantLabel) {
-    chips.push({
-      label: formatVariantLabel(element.variantLabel),
-      tone: 'ink',
-      description: 'This passage is an alternate numbered section, such as a second proof or second note.'
-    });
-  }
-
-  if (element.isEditorial) {
-    chips.push({
-      label: 'Editorial',
-      tone: 'rose',
-      description: 'This passage was added or separated by the edition, rather than preserved as a standalone passage in the Latin source.'
-    });
-  } else if (element.editorialKind === 'synthetic_heading') {
-    chips.push({
-      label: 'Normalized Heading',
-      tone: 'gold',
-      description: 'This heading is a normalized reader aid created to label a section consistently.'
-    });
-  }
-
-  if (element.sourceAuthority === 'latin_governed') {
-    chips.push({
-      label: 'Latin-Based',
-      tone: 'green',
-      description: 'The reader derives this passage structure and its analysis from the Latin source text.'
-    });
-  }
-
-  if (element.sourceAuthority === 'english_structural') {
-    chips.push({
-      label: 'English-Based',
-      tone: 'rose',
-      description: 'The reader derives this passage structure or analysis from editorial decisions in the English edition.'
-    });
-  }
-
-  return chips;
-};
-
-const formatVariantLabel = (variantLabel: string): string => {
-  const match = variantLabel.match(/^([a-z]+)(\d+)$/i);
-
-  if (!match) {
-    return variantLabel;
-  }
-
-  const [, kind, index] = match;
-  return `${kind[0].toUpperCase()}${kind.slice(1)} ${index}`;
 };
 
 export default App;

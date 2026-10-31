@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import createReasoningWorker from './lib/createReasoningWorker';
 import App from './App';
-import { ReasoningAnalysis } from './types';
+import { PassageAnalysis } from './types';
 
 vi.mock('./lib/createReasoningWorker', () => ({
   __esModule: true,
@@ -17,7 +17,7 @@ class FakeWorker {
 
   constructor(
     private readonly config: {
-      analyses?: Record<string, ReasoningAnalysis>;
+      analyses?: Record<string, PassageAnalysis>;
       loadDelayMs?: number;
       analysisDelayMs?: number;
     } = {}
@@ -36,7 +36,7 @@ class FakeWorker {
       return;
     }
 
-    const result = this.config.analyses?.[message.elementId] ?? emptyAnalysis(message.elementId);
+    const result = this.config.analyses?.[message.elementId] ?? analysisWith();
 
     window.setTimeout(() => {
       this.onmessage?.({
@@ -72,7 +72,7 @@ type WorkerResponse =
   | {
       type: 'analysis';
       requestId: number;
-      result: ReasoningAnalysis;
+      result: PassageAnalysis;
     }
   | {
       type: 'error';
@@ -151,19 +151,16 @@ const installFetchMock = () =>
     throw new Error(`Unexpected fetch URL: ${url}`);
   });
 
-const emptyAnalysis = (elementId: string): ReasoningAnalysis => ({
-  reasoning: [],
-  transitiveChains: [],
-  weightAnalysis: {
-    elementId,
-    inboundWeight: 0,
-    outboundWeight: 0,
-    transitiveInfluence: 0,
-    foundationalScore: 0,
-    relationshipBreakdown: {},
-    dependencyDepth: 0,
-    influenceReach: 0
-  }
+const analysisWith = (overrides: Partial<PassageAnalysis> = {}): PassageAnalysis => ({
+  dependsOn: [],
+  usedBy: [],
+  cites: [],
+  citedBy: [],
+  structure: { parent: null, proofs: [], corollaries: [], notes: [] },
+  dependencyPaths: [],
+  dependentPaths: [],
+  metrics: { cites: 0, citedBy: 0, totalDependencies: 0, totalDependents: 0, depth: 0 },
+  ...overrides
 });
 
 const buildWorker = (config?: ConstructorParameters<typeof FakeWorker>[0]) => {
@@ -227,26 +224,7 @@ test('shows analysis loading before rendering worker results for a selected pass
   buildWorker({
     analysisDelayMs: 25,
     analyses: {
-      'I.def.1': {
-        reasoning: [
-          {
-            subject: 'I.def.1',
-            predicate: 'cites',
-            object: 'I.prop.1'
-          }
-        ],
-        transitiveChains: [],
-        weightAnalysis: {
-          elementId: 'I.def.1',
-          inboundWeight: 1,
-          outboundWeight: 1,
-          transitiveInfluence: 0,
-          foundationalScore: 2,
-          relationshipBreakdown: { cites: 1 },
-          dependencyDepth: 0,
-          influenceReach: 1
-        }
-      }
+      'I.def.1': analysisWith({ usedBy: ['I.prop.1'] })
     }
   });
 
@@ -255,35 +233,15 @@ test('shows analysis loading before rendering worker results for a selected pass
   expect(await screen.findByRole('heading', { name: 'The Ethics' })).toBeInTheDocument();
   fireEvent.click(screen.getByText('Definition I'));
 
-  expect(screen.getByText(/tracing relations and inferred dependencies/i)).toBeInTheDocument();
-  expect(await screen.findByRole('button', { name: 'prop.1' })).toBeInTheDocument();
+  expect(screen.getByText(/tracing relations and dependencies/i)).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'I, Prop. I' })).toBeInTheDocument();
 });
 
 test('navigates across parts from a relationship chip in the analysis panel', async () => {
   installFetchMock();
   buildWorker({
     analyses: {
-      'I.prop.1': {
-        reasoning: [
-          {
-            subject: 'I.prop.1',
-            predicate: 'cites',
-            object: 'II.prop.1'
-          }
-        ],
-        transitiveChains: [],
-        weightAnalysis: {
-          elementId: 'I.prop.1',
-          inboundWeight: 0,
-          outboundWeight: 1,
-          transitiveInfluence: 0,
-          foundationalScore: 1,
-          relationshipBreakdown: { cites: 1 },
-          dependencyDepth: 0,
-          influenceReach: 1
-        }
-      },
-      'II.prop.1': emptyAnalysis('II.prop.1')
+      'I.prop.1': analysisWith({ dependsOn: ['II.prop.1'] })
     }
   });
 
@@ -292,7 +250,7 @@ test('navigates across parts from a relationship chip in the analysis panel', as
   expect(await screen.findByRole('heading', { name: 'The Ethics' })).toBeInTheDocument();
   fireEvent.click(screen.getByText('Proposition I'));
 
-  const crossPartLink = await screen.findByRole('button', { name: 'II.prop.1' });
+  const crossPartLink = await screen.findByRole('button', { name: 'II, Prop. I' });
   fireEvent.click(crossPartLink);
 
   await waitFor(() =>
@@ -352,13 +310,13 @@ test('shows a retry when analysis fails, rather than an empty result', async () 
   fireEvent.click(await screen.findByText('Definition I'));
 
   expect(await screen.findByRole('alert')).toHaveTextContent(/relationships for this passage could not be loaded/i);
-  expect(screen.queryByText(/no explicit or inferred relationships/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/no relationships were found/i)).not.toBeInTheDocument();
 
   failing = false;
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
   await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
-  expect(await screen.findByText(/no explicit or inferred relationships/i)).toBeInTheDocument();
+  expect(await screen.findByText(/no relationships were found/i)).toBeInTheDocument();
   consoleErrorSpy.mockRestore();
 });
 

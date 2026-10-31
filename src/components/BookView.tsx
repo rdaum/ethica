@@ -8,7 +8,7 @@ interface BookViewProps {
   query: string;
   visibleIds: Set<string>;
   onElementHover: (elementId: string | null) => void;
-  onElementSelect: (elementId: string | null) => void;
+  onElementSelect: (elementId: string | null, viaKeyboard?: boolean) => void;
   selectedElement: string | null;
   hoveredElement: string | null;
   currentPart: number;
@@ -41,6 +41,24 @@ const BookView: React.FC<BookViewProps> = ({
 
   const visibleElements = elements.filter(element => !element.parentId && visibleIds.has(element.id));
 
+  const handleSelect = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    // Finishing a text selection is not a request to select the passage.
+    if (window.getSelection()?.toString()) {
+      return;
+    }
+
+    // A click with no pointer details came from the keyboard.
+    onElementSelect(selectedElement === id ? null : id, event.detail === 0);
+  };
+
+  const selectButton = (element: SpinozaElement) => (
+    <button type="button" className="entry-select" aria-pressed={selectedElement === element.id}>
+      {formatElementLabel(element)}
+    </button>
+  );
+
   const renderChildren = (parentId: string) => {
     const children = childrenByParent.get(parentId) ?? [];
 
@@ -56,16 +74,13 @@ const BookView: React.FC<BookViewProps> = ({
             className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''} ${hoveredElement === child.id ? 'hovered' : ''}`}
             onMouseEnter={() => onElementHover(child.id)}
             onMouseLeave={() => onElementHover(null)}
-            onClick={event => {
-              event.stopPropagation();
-              onElementSelect(selectedElement === child.id ? null : child.id);
-            }}
+            onClick={event => handleSelect(child.id, event)}
             data-element-id={child.id}
           >
             <header className="entry-header child-header">
               <div>
                 <p className="entry-type">{child.type}</p>
-                <h4>{formatElementLabel(child)}</h4>
+                <h4>{selectButton(child)}</h4>
               </div>
               <span className="entry-id">{child.id}</span>
             </header>
@@ -109,13 +124,13 @@ const BookView: React.FC<BookViewProps> = ({
               className={`reader-entry entry-${element.type} ${selectedElement === element.id ? 'selected' : ''} ${hoveredElement === element.id ? 'hovered' : ''}`}
               onMouseEnter={() => onElementHover(element.id)}
               onMouseLeave={() => onElementHover(null)}
-              onClick={() => onElementSelect(selectedElement === element.id ? null : element.id)}
+              onClick={event => handleSelect(element.id, event)}
               data-element-id={element.id}
             >
               <header className="entry-header">
                 <div>
                   <p className="entry-type">{element.type}</p>
-                  <h3>{formatElementLabel(element)}</h3>
+                  <h3>{selectButton(element)}</h3>
                 </div>
                 <span className="entry-id">{element.id}</span>
               </header>
