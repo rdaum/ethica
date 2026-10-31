@@ -2,6 +2,7 @@ import React, { useCallback, useDeferredValue, useEffect, useRef, useState } fro
 import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
+import { AnalysisClient, createAnalysisClient } from './lib/analysisClient';
 import createReasoningWorker from './lib/createReasoningWorker';
 import { publicPath } from './lib/publicPath';
 import {
@@ -20,7 +21,6 @@ import {
   summarizeSections
 } from './lib/ethica';
 import {
-  ReasoningAnalysis,
   ReaderSectionSummary,
   ReadingMode,
   ReasoningRelation,
@@ -29,23 +29,35 @@ import {
   WeightAnalysis
 } from './types';
 
-type WorkerResponse =
-  | {
-      type: 'partLoaded';
-      requestId: number;
-    }
-  | {
-      type: 'analysis';
-      requestId: number;
-      elementId: string;
-      result: ReasoningAnalysis;
-    }
-  | {
-      type: 'error';
-      requestId: number;
-      stage: 'loadPart' | 'analyze';
-      message: string;
-    };
+const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
+
+const fetchOk = async (path: string): Promise<Response> => {
+  const response = await fetch(publicPath(path));
+
+  if (!response.ok) {
+    throw new Error(`${path} returned ${response.status}`);
+  }
+
+  return response;
+};
+
+const fetchPart = async (part: number): Promise<Map<string, SpinozaElement>> => {
+  const xmlText = await (await fetchOk(`ethica_${part}.xml`)).text();
+  // The English reader still works if only the parallel text fails to load.
+  const latin = await fetchOk(`ethica_la_${part}.json`)
+    .then(response => response.json() as Promise<{ elements?: Record<string, string> }>)
+    .catch(latinError => {
+      console.error('Failed to load Latin text:', latinError);
+      return { elements: {} };
+    });
+  const parsed = mergeLatinText(parseSpinozaXml(xmlText), latin.elements ?? {});
+
+  if (parsed.size === 0) {
+    throw new Error(`ethica_${part}.xml contained no passages`);
+  }
+
+  return parsed;
+};
 
 const App: React.FC = () => {
   const [initialLocation] = useState(() => parseReaderHash(window.location.hash));
@@ -59,116 +71,32 @@ const App: React.FC = () => {
   const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
   const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [partAttempt, setPartAttempt] = useState(0);
+  const [analysisAttempt, setAnalysisAttempt] = useState(0);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [reasoning, setReasoning] = useState<ReasoningRelation[]>([]);
   const [transitiveChains, setTransitiveChains] = useState<TransitiveChain[]>([]);
   const [weightAnalysis, setWeightAnalysis] = useState<WeightAnalysis | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const deferredQuery = useDeferredValue(query);
-  const workerRef = useRef<Worker | null>(null);
-  const requestCounter = useRef(0);
-  const pendingLoadResolvers = useRef(new Map<number, { resolve: () => void; reject: (error: Error) => void }>());
-  const pendingAnalysisResolvers = useRef(
-    new Map<number, { resolve: (result: ReasoningAnalysis) => void; reject: (error: Error) => void }>()
-  );
+  const analysisClient = useRef<AnalysisClient | null>(null);
+  const partCache = useRef(new Map<number, Map<string, SpinozaElement>>());
+  const previousPart = useRef(initialLocation.part);
 
   useEffect(() => {
-    if (typeof Worker === 'undefined') {
-      return undefined;
-    }
+    const client = createAnalysisClient(createReasoningWorker, async () =>
+      (await fetchOk('ethica-logic.n3')).text()
+    );
 
-    const loadResolvers = pendingLoadResolvers.current;
-    const analysisResolvers = pendingAnalysisResolvers.current;
-    const worker = createReasoningWorker();
-    workerRef.current = worker;
-
-    worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
-      const message = event.data;
-
-      if (message.type === 'partLoaded') {
-        pendingLoadResolvers.current.get(message.requestId)?.resolve();
-        pendingLoadResolvers.current.delete(message.requestId);
-        return;
-      }
-
-      if (message.type === 'analysis') {
-        pendingAnalysisResolvers.current.get(message.requestId)?.resolve(message.result);
-        pendingAnalysisResolvers.current.delete(message.requestId);
-        return;
-      }
-
-      const error = new Error(message.message);
-
-      if (message.stage === 'loadPart') {
-        pendingLoadResolvers.current.get(message.requestId)?.reject(error);
-        pendingLoadResolvers.current.delete(message.requestId);
-        return;
-      }
-
-      pendingAnalysisResolvers.current.get(message.requestId)?.reject(error);
-      pendingAnalysisResolvers.current.delete(message.requestId);
-    };
-
-    worker.onerror = event => {
-      const error = new Error(event.message || 'Reasoning worker failed.');
-      loadResolvers.forEach(({ reject }) => reject(error));
-      analysisResolvers.forEach(({ reject }) => reject(error));
-      loadResolvers.clear();
-      analysisResolvers.clear();
-    };
+    analysisClient.current = client;
+    client.preload();
 
     return () => {
-      worker.terminate();
-      workerRef.current = null;
-      loadResolvers.clear();
-      analysisResolvers.clear();
+      client.dispose();
+      analysisClient.current = null;
     };
   }, []);
-
-  const nextRequestId = useCallback(() => {
-    requestCounter.current += 1;
-    return requestCounter.current;
-  }, []);
-
-  const loadPartIntoWorker = useCallback(
-    (payload: { elements: SpinozaElement[]; n3Content: string; eyeContent: string }) => {
-      if (!workerRef.current) {
-        return Promise.reject(new Error('Background reasoning worker is unavailable.'));
-      }
-
-      const requestId = nextRequestId();
-
-      return new Promise<void>((resolve, reject) => {
-        pendingLoadResolvers.current.set(requestId, { resolve, reject });
-        workerRef.current?.postMessage({
-          type: 'loadPart',
-          requestId,
-          ...payload
-        });
-      });
-    },
-    [nextRequestId]
-  );
-
-  const analyzeElementInWorker = useCallback(
-    (elementId: string) => {
-      if (!workerRef.current) {
-        return Promise.reject(new Error('Background reasoning worker is unavailable.'));
-      }
-
-      const requestId = nextRequestId();
-
-      return new Promise<ReasoningAnalysis>((resolve, reject) => {
-        pendingAnalysisResolvers.current.set(requestId, { resolve, reject });
-        workerRef.current?.postMessage({
-          type: 'analyze',
-          requestId,
-          elementId
-        });
-      });
-    },
-    [nextRequestId]
-  );
 
   useEffect(() => {
     let cancelled = false;
@@ -178,31 +106,8 @@ const App: React.FC = () => {
       setError(null);
 
       try {
-        const [xmlResponse, latinResponse, n3Response, eyeResponse] = await Promise.all([
-          fetch(publicPath(`ethica_${currentPart}.xml`)),
-          fetch(publicPath(`ethica_la_${currentPart}.json`)),
-          fetch(publicPath('ethica-logic.n3')),
-          fetch(publicPath('ethica-logic-eye.n3'))
-        ]);
-
-        const [xmlText, latinPayload, n3Content, eyeContent] = await Promise.all([
-          xmlResponse.text(),
-          latinResponse.ok
-            ? latinResponse.json()
-            : Promise.resolve({ language: 'la', part: currentPart, elements: {} }),
-          n3Response.text(),
-          eyeResponse.text()
-        ]);
-
-        const parsedElements = mergeLatinText(
-          parseSpinozaXml(xmlText),
-          (latinPayload as { elements?: Record<string, string> }).elements ?? {}
-        );
-        await loadPartIntoWorker({
-          elements: Array.from(parsedElements.values()),
-          n3Content,
-          eyeContent
-        });
+        const parsedElements = partCache.current.get(currentPart) ?? (await fetchPart(currentPart));
+        partCache.current.set(currentPart, parsedElements);
 
         if (cancelled) {
           return;
@@ -217,7 +122,7 @@ const App: React.FC = () => {
         }
 
         console.error('Failed to load reader data:', loadError);
-        setError('The reader could not load this part of the text.');
+        setError('This part of the text could not be loaded.');
         setLoading(false);
       }
     };
@@ -227,7 +132,7 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [currentPart, loadPartIntoWorker]);
+  }, [currentPart, partAttempt]);
 
   // A part change commits before the load effect marks it as loading, so readiness
   // also requires that the elements in state belong to the current part.
@@ -273,9 +178,23 @@ const App: React.FC = () => {
   }, [ready, scrollTarget, elements, currentPart, deferredQuery]);
 
   useEffect(() => {
+    if (!ready || previousPart.current === currentPart) {
+      return;
+    }
+
+    previousPart.current = currentPart;
+
+    if (!scrollTarget) {
+      window.scrollTo({ top: 0 });
+    }
+  }, [ready, currentPart, scrollTarget]);
+
+  useEffect(() => {
     let cancelled = false;
 
     const analyzeSelectedElement = async () => {
+      setAnalysisError(null);
+
       if (!selectedElement || !ready || !elements.has(selectedElement)) {
         setReasoning([]);
         setTransitiveChains([]);
@@ -287,7 +206,11 @@ const App: React.FC = () => {
       setAnalysisLoading(true);
 
       try {
-        const result = await analyzeElementInWorker(selectedElement);
+        if (!analysisClient.current) {
+          throw new Error('The analysis client is not running.');
+        }
+
+        const result = await analysisClient.current.analyze(selectedElement);
 
         if (cancelled) {
           return;
@@ -297,15 +220,16 @@ const App: React.FC = () => {
         setTransitiveChains(result.transitiveChains);
         setWeightAnalysis(result.weightAnalysis);
         setAnalysisLoading(false);
-      } catch (analysisError) {
+      } catch (analysisFailure) {
         if (cancelled) {
           return;
         }
 
-        console.error('Worker analysis failed:', analysisError);
+        console.error('Analysis failed:', analysisFailure);
         setReasoning([]);
         setTransitiveChains([]);
         setWeightAnalysis(null);
+        setAnalysisError('The relationships for this passage could not be loaded.');
         setAnalysisLoading(false);
       }
     };
@@ -315,7 +239,7 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [selectedElement, elements, ready, analyzeElementInWorker]);
+  }, [selectedElement, elements, ready, analysisAttempt]);
 
   // State to URL: comparing parsed locations means a state change that came from the
   // URL itself (initial load, back, forward, a hash edit) never adds a history entry.
@@ -346,12 +270,13 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const orderedElements = Array.from(elements.values()).sort((left, right) => left.sortIndex - right.sortIndex);
+  const currentElements = ready ? elements : EMPTY_ELEMENTS;
+  const orderedElements = Array.from(currentElements.values()).sort((left, right) => left.sortIndex - right.sortIndex);
   const topLevelElements = orderedElements.filter(element => !element.parentId);
   const visibleIds = getVisibleElementIds(orderedElements, deferredQuery);
   const visibleTopLevelElements = topLevelElements.filter(element => visibleIds.has(element.id));
   const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
-  const selectedEntry = selectedElement ? elements.get(selectedElement) : undefined;
+  const selectedEntry = selectedElement ? currentElements.get(selectedElement) : undefined;
   const currentPartMetadata = PARTS[currentPart];
   const totalPassageCount = topLevelElements.length;
   const selectableEntries = orderedElements.filter(element => visibleIds.has(element.id));
@@ -412,7 +337,7 @@ const App: React.FC = () => {
     });
   };
 
-  if (!ready && !error) {
+  if (loadedPart === null && !error) {
     return (
       <div className="app loading-shell">
         <div className="loading-card">
@@ -578,6 +503,23 @@ const App: React.FC = () => {
               </div>
             </aside>
 
+            {!ready ? (
+              <section className="book-view part-status" aria-live="polite">
+                {error ? (
+                  <div className="empty-state" role="alert">
+                    <h3>{error}</h3>
+                    <p>Check your connection and try again.</p>
+                    <button type="button" className="part-retry" onClick={() => setPartAttempt(attempt => attempt + 1)}>
+                      Try again
+                    </button>
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <h3>Loading Part {currentPartMetadata.numeral}…</h3>
+                  </div>
+                )}
+              </section>
+            ) : (
             <BookView
               elements={orderedElements}
               query={deferredQuery}
@@ -590,6 +532,7 @@ const App: React.FC = () => {
               partTitle={currentPartMetadata.title}
               readingMode={readingMode}
             />
+            )}
 
             <ReasoningPanel
               selectedElement={selectedElement}
@@ -601,6 +544,8 @@ const App: React.FC = () => {
               onClose={() => handleSelectElement(null)}
               currentPart={currentPart}
               loading={analysisLoading}
+              error={analysisError}
+              onRetry={() => setAnalysisAttempt(attempt => attempt + 1)}
               previousElementId={previousEntry?.id ?? null}
               nextElementId={nextEntry?.id ?? null}
               readingMode={readingMode}
@@ -609,12 +554,6 @@ const App: React.FC = () => {
           </main>
         </div>
       </div>
-
-      {error && (
-        <div className="error-banner" role="alert">
-          {error}
-        </div>
-      )}
     </div>
   );
 };

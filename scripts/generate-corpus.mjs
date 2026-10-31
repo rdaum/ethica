@@ -39,17 +39,6 @@ const PARTS = {
   }
 };
 
-const GENERATED_RULES = `
-@prefix ethics: <http://spinoza.org/ethics#> .
-
-{ ?x ethics:cites ?y } => { ?x ethics:dependsUpon ?y } .
-{ ?x ethics:provedBy ?y } => { ?x ethics:dependsUpon ?y } .
-{ ?x ethics:hasCorollary ?y } => { ?y ethics:derivedFrom ?x } .
-{ ?x ethics:hasNote ?y } => { ?y ethics:explainsElement ?x } .
-{ ?x ethics:dependsUpon ?y . ?y ethics:dependsUpon ?z } => { ?x ethics:transitivelyDependsOn ?z } .
-{ ?x ethics:cites ?y . ?y ethics:cites ?z } => { ?x ethics:transitivelyDependsOn ?z } .
-`.trim();
-
 const main = async () => {
   const rawText = fs.readFileSync(RAW_TEXT_PATH, 'utf8').replace(/\r\n/g, '\n');
   const generatedParts = parseAllParts(rawText);
@@ -66,7 +55,6 @@ const main = async () => {
   const { lines, citationProblems } = buildExplicitGraph(corpusParts);
   const explicitGraph = lines.join('\n');
   fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic.n3'), explicitGraph);
-  fs.writeFileSync(path.join(PUBLIC_DIR, 'ethica-logic-eye.n3'), `${explicitGraph}\n\n${GENERATED_RULES}\n`);
 
   console.log('Generated Parts I-V XML and regenerated graph data for Parts I-V.');
 

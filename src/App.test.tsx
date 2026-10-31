@@ -24,11 +24,11 @@ class FakeWorker {
   ) {}
 
   postMessage(message: WorkerRequest) {
-    if (message.type === 'loadPart') {
+    if (message.type === 'loadGraph') {
       window.setTimeout(() => {
         this.onmessage?.({
           data: {
-            type: 'partLoaded',
+            type: 'graphLoaded',
             requestId: message.requestId
           }
         } as MessageEvent<WorkerResponse>);
@@ -43,7 +43,6 @@ class FakeWorker {
         data: {
           type: 'analysis',
           requestId: message.requestId,
-          elementId: message.elementId,
           result
         }
       } as MessageEvent<WorkerResponse>);
@@ -55,11 +54,9 @@ class FakeWorker {
 
 type WorkerRequest =
   | {
-      type: 'loadPart';
+      type: 'loadGraph';
       requestId: number;
-      elements: unknown[];
       n3Content: string;
-      eyeContent: string;
     }
   | {
       type: 'analyze';
@@ -69,19 +66,17 @@ type WorkerRequest =
 
 type WorkerResponse =
   | {
-      type: 'partLoaded';
+      type: 'graphLoaded';
       requestId: number;
     }
   | {
       type: 'analysis';
       requestId: number;
-      elementId: string;
       result: ReasoningAnalysis;
     }
   | {
       type: 'error';
       requestId: number;
-      stage: 'loadPart' | 'analyze';
       message: string;
     };
 
@@ -149,7 +144,7 @@ const installFetchMock = () =>
       return fetchResponse({ elements: latinByPart[2] });
     }
 
-    if (url.includes('ethica-logic.n3') || url.includes('ethica-logic-eye.n3')) {
+    if (url.includes('ethica-logic.n3')) {
       return fetchResponse('@prefix ethics: <http://spinoza.org/ethics#> .');
     }
 
@@ -308,4 +303,112 @@ test('navigates across parts from a relationship chip in the analysis panel', as
     ).toContain('On the Nature and Origin of the Mind')
   );
   await waitFor(() => expect(document.querySelector('.panel-id')?.textContent).toBe('II.prop.1'));
+});
+
+test('shows a retry when a part fails to load, and recovers', async () => {
+  const fetchSpy = installFetchMock();
+  const respond = fetchSpy.getMockImplementation()!;
+  let failing = true;
+  fetchSpy.mockImplementation((input: RequestInfo | URL) =>
+    failing && String(input).includes('ethica_1.xml')
+      ? Promise.resolve({ ok: false, status: 500 } as Response)
+      : respond(input)
+  );
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  buildWorker();
+
+  render(<App />);
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(/could not be loaded/i);
+
+  failing = false;
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+  expect(await screen.findByText('Definition I')).toBeInTheDocument();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  consoleErrorSpy.mockRestore();
+});
+
+test('shows a retry when analysis fails, rather than an empty result', async () => {
+  installFetchMock();
+  const worker = buildWorker();
+  const post = worker.postMessage.bind(worker);
+  let failing = true;
+  worker.postMessage = (message: WorkerRequest) => {
+    if (message.type === 'analyze' && failing) {
+      window.setTimeout(() => {
+        worker.onmessage?.({
+          data: { type: 'error', requestId: message.requestId, message: 'bad' }
+        } as MessageEvent<WorkerResponse>);
+      });
+      return;
+    }
+
+    post(message);
+  };
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+  render(<App />);
+  fireEvent.click(await screen.findByText('Definition I'));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(/relationships for this passage could not be loaded/i);
+  expect(screen.queryByText(/no explicit or inferred relationships/i)).not.toBeInTheDocument();
+
+  failing = false;
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+  await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
+  expect(await screen.findByText(/no explicit or inferred relationships/i)).toBeInTheDocument();
+  consoleErrorSpy.mockRestore();
+});
+
+test('keeps the reader in place during a part switch and ignores stale responses', async () => {
+  const fetchSpy = installFetchMock();
+  const respond = fetchSpy.getMockImplementation()!;
+  let releasePartTwo: () => void = () => {};
+  const partTwoHeld = new Promise<void>(resolve => {
+    releasePartTwo = resolve;
+  });
+  fetchSpy.mockImplementation((input: RequestInfo | URL) =>
+    String(input).includes('ethica_2.xml') ? partTwoHeld.then(() => respond(input)) : respond(input)
+  );
+  buildWorker();
+
+  render(<App />);
+  await screen.findByText('Definition I');
+
+  const parts = document.querySelectorAll<HTMLButtonElement>('.part-button');
+  fireEvent.click(parts[1]);
+
+  expect(await screen.findByText('Loading Part II…')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'The Ethics' })).toBeInTheDocument();
+  expect(screen.queryByText(/preparing the text/i)).not.toBeInTheDocument();
+
+  // Switch back before Part II answers; its late response must not take over.
+  fireEvent.click(parts[0]);
+  expect(await screen.findByText('Definition I')).toBeInTheDocument();
+  releasePartTwo();
+  await new Promise(resolve => setTimeout(resolve, 10));
+
+  expect(screen.getByText('Definition I')).toBeInTheDocument();
+  expect(document.querySelector('.part-button.active')).toHaveTextContent('Part I');
+});
+
+test('fetches each part and the graph only once', async () => {
+  const fetchSpy = installFetchMock();
+  buildWorker();
+
+  render(<App />);
+  await screen.findByText('Definition I');
+
+  const parts = document.querySelectorAll<HTMLButtonElement>('.part-button');
+  fireEvent.click(parts[1]);
+  await waitFor(() => expect(document.querySelector('[data-element-id="II.prop.1"]')).toBeInTheDocument());
+  fireEvent.click(parts[0]);
+  await waitFor(() => expect(document.querySelector('[data-element-id="I.def.1"]')).toBeInTheDocument());
+
+  const calls = fetchSpy.mock.calls.map(([input]) => String(input));
+  expect(calls.filter(url => url.includes('ethica_1.xml'))).toHaveLength(1);
+  expect(calls.filter(url => url.includes('ethica-logic.n3'))).toHaveLength(1);
+  expect(calls.some(url => url.includes('eye'))).toBe(false);
 });

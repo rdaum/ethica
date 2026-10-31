@@ -345,3 +345,10 @@
     display: none;
   }
 }
+
+.analysis-error {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  padding: 1rem 0;
+}

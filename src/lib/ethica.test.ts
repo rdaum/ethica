@@ -1,5 +1,5 @@
 import { formatElementLabel, getVisibleElementIds } from './ethica';
-import { parseSpinozaXml, stripRulesFromN3 } from './ethica';
+import { parseSpinozaXml } from './ethica';
 
 describe('parseSpinozaXml', () => {
   it('preserves nested section content and continuations in reading order', () => {
@@ -74,20 +74,6 @@ describe('parseSpinozaXml', () => {
     expect(elements.get('IV.appendix.introduction')?.isEditorial).toBe(false);
     expect(elements.get('IV.appendix.chapter.1')?.canonicalLabel).toBe('Caput I');
     expect(elements.get('IV.appendix.chapter.1')?.sourceAuthority).toBe('latin_governed');
-  });
-});
-
-describe('stripRulesFromN3', () => {
-  it('removes active rule lines while keeping explicit triples', () => {
-    const content = `
-      @prefix ethics: <http://spinoza.org/ethics#> .
-      ethics:II.prop.1 ethics:cites ethics:I.def.5 .
-      { ?x ethics:cites ?y }
-          => { ?x ethics:dependsUpon ?y } .
-    `;
-
-    expect(stripRulesFromN3(content)).toContain('ethics:II.prop.1 ethics:cites ethics:I.def.5 .');
-    expect(stripRulesFromN3(content)).not.toContain('dependsUpon');
   });
 });
 

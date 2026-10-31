@@ -470,23 +470,6 @@ export const parseN3ToStore = async (content: string): Promise<Store> => {
   });
 };
 
-export const mergeStores = (...stores: Store[]): Store => {
-  const merged = new Store();
-  stores.forEach(store => {
-    merged.addQuads(store.getQuads(null, null, null, null));
-  });
-  return merged;
-};
-
-export const stripRulesFromN3 = (content: string): string =>
-  content
-    .split('\n')
-    .filter(line => {
-      const trimmed = line.trim();
-      return !trimmed.startsWith('{') && !trimmed.startsWith('=>');
-    })
-    .join('\n');
-
 const getTagName = (node: OrderedNode): string => Object.keys(node).find(key => key !== ':@') ?? '';
 
 const getChildren = (node: OrderedNode): OrderedNode[] => {

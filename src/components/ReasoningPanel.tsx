@@ -19,6 +19,8 @@ interface ReasoningPanelProps {
   onClose: () => void;
   currentPart: number;
   loading: boolean;
+  error: string | null;
+  onRetry: () => void;
   previousElementId: string | null;
   nextElementId: string | null;
   readingMode: ReadingMode;
@@ -35,6 +37,8 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   onClose,
   currentPart,
   loading,
+  error,
+  onRetry,
   previousElementId,
   nextElementId,
   readingMode,
@@ -144,6 +148,13 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         {loading ? (
           <div className="analysis-loading">
             <p>Tracing relations and inferred dependencies…</p>
+          </div>
+        ) : error ? (
+          <div className="analysis-error" role="alert">
+            <p>{error}</p>
+            <button type="button" className="nav-button" onClick={onRetry}>
+              Try again
+            </button>
           </div>
         ) : (
           <>
