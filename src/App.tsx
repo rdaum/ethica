@@ -1,9 +1,15 @@
-import React, { startTransition, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import BookView from './components/BookView';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import createReasoningWorker from './lib/createReasoningWorker';
 import { publicPath } from './lib/publicPath';
+import {
+  buildReaderUrl,
+  getPartNumberFromElementId,
+  parseReaderHash,
+  sameReaderLocation
+} from './lib/readerUrl';
 import {
   formatElementLabel,
   mergeLatinText,
@@ -41,20 +47,21 @@ type WorkerResponse =
     };
 
 const App: React.FC = () => {
+  const [initialLocation] = useState(() => parseReaderHash(window.location.hash));
   const [elements, setElements] = useState<Map<string, SpinozaElement>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPart, setCurrentPart] = useState(1);
+  const [currentPart, setCurrentPart] = useState(initialLocation.part);
+  const [loadedPart, setLoadedPart] = useState<number | null>(null);
   const [readingMode, setReadingMode] = useState<ReadingMode>('english');
-  const [selectedElement, setSelectedElement] = useState<string | null>(null);
+  const [selectedElement, setSelectedElement] = useState<string | null>(initialLocation.elementId);
+  const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
   const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [reasoning, setReasoning] = useState<ReasoningRelation[]>([]);
   const [transitiveChains, setTransitiveChains] = useState<TransitiveChain[]>([]);
   const [weightAnalysis, setWeightAnalysis] = useState<WeightAnalysis | null>(null);
-  const pendingNavigationId = useRef<string | null>(null);
-  const hashInitialized = useRef(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const deferredQuery = useDeferredValue(query);
   const workerRef = useRef<Worker | null>(null);
@@ -201,6 +208,7 @@ const App: React.FC = () => {
         }
 
         setElements(parsedElements);
+        setLoadedPart(currentPart);
         setLoading(false);
       } catch (loadError) {
         if (cancelled) {
@@ -220,41 +228,54 @@ const App: React.FC = () => {
     };
   }, [currentPart, loadPartIntoWorker]);
 
-  useEffect(() => {
-    if (loading || !pendingNavigationId.current) {
-      return;
-    }
-
-    const elementId = pendingNavigationId.current;
-    pendingNavigationId.current = null;
-    navigateToElement(elementId);
-  // navigateToElement is a stable callback; this effect only needs to react when loading finishes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  // A part change commits before the load effect marks it as loading, so readiness
+  // also requires that the elements in state belong to the current part.
+  const ready = !loading && loadedPart === currentPart;
 
   useEffect(() => {
-    if (loading || hashInitialized.current) {
+    if (!ready || !scrollTarget) {
       return;
     }
 
-    const hash = window.location.hash.replace(/^#/, '');
-
-    if (!hash) {
-      hashInitialized.current = true;
+    if (!elements.has(scrollTarget)) {
+      // The hash named a passage that does not exist in this part.
+      window.history.replaceState(null, '', buildReaderUrl({ part: currentPart, elementId: null }));
+      setSelectedElement(null);
+      setScrollTarget(null);
       return;
     }
 
-    hashInitialized.current = true;
-    navigateToElement(decodeURIComponent(hash));
-  // navigateToElement is a stable callback; this effect only needs to react once after initial load.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+    const elementNode = document.querySelector<HTMLElement>(`[data-element-id="${CSS.escape(scrollTarget)}"]`);
+
+    if (!elementNode) {
+      if (deferredQuery.trim()) {
+        // The active search is hiding the target; clear it and try again on the next render.
+        setQuery('');
+      } else {
+        setScrollTarget(null);
+      }
+      return;
+    }
+
+    elementNode.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    });
+    elementNode.classList.add('navigation-highlight');
+
+    window.setTimeout(() => {
+      elementNode.classList.remove('navigation-highlight');
+    }, 1800);
+
+    setScrollTarget(null);
+  }, [ready, scrollTarget, elements, currentPart, deferredQuery]);
 
   useEffect(() => {
     let cancelled = false;
 
     const analyzeSelectedElement = async () => {
-      if (!selectedElement) {
+      if (!selectedElement || !ready || !elements.has(selectedElement)) {
         setReasoning([]);
         setTransitiveChains([]);
         setWeightAnalysis(null);
@@ -293,24 +314,36 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  // These analyzers are stable callbacks backed by the current stores and elements.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedElement, elements]);
+  }, [selectedElement, elements, ready, analyzeElementInWorker]);
 
+  // State to URL: comparing parsed locations means a state change that came from the
+  // URL itself (initial load, back, forward, a hash edit) never adds a history entry.
   useEffect(() => {
-    if (!selectedElement) {
-      if (window.location.hash) {
-        window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-      }
-      return;
-    }
+    const location = { part: currentPart, elementId: selectedElement };
 
-    const encoded = `#${encodeURIComponent(selectedElement)}`;
-
-    if (window.location.hash !== encoded) {
-      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${encoded}`);
+    if (!sameReaderLocation(parseReaderHash(window.location.hash), location)) {
+      window.history.pushState(null, '', buildReaderUrl(location));
     }
-  }, [selectedElement]);
+  }, [currentPart, selectedElement]);
+
+  // URL to state: browser history and hand-edited hashes.
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const location = parseReaderHash(window.location.hash);
+      setCurrentPart(location.part);
+      setSelectedElement(location.elementId);
+      setScrollTarget(location.elementId);
+      setQuery('');
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, []);
 
   const orderedElements = Array.from(elements.values()).sort((left, right) => left.sortIndex - right.sortIndex);
   const topLevelElements = orderedElements.filter(element => !element.parentId);
@@ -355,45 +388,26 @@ const App: React.FC = () => {
   };
 
   const handlePartChange = useCallback((partNumber: number) => {
-    startTransition(() => {
-      setCurrentPart(partNumber);
-      setSelectedElement(null);
-      setHoveredElement(null);
-      setQuery('');
-      setReasoning([]);
-      setTransitiveChains([]);
-      setWeightAnalysis(null);
-    });
+    setCurrentPart(partNumber);
+    setSelectedElement(null);
+    setScrollTarget(null);
+    setHoveredElement(null);
+    setQuery('');
+    setReasoning([]);
+    setTransitiveChains([]);
+    setWeightAnalysis(null);
   }, []);
 
   const navigateToElement = useCallback((elementId: string) => {
-    const targetPart = getPartNumberFromElementId(elementId) ?? currentPart;
+    const targetPart = getPartNumberFromElementId(elementId);
 
-    if (targetPart !== currentPart) {
-      pendingNavigationId.current = elementId;
-      handlePartChange(targetPart);
-      return;
+    if (targetPart) {
+      setCurrentPart(targetPart);
     }
-
-    const elementNode = document.querySelector<HTMLElement>(`[data-element-id="${elementId}"]`);
-
-    if (!elementNode) {
-      return;
-    }
-
-    elementNode.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      inline: 'nearest'
-    });
-    elementNode.classList.add('navigation-highlight');
-
-    window.setTimeout(() => {
-      elementNode.classList.remove('navigation-highlight');
-    }, 1800);
 
     setSelectedElement(elementId);
-  }, [currentPart, handlePartChange]);
+    setScrollTarget(elementId);
+  }, []);
 
   const jumpToSection = (sectionKind: string) => {
     const sectionNode = document.querySelector<HTMLElement>(`[data-section-kind="${sectionKind}"]`);
@@ -419,7 +433,7 @@ const App: React.FC = () => {
     });
   };
 
-  if (loading) {
+  if (!ready && !error) {
     return (
       <div className="app loading-shell">
         <div className="loading-card">
@@ -671,12 +685,6 @@ const renderSelectionPreview = (element: SpinozaElement, readingMode: ReadingMod
   }
 
   return <p>{truncateText(element.text)}</p>;
-};
-
-const getPartNumberFromElementId = (elementId: string): number | null => {
-  const numeral = elementId.split('.')[0];
-  const part = Object.values(PARTS).find(entry => entry.numeral === numeral);
-  return part?.number ?? null;
 };
 
 const getMetadataChips = (element: SpinozaElement): MetadataChip[] => {

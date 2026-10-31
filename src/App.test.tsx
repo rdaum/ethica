@@ -222,8 +222,9 @@ test('restores a deep-linked passage from the URL hash after loading', async () 
 
   render(<App />);
 
-  expect(await screen.findByRole('heading', { name: 'Proof' })).toBeInTheDocument();
-  expect(screen.getByText('I.prop.1.proof')).toBeInTheDocument();
+  await waitFor(() => expect(document.querySelector('.panel-id')?.textContent).toBe('I.prop.1.proof'));
+  expect(document.querySelector('[data-element-id="I.prop.1.proof"]')).toHaveClass('selected');
+  expect(window.location.hash).toBe('#I.prop.1.proof');
 });
 
 test('shows analysis loading before rendering worker results for a selected passage', async () => {
