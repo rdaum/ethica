@@ -39,10 +39,10 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^13.4.0",
     "@types/n3": "^1.16.4",
-    "@types/node": "^20.19.39",
+    "@types/node": "^24.19.2",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "eslint": "^9.39.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "gh-pages": "^6.3.0",
@@ -50,8 +50,8 @@
     "jsdom": "^29.0.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.1",
-    "vite": "^5.4.19",
-    "vitest": "^2.1.9"
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
   },
   "repository": {
     "type": "git",
