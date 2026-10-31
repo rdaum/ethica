@@ -13,6 +13,7 @@ test.describe('Political Treatise', () => {
     await expect(page.getByText('Spinoza, translated by A.H. Gosset')).toBeVisible();
     await expect(page.locator(entry('TP.preface'))).toContainText('Dear Friend');
     await expect(page.locator('.part-button')).toHaveCount(11);
+    await expect(page.locator('.book-description')).toHaveText(/^Summary: Politics must start/);
 
     await page.getByRole('button', { name: 'The Ethics' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'The Ethics' })).toBeVisible();
@@ -74,6 +75,7 @@ test.describe('Political Treatise', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Traité politique' })).toBeVisible();
     await expect(page.locator('.brand-text p')).toHaveText('Spinoza, traduit par Émile Saisset');
     await expect(page.locator('.book-intro h2')).toHaveText('Du droit naturel');
+    await expect(page.locator('.book-description')).toHaveText(/^Résumé : Le droit s’étend/);
     await expect(page.getByRole('button', { name: 'Article 24', exact: true })).toBeVisible();
     await expect(page.locator(entry('TP.II.24'))).toContainText('Scholie de la Proposition 29');
     await expect(page.locator('.translation-source')).toContainText('n’ont pas été relues');

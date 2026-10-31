@@ -102,7 +102,7 @@ const BookView: React.FC<BookViewProps> = ({
         <h2 lang={part.work === 'political' && languages.primary === 'latin' ? 'en' : undefined}>{partTitle}</h2>
         {partDescription && (
           <p className="book-description" lang={languages.primary === 'latin' ? 'en' : undefined}>
-            {partDescription}
+            {t.summary} {partDescription}
           </p>
         )}
       </div>
