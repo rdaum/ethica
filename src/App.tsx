@@ -501,18 +501,18 @@ const App: React.FC = () => {
                 )}
               </section>
             ) : (
-            <BookView
-              elements={orderedElements}
-              query={deferredQuery}
-              visibleIds={visibleIds}
-              selectedElement={selectedElement}
-              hoveredElement={hoveredElement}
-              onElementHover={setHoveredElement}
-              onElementSelect={handleSelectElement}
-              currentPart={currentPart}
-              partTitle={currentPartMetadata.title}
-              readingMode={readingMode}
-            />
+              <BookView
+                elements={orderedElements}
+                query={deferredQuery}
+                visibleIds={visibleIds}
+                selectedElement={selectedElement}
+                hoveredElement={hoveredElement}
+                onElementHover={setHoveredElement}
+                onElementSelect={handleSelectElement}
+                currentPart={currentPart}
+                partTitle={currentPartMetadata.title}
+                readingMode={readingMode}
+              />
             )}
 
             <ReasoningPanel

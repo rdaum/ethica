@@ -128,8 +128,7 @@ body {
   padding: 2rem;
 }
 
-.loading-card,
-.error-banner {
+.loading-card {
   max-width: 36rem;
   padding: 2rem;
   border: 1px solid var(--line);
@@ -511,9 +510,6 @@ body {
   cursor: default;
 }
 
-.error-banner {
-  margin: 1rem auto 2rem;
-}
 
 ::selection {
   background: rgba(199, 162, 101, 0.22);

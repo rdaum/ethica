@@ -4,14 +4,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 ethics:cites a rdf:Property .
-ethics:dependsUpon a rdf:Property .
-ethics:transitivelyDependsOn a rdf:Property .
 ethics:provedBy a rdf:Property .
 ethics:hasCorollary a rdf:Property .
 ethics:hasNote a rdf:Property .
 ethics:partOf a rdf:Property .
-ethics:derivedFrom a rdf:Property .
-ethics:explainsElement a rdf:Property .
 ethics:partNumber a rdf:Property .
 ethics:number a rdf:Property .
 ethics:Definition a rdfs:Class .

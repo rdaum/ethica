@@ -13,7 +13,7 @@ export type ElementType =
 
 export type EditorialKind = 'english_only_addition' | 'synthetic_heading' | 'normalization';
 
-export type SourceAuthority = 'latin_governed' | 'english_structural' | 'runtime_backfill';
+export type SourceAuthority = 'latin_governed' | 'english_structural';
 
 export interface Footnote {
   number: string;

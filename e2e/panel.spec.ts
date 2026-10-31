@@ -80,10 +80,8 @@ test('highlighting text does not toggle the passage', async ({ page }) => {
   const passage = page.locator('[data-element-id="I.def.3"]');
   const body = passage.locator('.entry-body p').first();
   await body.scrollIntoViewIfNeeded();
-  await body.selectText();
 
-  await body.click({ position: { x: 20, y: 5 }, noWaitAfter: true }).catch(() => undefined);
-  // A real drag finishes with a selection still present; simulate that with a synthetic click.
+  // A real drag ends with a click while the selection is still present.
   await body.selectText();
   await body.evaluate(element => element.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 })));
 
