@@ -286,6 +286,22 @@ input:focus-visible {
   color: var(--accent-strong);
 }
 
+.language-picker {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.translation-source {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.translation-source a {
+  color: var(--accent-strong);
+}
+
 .contents-list,
 .section-links {
   margin: 0;

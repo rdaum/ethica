@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './ReasoningPanel.css';
-import { formatElementLabel, formatPassageReference } from '../lib/ethica';
-import { PassageAnalysis, ReadingMode, SpinozaElement } from '../types';
+import { formatLocalizedLabel, formatPassageReference } from '../lib/ethica';
+import { PassageAnalysis, ReadingLanguages, SpinozaElement } from '../types';
 import { MetadataChips, PassagePreview } from './PassageMeta';
 
 const COLLAPSED_LIST_SIZE = 12;
@@ -18,7 +18,7 @@ interface ReasoningPanelProps {
   onRetry: () => void;
   previousElementId: string | null;
   nextElementId: string | null;
-  readingMode: ReadingMode;
+  languages: ReadingLanguages;
   focusRequest: number;
 }
 
@@ -33,7 +33,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
   onRetry,
   previousElementId,
   nextElementId,
-  readingMode,
+  languages,
   focusRequest
 }) => {
   const panelCardRef = useRef<HTMLDivElement | null>(null);
@@ -81,7 +81,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         ref={panelCardRef}
         className="panel-card pinned"
         tabIndex={-1}
-        aria-label={`Analysis of ${formatElementLabel(element)}`}
+        aria-label={`Analysis of ${formatLocalizedLabel(element, languages.primary)}`}
         onKeyDown={event => {
           if (event.key === 'Escape') {
             onClose();
@@ -91,7 +91,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         <div className="reasoning-header">
           <div>
             <p className="panel-kicker">Analysis</p>
-            <h2>{formatElementLabel(element)}</h2>
+            <h2>{formatLocalizedLabel(element, languages.primary)}</h2>
             <p className="panel-id">{element.id}</p>
             <MetadataChips element={element} />
           </div>
@@ -119,7 +119,7 @@ const ReasoningPanel: React.FC<ReasoningPanelProps> = ({
         </div>
 
         <div className="selected-text">
-          <PassagePreview element={element} readingMode={readingMode} length={300} />
+          <PassagePreview element={element} languages={languages} length={300} />
         </div>
 
         {loading ? (

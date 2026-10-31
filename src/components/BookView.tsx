@@ -1,7 +1,15 @@
 import React from 'react';
 import './BookView.css';
-import { formatElementLabel, getSectionLabel, missingLatinMessage } from '../lib/ethica';
-import { ReadingMode, SpinozaElement } from '../types';
+import {
+  formatLocalizedLabel,
+  getLocalizedSectionLabel,
+  getPartText,
+  getPassageText,
+  LANGUAGE_CODES,
+  LANGUAGE_NAMES,
+  PARTS
+} from '../lib/ethica';
+import { Language, ReadingLanguages, SpinozaElement } from '../types';
 
 interface BookViewProps {
   elements: SpinozaElement[];
@@ -10,10 +18,7 @@ interface BookViewProps {
   onElementSelect: (elementId: string | null, viaKeyboard?: boolean) => void;
   selectedElement: string | null;
   currentPart: number;
-  partTitle: string;
-  partNumeral: string;
-  partDescription: string;
-  readingMode: ReadingMode;
+  languages: ReadingLanguages;
 }
 
 const BookView: React.FC<BookViewProps> = ({
@@ -22,11 +27,10 @@ const BookView: React.FC<BookViewProps> = ({
   onElementSelect,
   selectedElement,
   currentPart,
-  partTitle,
-  partNumeral,
-  partDescription,
-  readingMode
+  languages
 }) => {
+  const { heading: partHeading, title: partTitle, description: partDescription } = getPartText(PARTS[currentPart], languages.primary);
+
   const childrenByParent = new Map<string, SpinozaElement[]>();
 
   elements.forEach(element => {
@@ -55,7 +59,7 @@ const BookView: React.FC<BookViewProps> = ({
 
   const selectButton = (element: SpinozaElement) => (
     <button type="button" className="entry-select" aria-pressed={selectedElement === element.id}>
-      {formatElementLabel(element)}
+      {formatLocalizedLabel(element, languages.primary)}
     </button>
   );
 
@@ -79,7 +83,7 @@ const BookView: React.FC<BookViewProps> = ({
               <h4>{selectButton(child)}</h4>
               <span className="entry-id">{child.id}</span>
             </header>
-            <div className="entry-body">{renderEntryBody(child, readingMode)}</div>
+            <div className="entry-body">{renderEntryBody(child, languages)}</div>
             {renderChildren(child.id)}
           </article>
         ))}
@@ -90,9 +94,9 @@ const BookView: React.FC<BookViewProps> = ({
   let previousSectionKind: string | null = null;
 
   return (
-    <section className="book-view" aria-label={`Part ${currentPart}: ${partTitle}`}>
+    <section className="book-view" lang={LANGUAGE_CODES[languages.primary]} aria-label={`${partHeading}: ${partTitle}`}>
       <div className="book-intro">
-        <p className="book-kicker">Part {partNumeral}</p>
+        <p className="book-kicker">{partHeading}</p>
         <h2>{partTitle}</h2>
         <p className="book-description">{partDescription}</p>
       </div>
@@ -112,7 +116,7 @@ const BookView: React.FC<BookViewProps> = ({
           <div key={element.id} data-section-kind={element.sectionKind}>
             {showSectionHeading && (
               <header className="section-header">
-                <p>{getSectionLabel(element.sectionKind)}</p>
+                <p>{getLocalizedSectionLabel(element.sectionKind, languages.primary)}</p>
               </header>
             )}
 
@@ -126,7 +130,7 @@ const BookView: React.FC<BookViewProps> = ({
                 <span className="entry-id">{element.id}</span>
               </header>
 
-              <div className="entry-body">{renderEntryBody(element, readingMode)}</div>
+              <div className="entry-body">{renderEntryBody(element, languages)}</div>
 
               {renderChildren(element.id)}
             </article>
@@ -137,51 +141,49 @@ const BookView: React.FC<BookViewProps> = ({
   );
 };
 
-const renderEntryBody = (element: SpinozaElement, readingMode: ReadingMode) => {
-  if (readingMode === 'latin') {
-    return renderParagraphs(element.latinText || missingLatinMessage(element), element.latinText ? 'latin' : 'english');
-  }
-
-  if (readingMode === 'bilingual') {
-    return (
-      <div className="parallel-text">
-        <div className="parallel-column">
-          <p className="parallel-label">English</p>
-          {renderEnglish(element)}
+const renderEntryBody = (element: SpinozaElement, { primary, parallel }: ReadingLanguages) =>
+  parallel ? (
+    <div className="parallel-text">
+      {[primary, parallel].map(language => (
+        <div key={language} className="parallel-column">
+          <p className="parallel-label" lang={LANGUAGE_CODES[language]}>
+            {LANGUAGE_NAMES[language]}
+          </p>
+          {renderLanguage(element, language)}
         </div>
-        <div className="parallel-column">
-          <p className="parallel-label">Latin</p>
-          {renderParagraphs(element.latinText || missingLatinMessage(element), element.latinText ? 'latin' : 'english')}
-        </div>
-      </div>
-    );
-  }
+      ))}
+    </div>
+  ) : (
+    renderLanguage(element, primary)
+  );
 
-  return renderEnglish(element);
+const renderLanguage = (element: SpinozaElement, language: Language) => {
+  const { text, available, footnotes } = getPassageText(element, language);
+  const code = available ? LANGUAGE_CODES[language] : 'en';
+
+  return (
+    <>
+      <div className={available ? undefined : 'entry-missing'}>{renderParagraphs(text, code)}</div>
+      {footnotes && (
+        <ol className="entry-footnotes" lang={code} aria-label="Footnotes">
+          {footnotes.map(footnote => (
+            <li key={footnote.number} value={Number(footnote.number)}>
+              {footnote.text}
+            </li>
+          ))}
+        </ol>
+      )}
+    </>
+  );
 };
 
-const renderEnglish = (element: SpinozaElement) => (
-  <>
-    {renderParagraphs(element.text, 'english')}
-    {element.footnotes && (
-      <ol className="entry-footnotes" aria-label="Footnotes">
-        {element.footnotes.map(footnote => (
-          <li key={footnote.number} value={Number(footnote.number)}>
-            {footnote.text}
-          </li>
-        ))}
-      </ol>
-    )}
-  </>
-);
-
-const renderParagraphs = (text: string, language: 'english' | 'latin') =>
+const renderParagraphs = (text: string, code: string) =>
   text
     .split(/\n{2,}/)
     .map(paragraph => paragraph.trim())
     .filter(Boolean)
     .map((paragraph, index) => (
-      <p key={`${language}-${index}`} lang={language === 'latin' ? 'la' : 'en'}>
+      <p key={`${code}-${index}`} lang={code}>
         {renderFootnoteMarkers(paragraph)}
       </p>
     ));

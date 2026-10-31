@@ -60,11 +60,13 @@ test('the panel follows the reading mode and hides footnote markers', async ({ p
   await expect(page.locator('.selected-text')).toContainText('conceive men to regard');
   await expect(page.locator('.selected-text')).not.toContainText('[6]');
 
-  await page.locator('.sidebar-reading-mode').getByRole('button', { name: 'Latin' }).click();
+  const readIn = page.getByRole('group', { name: 'Read in' });
+  const compareWith = page.getByRole('group', { name: 'Compare with' });
+  await readIn.getByRole('button', { name: 'Latin' }).click();
   await expect(page.locator('.selected-text [lang="la"]')).toBeVisible();
   await expect(page.locator('.selected-text')).not.toContainText('conceive men');
 
-  await page.locator('.sidebar-reading-mode').getByRole('button', { name: 'Bilingual' }).click();
+  await compareWith.getByRole('button', { name: 'English' }).click();
   await expect(page.locator('.selected-text [lang="en"]')).toBeVisible();
   await expect(page.locator('.selected-text [lang="la"]')).toBeVisible();
 });

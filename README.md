@@ -64,11 +64,15 @@ Each passage has a stable id such as `III.prop.27.corollary2.proof`, shared by t
 
 `generate-latin.mjs` walks the Latin in the order of the English passages. Generation fails if any Latin block is left unplaced, apart from a short reviewed list in the script.
 
+### French text
+
+`generate-french.mjs` parses Appuhn's 1913 translation from [French Wikisource](https://fr.wikisource.org/wiki/%C3%89thique_(Appuhn,_1913)) into `public/ethica_fr_N.json`, keyed by the same passage IDs as the English. Run `npm run generate:french -- --report` to see the alignment, length ratios and possible transcription slips. Generation fails if a passage or label doesn't line up. Slips confirmed against the scan of the printed edition are corrected in the script.
+
 ## Known gaps in the source text
 
 The English source (Project Gutenberg #3800) differs from the Latin in a few places. The reader follows the source rather than supplying a translation:
 
-- **Missing from the English:** the corollaries of II.xiii. and IV.l., and the proof of IV.lxxii. Their Latin is not shown, because there is no English passage to attach it to. The passage the source labels "Proof" at IV.lxxii. translates the Latin scholium, so it appears here as a note.
+- **Missing from the English:** the corollaries of II.xiii. and IV.l., and the proof of IV.lxxii. The reader shows these passages with a note in English, and their text in French and Latin.
 - **Citations without a target:** II.xvii. note cites the same missing corollary of II.xiii. Two others, in the proofs of III.i. and III.xix., cite a corollary or note the proposition doesn't have. All three resolve to the proposition. `node scripts/generate-corpus.mjs --report-citations` lists them.
 - **Misprint:** the proof of IV.i. prints "IV. iii." where the Latin has III.iv. The text is unchanged, and the graph follows the Latin.
 - **Typography:** the source uses a long dash for ordinary hyphens, as in "self—caused". The generator hyphenates the compounds listed in `scripts/lib/compounds.mjs` and leaves every other dash as printed.

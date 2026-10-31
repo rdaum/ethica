@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Parser, Store } from 'n3';
-import { EditorialKind, Footnote, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
+import { EditorialKind, Footnote, Language, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
 
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
@@ -58,6 +58,102 @@ export const PARTS: Record<number, PartMetadata> = {
       'Part V develops the ethical culmination of the work: understanding, freedom, and the durable joy that follows from adequate knowledge.'
   }
 };
+
+export const LANGUAGE_NAMES: Record<Language, string> = {
+  english: 'English',
+  french: 'Français',
+  latin: 'Latin'
+};
+
+export const LANGUAGE_CODES: Record<Language, string> = {
+  english: 'en',
+  french: 'fr',
+  latin: 'la'
+};
+
+export const TRANSLATION_CREDITS: Record<Language, string> = {
+  english: 'Spinoza, translated by R.H.M. Elwes',
+  french: 'Spinoza, traduit par Charles Appuhn',
+  latin: 'Spinoza, Latin text'
+};
+
+const FRENCH_PARTS: Record<number, Pick<PartMetadata, 'title' | 'description'>> = {
+  1: {
+    title: 'De Dieu',
+    description:
+      'La première partie établit la grammaire métaphysique de l’Éthique : la substance, l’attribut, le mode, et la thèse que tout ce qui est, est en Dieu.'
+  },
+  2: {
+    title: 'De la nature et de l’origine de l’âme',
+    description:
+      'La deuxième partie passe de la métaphysique à la connaissance et au corps, et montre comment l’âme humaine suit du même ordre qui régit la nature.'
+  },
+  3: {
+    title: 'De l’origine et de la nature des affections',
+    description:
+      'La troisième partie traite les affections humaines comme des phénomènes naturels, et explique passions et actions par l’ordre qui régit les corps et les idées.'
+  },
+  4: {
+    title: 'De la servitude de l’homme, ou des forces des affections',
+    description:
+      'La quatrième partie examine comment les idées inadéquates et les causes extérieures nous asservissent, et esquisse ce qu’exige une vie conduite par la raison.'
+  },
+  5: {
+    title: 'De la puissance de l’entendement, ou de la liberté de l’homme',
+    description:
+      'La cinquième partie conduit l’œuvre à son terme : l’entendement, la liberté et la joie durable qui suit de la connaissance adéquate.'
+  }
+};
+
+/** The part's title and introduction. Latin keeps the English ones, like its passage labels. */
+export const getPartText = (part: PartMetadata, language: Language) =>
+  language === 'french'
+    ? { ...FRENCH_PARTS[part.number], heading: `Partie ${part.numeral}` }
+    : { title: part.title, description: part.description, heading: `Part ${part.numeral}` };
+
+const FRENCH_SECTION_LABELS: Record<string, string> = {
+  preface: 'Préface',
+  definitions: 'Définitions',
+  definitions_of_emotions: 'Définitions des affections',
+  general_definition: 'Définition générale',
+  axioms: 'Axiomes',
+  propositions: 'Propositions',
+  physical_axioms: 'Axiomes sur les corps',
+  lemmas: 'Lemmes',
+  postulates: 'Postulats',
+  appendix: 'Appendice'
+};
+
+const FRENCH_LABEL_WORDS: Array<[RegExp, string]> = [
+  [/^Appendix Introduction$/, 'Appendice'],
+  [/^Alternate Proof$/, 'Autre démonstration'],
+  [/^Proof of Corollary/, 'Démonstration du Corollaire'],
+  [/^Proof$/, 'Démonstration'],
+  [/^Corollary/, 'Corollaire'],
+  [/^Note/, 'Scolie'],
+  [/^Explanation$/, 'Explication'],
+  [/^Definition/, 'Définition'],
+  [/^Axiom/, 'Axiome'],
+  [/^Lemma/, 'Lemme'],
+  [/^Postulate/, 'Postulat'],
+  [/^Preface$/, 'Préface'],
+  [/^Appendix$/, 'Appendice'],
+  [/^Caput/, 'Chapitre'],
+  [/^Affect/, 'Définition']
+];
+
+/** A passage's heading in the reading language. */
+export const formatLocalizedLabel = (
+  element: Pick<SpinozaElement, 'id' | 'type' | 'number' | 'heading'>,
+  language: Language
+): string => {
+  const label = formatElementLabel(element);
+  const rule = language === 'french' ? FRENCH_LABEL_WORDS.find(([pattern]) => pattern.test(label)) : undefined;
+  return rule ? label.replace(rule[0], rule[1]) : label;
+};
+
+export const getLocalizedSectionLabel = (sectionKind: string, language: Language): string =>
+  (language === 'french' ? FRENCH_SECTION_LABELS[sectionKind] : undefined) ?? getSectionLabel(sectionKind);
 
 interface OrderedNode {
   [key: string]: unknown;
@@ -222,21 +318,51 @@ export const formatPassageReference = (id: string): string => {
   return [part, base, ...suffixes.map(formatReferenceSuffix)].join(', ');
 };
 
-export const missingLatinMessage = ({ isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string =>
-  isEditorial
-    ? 'This note was added by the English edition and has no separate Latin passage.'
-    : 'Latin text is not available for this passage.';
+const missingTextMessage = (language: Language, { isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string => {
+  if (language === 'english') {
+    return 'This passage is missing from the English source text. Choose French or Latin to read it.';
+  }
+
+  if (isEditorial) {
+    return `This note was added by the English edition and has no separate ${language === 'french' ? 'French' : 'Latin'} passage.`;
+  }
+
+  return `${language === 'french' ? 'French' : 'Latin'} text is not available for this passage.`;
+};
+
+export interface PassageText {
+  text: string;
+  /** False when the text is an explanation, in English, of why the passage is missing. */
+  available: boolean;
+  footnotes?: Footnote[];
+}
+
+/** A passage's text in one language, or a message saying why there is none. */
+export const getPassageText = (element: SpinozaElement, language: Language): PassageText => {
+  const text = { english: element.text, french: element.frenchText, latin: element.latinText }[language];
+  const footnotes = { english: element.footnotes, french: element.frenchFootnotes, latin: undefined }[language];
+  return text ? { text, available: true, footnotes } : { text: missingTextMessage(language, element), available: false };
+};
+
+// So "ame" finds "âme", and a typed apostrophe finds the book's curly one.
+const normalizeForSearch = (value: string): string =>
+  value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/’/g, "'")
+    .replace(/\u00a0/g, ' ')
+    .toLowerCase();
 
 export const matchesQuery = (element: SpinozaElement, query: string): boolean => {
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = normalizeForSearch(query.trim());
 
   if (!normalizedQuery) {
     return true;
   }
 
-  return [element.text, element.latinText, element.canonicalLabel ?? formatElementLabel(element), element.heading, element.id]
+  return [element.text, element.latinText, element.frenchText, element.canonicalLabel ?? formatElementLabel(element), element.heading, element.id]
     .filter(Boolean)
-    .some(value => value!.toLowerCase().includes(normalizedQuery));
+    .some(value => normalizeForSearch(value!).includes(normalizedQuery));
 };
 
 /**
@@ -287,7 +413,60 @@ export const mergeLatinText = (
   return merged;
 };
 
-export const summarizeSections = (elements: SpinozaElement[]): ReaderSectionSummary[] => {
+const typeFromId = (id: string): SpinozaElement['type'] =>
+  /\.proof\d*$/.test(id) ? 'proof' : /\.corollary\d*$/.test(id) ? 'corollary' : 'note';
+
+/**
+ * Adds the French text. A few passages exist only in the French and Latin; they join the
+ * book under their parent, before its notes, where the printed editions have them.
+ */
+export const mergeFrenchText = (
+  elements: Map<string, SpinozaElement>,
+  frenchById: Record<string, string>,
+  footnotesById: Record<string, Footnote[]> = {}
+): Map<string, SpinozaElement> => {
+  const merged = new Map<string, SpinozaElement>();
+
+  elements.forEach((element, id) => {
+    merged.set(id, {
+      ...element,
+      frenchText: frenchById[id]?.trim() || undefined,
+      frenchFootnotes: footnotesById[id]
+    });
+  });
+
+  Object.entries(frenchById)
+    .filter(([id]) => !elements.has(id))
+    .forEach(([id, text]) => {
+      const parentId = id.slice(0, id.lastIndexOf('.'));
+      const parent = elements.get(parentId);
+
+      if (!parent) {
+        return;
+      }
+
+      const siblings = [...elements.values()]
+        .filter(element => element.parentId === parentId)
+        .sort((left, right) => left.sortIndex - right.sortIndex);
+      const firstNote = siblings.find(element => element.type === 'note');
+
+      merged.set(id, {
+        id,
+        type: typeFromId(id),
+        text: '',
+        frenchText: text.trim(),
+        parentId,
+        sectionKind: parent.sectionKind,
+        partNumber: parent.partNumber,
+        partNumeral: parent.partNumeral,
+        sortIndex: firstNote ? firstNote.sortIndex - 0.5 : (siblings.at(-1) ?? parent).sortIndex + 0.5
+      });
+    });
+
+  return merged;
+};
+
+export const summarizeSections = (elements: SpinozaElement[], language: Language = 'english'): ReaderSectionSummary[] => {
   const counts = new Map<string, number>();
 
   elements.forEach(element => {
@@ -301,7 +480,7 @@ export const summarizeSections = (elements: SpinozaElement[]): ReaderSectionSumm
   return Array.from(counts.entries()).map(([kind, count]) => ({
     kind,
     count,
-    label: getSectionLabel(kind)
+    label: getLocalizedSectionLabel(kind, language)
   }));
 };
 

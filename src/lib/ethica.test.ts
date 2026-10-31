@@ -1,5 +1,6 @@
-import { formatElementLabel, getVisibleElementIds } from './ethica';
+import { formatElementLabel, formatLocalizedLabel, getPassageText, getVisibleElementIds, matchesQuery, mergeFrenchText } from './ethica';
 import { parseSpinozaXml } from './ethica';
+import { SpinozaElement } from '../types';
 
 describe('parseSpinozaXml', () => {
   it('preserves nested section content and continuations in reading order', () => {
@@ -138,5 +139,55 @@ describe('nested passages', () => {
     expect(getVisibleElementIds(list, 'pity').has('III.prop.27.proof')).toBe(false);
     expect(getVisibleElementIds(list, 'a corollary').has('III.prop.27.corollary2.proof')).toBe(true);
     expect(getVisibleElementIds(list, 'pity').has('III.prop.28')).toBe(false);
+  });
+});
+
+describe('reading languages', () => {
+  const part = (): Map<string, SpinozaElement> =>
+    parseSpinozaXml(`<part id="II" number="2" title="T"><section type="propositions" id="II.propositions">
+      <prop id="II.prop.1" number="1"><text>Statement.</text>
+        <proof id="II.prop.1.proof"><text>Proof.</text></proof>
+        <note id="II.prop.1.note"><text>Note.</text></note>
+      </prop></section></part>`);
+
+  it('adds a French-only passage under its parent, before the notes', () => {
+    const merged = mergeFrenchText(part(), { 'II.prop.1': 'Énoncé.', 'II.prop.1.corollary': 'Corollaire.' });
+    const ordered = [...merged.values()].sort((left, right) => left.sortIndex - right.sortIndex).map(element => element.id);
+
+    expect(ordered).toEqual(['II.prop.1', 'II.prop.1.proof', 'II.prop.1.corollary', 'II.prop.1.note']);
+    expect(merged.get('II.prop.1.corollary')).toMatchObject({ type: 'corollary', parentId: 'II.prop.1', text: '' });
+  });
+
+  it('says why a passage is missing rather than showing nothing', () => {
+    const merged = mergeFrenchText(part(), { 'II.prop.1.corollary': 'Corollaire.' });
+    const corollary = merged.get('II.prop.1.corollary')!;
+
+    expect(getPassageText(corollary, 'french')).toMatchObject({ text: 'Corollaire.', available: true });
+    expect(getPassageText(corollary, 'english').available).toBe(false);
+    expect(getPassageText(merged.get('II.prop.1')!, 'french').available).toBe(false);
+  });
+
+  it('searches French text, ignoring accents and apostrophe style', () => {
+    const element = mergeFrenchText(part(), { 'II.prop.1': 'L’âme humaine.' }).get('II.prop.1')!;
+
+    expect(matchesQuery(element, "l'ame")).toBe(true);
+    expect(matchesQuery(element, 'âme')).toBe(true);
+    expect(matchesQuery(element, 'corps')).toBe(false);
+  });
+
+  it.each([
+    [{ id: 'I.prop.1.proof', type: 'proof' }, 'Démonstration'],
+    [{ id: 'I.prop.1.proof2', type: 'proof' }, 'Autre démonstration'],
+    [{ id: 'I.prop.1.corollary2.proof', type: 'proof' }, 'Démonstration du Corollaire II'],
+    [{ id: 'I.prop.8.note2', type: 'note' }, 'Scolie II'],
+    [{ id: 'I.prop.1', type: 'proposition' }, 'Proposition I'],
+    [{ id: 'I.def.3', type: 'definition' }, 'Définition III'],
+    [{ id: 'III.preface', type: 'preface' }, 'Préface']
+  ] as const)('labels %o in French', (element, label) => {
+    expect(formatLocalizedLabel(element, 'french')).toBe(label);
+  });
+
+  it('keeps English labels for Latin, as before', () => {
+    expect(formatLocalizedLabel({ id: 'I.prop.1.proof', type: 'proof' }, 'latin')).toBe('Proof');
   });
 });

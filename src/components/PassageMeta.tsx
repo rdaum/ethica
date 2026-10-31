@@ -1,6 +1,6 @@
 import React from 'react';
-import { missingLatinMessage, stripFootnoteMarkers } from '../lib/ethica';
-import { ReadingMode, SpinozaElement } from '../types';
+import { getPassageText, LANGUAGE_CODES, LANGUAGE_NAMES, stripFootnoteMarkers } from '../lib/ethica';
+import { Language, ReadingLanguages, SpinozaElement } from '../types';
 
 type MetadataChip = {
   label: string;
@@ -77,52 +77,75 @@ export const MetadataChips: React.FC<{ element: SpinozaElement }> = ({ element }
 
 const truncate = (text: string, length: number): string => (text.length > length ? `${text.slice(0, length).trim()}…` : text);
 
-/** A short excerpt of a passage that follows the reader's chosen language. */
-export const PassagePreview: React.FC<{ element: SpinozaElement; readingMode: ReadingMode; length?: number }> = ({
-  element,
-  readingMode,
-  length = 280
-}) => {
-  const english = stripFootnoteMarkers(element.text);
-  const latin = element.latinText || missingLatinMessage(element);
-
-  if (readingMode === 'latin') {
-    return <p lang={element.latinText ? 'la' : 'en'}>{truncate(latin, length)}</p>;
-  }
-
-  if (readingMode === 'bilingual') {
-    return (
-      <div className="selection-preview-grid">
-        <p lang="en">{truncate(english, length / 2)}</p>
-        <p lang={element.latinText ? 'la' : 'en'}>{truncate(latin, length / 2)}</p>
-      </div>
-    );
-  }
-
-  return <p lang="en">{truncate(english, length)}</p>;
+const PreviewParagraph: React.FC<{ element: SpinozaElement; language: Language; length: number }> = ({ element, language, length }) => {
+  const { text, available } = getPassageText(element, language);
+  return <p lang={available ? LANGUAGE_CODES[language] : 'en'}>{truncate(stripFootnoteMarkers(text), length)}</p>;
 };
 
-const READING_MODES: ReadonlyArray<readonly [ReadingMode, string]> = [
-  ['english', 'English'],
-  ['latin', 'Latin'],
-  ['bilingual', 'Bilingual']
-];
+/** A short excerpt of a passage that follows the reader's chosen languages. */
+export const PassagePreview: React.FC<{ element: SpinozaElement; languages: ReadingLanguages; length?: number }> = ({
+  element,
+  languages: { primary, parallel },
+  length = 280
+}) =>
+  parallel ? (
+    <div className="selection-preview-grid">
+      <PreviewParagraph element={element} language={primary} length={length / 2} />
+      <PreviewParagraph element={element} language={parallel} length={length / 2} />
+    </div>
+  ) : (
+    <PreviewParagraph element={element} language={primary} length={length} />
+  );
 
-export const ReadingModeToggle: React.FC<{
-  value: ReadingMode;
-  onChange: (mode: ReadingMode) => void;
-}> = ({ value, onChange }) => (
-  <div className="reading-mode-buttons" role="group" aria-label="Reading language">
-    {READING_MODES.map(([mode, label]) => (
-      <button
-        key={mode}
-        type="button"
-        aria-pressed={value === mode}
-        className={`reading-mode-button ${value === mode ? 'active' : ''}`}
-        onClick={() => onChange(mode)}
-      >
-        {label}
-      </button>
-    ))}
+const LANGUAGES: readonly Language[] = ['english', 'french', 'latin'];
+
+export const LanguagePicker: React.FC<{
+  value: ReadingLanguages;
+  onChange: (languages: ReadingLanguages) => void;
+}> = ({ value: { primary, parallel }, onChange }) => (
+  <div className="language-picker">
+    <div role="group" aria-label="Read in">
+      <p className="sidebar-kicker">Read in</p>
+      <div className="reading-mode-buttons">
+        {LANGUAGES.map(language => (
+          <button
+            key={language}
+            type="button"
+            lang={LANGUAGE_CODES[language]}
+            aria-pressed={primary === language}
+            className={`reading-mode-button ${primary === language ? 'active' : ''}`}
+            // Choosing the language shown alongside swaps the two.
+            onClick={() => onChange({ primary: language, parallel: parallel === language ? primary : parallel })}
+          >
+            {LANGUAGE_NAMES[language]}
+          </button>
+        ))}
+      </div>
+    </div>
+    <div role="group" aria-label="Compare with">
+      <p className="sidebar-kicker">Compare with</p>
+      <div className="reading-mode-buttons">
+        <button
+          type="button"
+          aria-pressed={parallel === null}
+          className={`reading-mode-button ${parallel === null ? 'active' : ''}`}
+          onClick={() => onChange({ primary, parallel: null })}
+        >
+          None
+        </button>
+        {LANGUAGES.filter(language => language !== primary).map(language => (
+          <button
+            key={language}
+            type="button"
+            lang={LANGUAGE_CODES[language]}
+            aria-pressed={parallel === language}
+            className={`reading-mode-button ${parallel === language ? 'active' : ''}`}
+            onClick={() => onChange({ primary, parallel: language })}
+          >
+            {LANGUAGE_NAMES[language]}
+          </button>
+        ))}
+      </div>
+    </div>
   </div>
 );

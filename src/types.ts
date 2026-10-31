@@ -25,7 +25,9 @@ export interface SpinozaElement {
   type: ElementType;
   text: string;
   latinText?: string;
+  frenchText?: string;
   footnotes?: Footnote[];
+  frenchFootnotes?: Footnote[];
   sortIndex: number;
   sectionKind: string;
   number?: string;
@@ -40,7 +42,13 @@ export interface SpinozaElement {
   variantLabel?: string;
 }
 
-export type ReadingMode = 'english' | 'latin' | 'bilingual';
+export type Language = 'english' | 'french' | 'latin';
+
+/** The language to read in, and optionally a second one shown beside it. */
+export interface ReadingLanguages {
+  primary: Language;
+  parallel: Language | null;
+}
 
 export interface PassageAnalysis {
   /** What a demonstration rests on directly, including through its own proofs. */

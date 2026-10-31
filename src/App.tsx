@@ -1,6 +1,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import BookView from './components/BookView';
-import { ReadingModeToggle } from './components/PassageMeta';
+import { LanguagePicker } from './components/PassageMeta';
 import ReasoningPanel from './components/ReasoningPanel';
 import './App.css';
 import { AnalysisClient, createAnalysisClient } from './lib/analysisClient';
@@ -13,13 +13,16 @@ import {
   sameReaderLocation
 } from './lib/readerUrl';
 import {
+  getPartText,
   getVisibleElementIds,
+  mergeFrenchText,
   mergeLatinText,
   parseSpinozaXml,
   PARTS,
-  summarizeSections
+  summarizeSections,
+  TRANSLATION_CREDITS
 } from './lib/ethica';
-import { PassageAnalysis, ReaderSectionSummary, ReadingMode, SpinozaElement } from './types';
+import { Footnote, PassageAnalysis, ReaderSectionSummary, ReadingLanguages, SpinozaElement } from './types';
 
 const EMPTY_ELEMENTS = new Map<string, SpinozaElement>();
 
@@ -38,6 +41,28 @@ const saveFocusMode = (enabled: boolean) => {
     window.localStorage.setItem(FOCUS_MODE_KEY, String(enabled));
   } catch {
     // Without storage, focus mode simply lasts until the next reload.
+  }
+};
+
+const LANGUAGES_KEY = 'ethica.languages';
+const DEFAULT_LANGUAGES: ReadingLanguages = { primary: 'english', parallel: null };
+const VALID_LANGUAGES = ['english', 'french', 'latin'];
+
+const readLanguages = (): ReadingLanguages => {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(LANGUAGES_KEY) ?? 'null');
+    const validParallel = stored?.parallel === null || (VALID_LANGUAGES.includes(stored?.parallel) && stored.parallel !== stored.primary);
+    return VALID_LANGUAGES.includes(stored?.primary) && validParallel ? stored : DEFAULT_LANGUAGES;
+  } catch {
+    return DEFAULT_LANGUAGES;
+  }
+};
+
+const saveLanguages = (languages: ReadingLanguages) => {
+  try {
+    window.localStorage.setItem(LANGUAGES_KEY, JSON.stringify(languages));
+  } catch {
+    // Without storage, the choice simply lasts until the next reload.
   }
 };
 
@@ -61,14 +86,22 @@ const fetchOk = async (path: string): Promise<Response> => {
 
 const fetchPart = async (part: number): Promise<Map<string, SpinozaElement>> => {
   const xmlText = await (await fetchOk(`ethica_${part}.xml`)).text();
-  // The English reader still works if only the parallel text fails to load.
-  const latin = await fetchOk(`ethica_la_${part}.json`)
-    .then(response => response.json() as Promise<{ elements?: Record<string, string> }>)
-    .catch(latinError => {
-      console.error('Failed to load Latin text:', latinError);
-      return { elements: {} };
-    });
-  const parsed = mergeLatinText(parseSpinozaXml(xmlText), latin.elements ?? {});
+  // The English reader still works if a translation or the Latin fails to load.
+  const optional = <T,>(path: string, empty: T): Promise<T> =>
+    fetchOk(path)
+      .then(response => response.json() as Promise<T>)
+      .catch(optionalError => {
+        console.error(`Failed to load ${path}:`, optionalError);
+        return empty;
+      });
+  const [latin, french] = await Promise.all([
+    optional<{ elements?: Record<string, string> }>(`ethica_la_${part}.json`, {}),
+    optional<{ elements?: Record<string, string>; footnotes?: Record<string, Footnote[]> }>(`ethica_fr_${part}.json`, {})
+  ]);
+  const parsed = mergeLatinText(
+    mergeFrenchText(parseSpinozaXml(xmlText), french.elements ?? {}, french.footnotes ?? {}),
+    latin.elements ?? {}
+  );
 
   if (parsed.size === 0) {
     throw new Error(`ethica_${part}.xml contained no passages`);
@@ -84,7 +117,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPart, setCurrentPart] = useState(initialLocation.part);
   const [loadedPart, setLoadedPart] = useState<number | null>(null);
-  const [readingMode, setReadingMode] = useState<ReadingMode>('english');
+  const [languages, setLanguages] = useState(readLanguages);
   const [selectedElement, setSelectedElement] = useState<string | null>(initialLocation.elementId);
   const [scrollTarget, setScrollTarget] = useState<string | null>(initialLocation.elementId);
   const [query, setQuery] = useState('');
@@ -302,7 +335,7 @@ const App: React.FC = () => {
   const topLevelElements = orderedElements.filter(element => !element.parentId);
   const visibleIds = getVisibleElementIds(orderedElements, deferredQuery);
   const visibleTopLevelElements = topLevelElements.filter(element => visibleIds.has(element.id));
-  const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
+  const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements, languages.primary);
   const selectedEntry = selectedElement ? currentElements.get(selectedElement) : undefined;
   const currentPartMetadata = PARTS[currentPart];
   const selectableEntries = orderedElements.filter(element => visibleIds.has(element.id));
@@ -372,6 +405,13 @@ const App: React.FC = () => {
     });
   };
 
+  const changeLanguages = (next: ReadingLanguages) => {
+    setLanguages(next);
+    saveLanguages(next);
+  };
+
+  const showsFrench = languages.primary === 'french' || languages.parallel === 'french';
+
   const toggleFocusMode = () => {
     const enabled = !focusMode;
     setFocusMode(enabled);
@@ -396,7 +436,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`app mode-${readingMode} ${focusMode ? 'focus-mode' : ''} ${selectedEntry ? 'has-selection' : ''}`}>
+    <div className={`app ${languages.parallel ? 'has-parallel' : ''} ${focusMode ? 'focus-mode' : ''} ${selectedEntry ? 'has-selection' : ''}`}>
       <header className="topbar">
         <div className="brand">
           <button type="button" className="brand-mark" onClick={scrollToTop} aria-label="Scroll to top">
@@ -404,7 +444,7 @@ const App: React.FC = () => {
           </button>
           <div className="brand-text">
             <h1>The Ethics</h1>
-            <p>Spinoza, translated by R.H.M. Elwes</p>
+            <p>{TRANSLATION_CREDITS[languages.primary]}</p>
           </div>
         </div>
 
@@ -469,8 +509,8 @@ const App: React.FC = () => {
                       aria-current={currentPart === part.number ? 'true' : undefined}
                       onClick={() => handlePartChange(part.number)}
                     >
-                      <span>Part {part.numeral}</span>
-                      <strong>{part.title}</strong>
+                      <span>{getPartText(part, languages.primary).heading}</span>
+                      <strong>{getPartText(part, languages.primary).title}</strong>
                     </button>
                     {currentPart === part.number && sectionSummaries.length > 0 && (
                       <ul className="section-links">
@@ -490,8 +530,16 @@ const App: React.FC = () => {
             </nav>
 
             <div className="sidebar-reading-mode">
-              <p className="sidebar-kicker">Language</p>
-              <ReadingModeToggle value={readingMode} onChange={setReadingMode} />
+              <LanguagePicker value={languages} onChange={changeLanguages} />
+              {showsFrench && (
+                <p className="translation-source">
+                  French: Charles Appuhn, Garnier, 1913, from{' '}
+                  <a href="https://fr.wikisource.org/wiki/%C3%89thique_(Appuhn,_1913)" target="_blank" rel="noreferrer">
+                    French Wikisource
+                  </a>
+                  .
+                </p>
+              )}
             </div>
           </div>
         </aside>
@@ -520,10 +568,7 @@ const App: React.FC = () => {
             selectedElement={selectedElement}
             onElementSelect={handleSelectElement}
             currentPart={currentPart}
-            partTitle={currentPartMetadata.title}
-            partNumeral={currentPartMetadata.numeral}
-            partDescription={currentPartMetadata.description}
-            readingMode={readingMode}
+            languages={languages}
           />
         )}
 
@@ -539,7 +584,7 @@ const App: React.FC = () => {
           onRetry={() => setAnalysisAttempt(attempt => attempt + 1)}
           previousElementId={previousEntry?.id ?? null}
           nextElementId={nextEntry?.id ?? null}
-          readingMode={readingMode}
+          languages={languages}
         />
       </main>
     </div>

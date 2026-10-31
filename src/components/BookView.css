@@ -7,7 +7,7 @@
 }
 
 /* Parallel columns need more room than a single measure. */
-.mode-bilingual .book-view {
+.has-parallel .book-view {
   max-width: 60rem;
 }
 
@@ -215,6 +215,12 @@
 
 .parallel-column {
   min-width: 0;
+}
+
+.entry-missing {
+  color: var(--muted);
+  font-size: 0.85em;
+  font-style: italic;
 }
 
 .parallel-text .parallel-label {

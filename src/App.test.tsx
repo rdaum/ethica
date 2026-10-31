@@ -136,6 +136,10 @@ const installFetchMock = () =>
       return fetchResponse(partTwoXml);
     }
 
+    if (url.includes('ethica_fr_')) {
+      return fetchResponse({ elements: {}, footnotes: {} });
+    }
+
     if (url.includes('ethica_la_1.json')) {
       return fetchResponse({ elements: latinByPart[1] });
     }
