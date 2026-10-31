@@ -39,7 +39,7 @@ ethics:TP.I.7 a ethics:Section ;
 ethics:TP.II.1 a ethics:Section ;
     ethics:partNumber 2 ;
     ethics:number 1 ;
-    ethics:editorCites ethics:IV.prop.37.note2, ethics:II.prop.48, ethics:II.prop.49.note .
+    ethics:editorCites ethics:IV.prop.37.note2, ethics:II.prop.48, ethics:II.prop.49.note, ethics:II.prop.49 .
 
 ethics:TP.II.2 a ethics:Section ;
     ethics:partNumber 2 ;
@@ -141,7 +141,8 @@ ethics:TP.II.23 a ethics:Section ;
 
 ethics:TP.II.24 a ethics:Section ;
     ethics:partNumber 2 ;
-    ethics:number 24 .
+    ethics:number 24 ;
+    ethics:editorCites ethics:III.prop.29.note .
 
 ethics:TP.III.1 a ethics:Section ;
     ethics:partNumber 3 ;
