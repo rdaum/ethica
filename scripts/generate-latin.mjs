@@ -7,7 +7,29 @@ import { XMLParser } from 'fast-xml-parser';
 
 const ROOT = process.cwd();
 const PUBLIC_DIR = path.join(ROOT, 'public');
+const CACHE_DIR = path.join(ROOT, '.cache', 'latin');
 const PARTS = [1, 2, 3, 4, 5];
+
+// Passages Elwes separates that sit inside the preceding paragraph in the Latin.
+const INLINE_LATIN_SPLITS = {
+  'III.def.3.note': { from: 'III.def.3', marker: 'Si itaque alicujus' },
+  'III.post.1.note': { from: 'III.post.1', marker: 'Hoc postulatum seu axioma' }
+};
+
+// Elwes labels this a corollary, but the Latin has it as a scholium.
+const LATIN_NOTE_FOR_COROLLARY = new Set(['IV.prop.10.corollary']);
+
+// Latin blocks with no English passage of their own, reviewed by hand. Any other
+// skipped block means the alignment has lost text, so generation fails.
+const EXPECTED_SKIPPED_LATIN = [
+  // These three are missing from the English source text, so no passage can hold them.
+  { before: 'II.prop.13.note', label: 'COROLLARIUM' },
+  { before: 'IV.prop.50.note', label: 'COROLLARIUM' },
+  { before: 'IV.prop.72.note', label: 'DEMONSTRATIO' }
+];
+
+// Elwes gives this proof inside the proposition: "... its attributes (Def. iv.)."
+const LATIN_PROOF_IN_STATEMENT = new Set(['I.prop.9']);
 
 const fetchBuffer = url =>
   new Promise((resolve, reject) => {
@@ -21,6 +43,12 @@ const fetchBuffer = url =>
           }
         },
         response => {
+          if (response.statusCode !== 200) {
+            response.resume();
+            reject(new Error(`GET ${url} returned ${response.statusCode}`));
+            return;
+          }
+
           const chunks = [];
           response.on('data', chunk => chunks.push(chunk));
           response.on('end', () => resolve(Buffer.concat(chunks)));
@@ -29,6 +57,20 @@ const fetchBuffer = url =>
       )
       .on('error', reject);
   });
+
+const readLatinSource = async partNumber => {
+  const fileName = `spinoza.ethica${partNumber}.html`;
+  const cachePath = path.join(CACHE_DIR, fileName);
+
+  if (fs.existsSync(cachePath)) {
+    return fs.readFileSync(cachePath);
+  }
+
+  const buffer = await fetchBuffer(`https://www.thelatinlibrary.com/${fileName}`);
+  fs.mkdirSync(CACHE_DIR, { recursive: true });
+  fs.writeFileSync(cachePath, buffer);
+  return buffer;
+};
 
 const decodeHtmlEntities = value =>
   value
@@ -44,8 +86,7 @@ const decodeHtmlEntities = value =>
     .replace(/&#230;/g, 'ae');
 
 const cleanLatinParagraphs = async partNumber => {
-  const url = `https://www.thelatinlibrary.com/spinoza.ethica${partNumber}.html`;
-  const html = (await fetchBuffer(url)).toString('latin1');
+  const html = (await readLatinSource(partNumber)).toString('latin1');
 
   const stripped = html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -133,20 +174,16 @@ const readEnglishElements = partNumber => {
       const tag = getTagName(child);
       const attrs = getAttributes(child);
 
-      if (tag === 'proof') {
-        addElement({ id: attrs['@_id'], type: 'proof', sectionKind, parentId, editorial: attrs['@_editorial'] === 'true' });
-      }
-
-      if (tag === 'corollary') {
-        addElement({ id: attrs['@_id'], type: 'corollary', sectionKind, parentId, editorial: attrs['@_editorial'] === 'true' });
-      }
-
-      if (tag === 'note' || tag === 'footnote') {
-        addElement({ id: attrs['@_id'], type: 'note', sectionKind, parentId, editorial: attrs['@_editorial'] === 'true' });
-      }
-
-      if (tag === 'explanation') {
-        addElement({ id: attrs['@_id'], type: 'explanation', sectionKind, parentId, editorial: attrs['@_editorial'] === 'true' });
+      if (['proof', 'corollary', 'note', 'explanation'].includes(tag)) {
+        addElement({
+          id: attrs['@_id'],
+          type: tag,
+          sectionKind,
+          parentId,
+          editorial: attrs['@_editorial'] === 'true',
+          hasOwnProof: getChildren(child).some(grandchild => getTagName(grandchild) === 'proof')
+        });
+        processInlineChildren(child, attrs['@_id'], sectionKind);
       }
     });
   };
@@ -252,12 +289,16 @@ const readEnglishElements = partNumber => {
 };
 
 const alignPart = (partNumber, englishElements, latinParagraphs) => {
-  const cursor = { index: 0 };
+  const cursor = { index: 0, skipped: [] };
   const aligned = {};
 
   skipDocumentHeader(latinParagraphs, cursor);
 
   for (const element of englishElements) {
+    if (INLINE_LATIN_SPLITS[element.id]) {
+      continue;
+    }
+
     const text = consumeElement(partNumber, element, latinParagraphs, cursor);
 
     if (text) {
@@ -265,7 +306,35 @@ const alignPart = (partNumber, englishElements, latinParagraphs) => {
     }
   }
 
-  return aligned;
+  applyInlineSplits(aligned, englishElements);
+
+  // Text left after the last aligned element was also never placed.
+  while (cursor.index < latinParagraphs.length) {
+    cursor.skipped.push({ before: 'end of part', text: latinParagraphs[cursor.index] });
+    cursor.index += 1;
+  }
+
+  return { aligned, skipped: cursor.skipped };
+};
+
+const applyInlineSplits = (aligned, englishElements) => {
+  for (const element of englishElements) {
+    const split = INLINE_LATIN_SPLITS[element.id];
+
+    if (!split) {
+      continue;
+    }
+
+    const parentText = aligned[split.from] ?? '';
+    const index = parentText.indexOf(split.marker);
+
+    if (index < 0) {
+      throw new Error(`Could not find "${split.marker}" in the Latin of ${split.from}`);
+    }
+
+    aligned[split.from] = parentText.slice(0, index).trim();
+    aligned[element.id] = parentText.slice(index).trim();
+  }
 };
 
 const skipDocumentHeader = (paragraphs, cursor) => {
@@ -313,6 +382,10 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
       return consumeGeneralDefinition(paragraphs, cursor);
     }
 
+    if (/\.phys_def\.\d+$/.test(element.id)) {
+      return consumeLabeledBlock(paragraphs, cursor, /^DEFINITIO\s*:?\s*(.*)$/i, element.id);
+    }
+
     if (element.type === 'definition') {
       return consumeDefinition(element, paragraphs, cursor);
     }
@@ -326,7 +399,8 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
     }
 
     if (element.type === 'proposition') {
-      return consumeLabeledBlock(paragraphs, cursor, /^PROPOSITIO\s+[IVXLCDM]+\s*:?\s*(.*)$/i, element.id);
+      const statement = consumeLabeledBlock(paragraphs, cursor, /^PROPOSITIO\s+[IVXLCDM]+\s*:?\s*(.*)$/i, element.id);
+      return LATIN_PROOF_IN_STATEMENT.has(element.id) ? appendFollowingProof(statement, paragraphs, cursor, element.id) : statement;
     }
 
     if (element.type === 'lemma') {
@@ -337,8 +411,12 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
       return consumeOptionalLabeledBlock(paragraphs, cursor, /^(DEMONSTRATIO|ALITER)\s*:?\s*(.*)$/i, element.id, 2);
     }
 
+    if (LATIN_NOTE_FOR_COROLLARY.has(element.id)) {
+      return consumeOptionalLabeledBlock(paragraphs, cursor, /^SCHOLIUM(?:\s+[IVXLCDM]+)?\s*:?\s*(.*)$/i, element.id);
+    }
+
     if (element.type === 'corollary') {
-      return consumeOptionalLabeledBlock(
+      const corollary = consumeOptionalLabeledBlock(
         paragraphs,
         cursor,
         /^COROLLARIUM(?:\s+[IVXLCDM]+)?\s*:?\s*(.*)$/i,
@@ -346,6 +424,9 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
         1,
         isBoundaryExceptAliter
       );
+      // Elwes often runs a corollary's demonstration into the corollary itself.
+      const withProof = element.hasOwnProof ? corollary : appendFollowingProof(corollary, paragraphs, cursor, element.id);
+      return withProof.replace(/^ALITER\s*:?\s*/gim, '');
     }
 
     if (element.type === 'note') {
@@ -363,6 +444,15 @@ const consumeElement = (partNumber, element, paragraphs, cursor) => {
   }
 };
 
+const appendFollowingProof = (text, paragraphs, cursor, elementId) => {
+  if (!/^DEMONSTRATIO\b/i.test(paragraphs[cursor.index] ?? '')) {
+    return text;
+  }
+
+  const proof = consumeLabeledBlock(paragraphs, cursor, /^(DEMONSTRATIO)\s*:?\s*(.*)$/i, elementId, 2);
+  return joinParts([text, proof]);
+};
+
 const skipUnexpectedSupplementalBlocks = (element, paragraphs, cursor) => {
   while (cursor.index < paragraphs.length) {
     const current = paragraphs[cursor.index] ?? '';
@@ -374,16 +464,18 @@ const skipUnexpectedSupplementalBlocks = (element, paragraphs, cursor) => {
 
     if (
       (element.type === 'proof' && currentType === 'proof') ||
-      (element.type === 'corollary' && currentType === 'corollary') ||
+      (element.type === 'corollary' && (currentType === 'corollary' || (LATIN_NOTE_FOR_COROLLARY.has(element.id) && currentType === 'note'))) ||
       (element.type === 'note' && currentType === 'note') ||
       (element.type === 'explanation' && currentType === 'explanation')
     ) {
       break;
     }
 
+    cursor.skipped.push({ before: element.id, text: current });
     cursor.index += 1;
 
     while (cursor.index < paragraphs.length && !isBoundary(paragraphs[cursor.index])) {
+      cursor.skipped.push({ before: element.id, text: paragraphs[cursor.index] });
       cursor.index += 1;
     }
   }
@@ -394,9 +486,11 @@ const skipUnexpectedStructuralBlocks = (element, paragraphs, cursor) => {
     const current = paragraphs[cursor.index] ?? '';
 
     if (/^AXIOMA\s+[IVXLCDM]+\b/i.test(current) && element.type !== 'axiom') {
+      cursor.skipped.push({ before: element.id, text: current });
       cursor.index += 1;
 
       while (cursor.index < paragraphs.length && !isBoundary(paragraphs[cursor.index])) {
+        cursor.skipped.push({ before: element.id, text: paragraphs[cursor.index] });
         cursor.index += 1;
       }
 
@@ -404,9 +498,11 @@ const skipUnexpectedStructuralBlocks = (element, paragraphs, cursor) => {
     }
 
     if (/^DEFINITIO\b/i.test(current) && element.type !== 'definition') {
+      cursor.skipped.push({ before: element.id, text: current });
       cursor.index += 1;
 
       while (cursor.index < paragraphs.length && !isBoundary(paragraphs[cursor.index])) {
+        cursor.skipped.push({ before: element.id, text: paragraphs[cursor.index] });
         cursor.index += 1;
       }
 
@@ -581,18 +677,10 @@ const consumeDefinition = (element, paragraphs, cursor) => consumeNumberedItem(p
 
 const consumeAxiom = (element, paragraphs, cursor) => {
   const current = paragraphs[cursor.index] ?? '';
+  const labelled = /^AXIOMA(?:TA)?(?:\s+[IVXLCDM]+)?\s*:?\s*(.*)$/i;
 
-  if (/^AXIOMA\s*:?\s*/i.test(current)) {
-    return consumeLabeledBlock(paragraphs, cursor, /^AXIOMA\s*:?\s*(.*)$/i, element.id);
-  }
-
-  if (/^AXIOMA(?:TA)?\s+[IVXLCDM]+\s*:?\s*/i.test(paragraphs[cursor.index] ?? '')) {
-    return consumeLabeledBlock(
-      paragraphs,
-      cursor,
-      /^AXIOMA(?:TA)?\s+[IVXLCDM]+\s*:?\s*(.*)$/i,
-      element.id
-    );
+  if (labelled.test(current)) {
+    return consumeLabeledBlock(paragraphs, cursor, labelled, element.id);
   }
 
   return consumeNumberedItem(paragraphs, cursor, 'axiom', element.number);
@@ -659,17 +747,17 @@ const consumeOptionalLabeledBlock = (paragraphs, cursor, regex, elementId, value
 };
 
 const isStructuralBoundary = paragraph =>
-  /^(DEFINITIONES(?: AFFECTUUM)?|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|APPENDIX|AFFECTUUM GENERALIS DEFINITIO)(?:\b|:)/i.test(
+  /^(DEFINITIONES(?: AFFECTUUM)?|DEFINITIO\b|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|APPENDIX|AFFECTUUM GENERALIS DEFINITIO)(?:\b|:)/i.test(
     paragraph
   );
 
 const isBoundary = paragraph =>
-  /^(DEFINITIONES(?: AFFECTUUM)?|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|DEMONSTRATIO|ALITER|COROLLARIUM(?:\s+[IVXLCDM]+)?|SCHOLIUM(?:\s+[IVXLCDM]+)?|EXPLICATIO|APPENDIX|CAPUT\s+[IVXLCDM]+|AFFECTUUM GENERALIS DEFINITIO|[IVXLCDM]+\.)/i.test(
+  /^(DEFINITIONES(?: AFFECTUUM)?|DEFINITIO\b|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|DEMONSTRATIO|ALITER|COROLLARIUM(?:\s+[IVXLCDM]+)?|SCHOLIUM(?:\s+[IVXLCDM]+)?|EXPLICATIO|APPENDIX|CAPUT\s+[IVXLCDM]+|AFFECTUUM GENERALIS DEFINITIO|[IVXLCDM]+\.)/i.test(
     paragraph
   );
 
 const isBoundaryExceptAliter = paragraph =>
-  /^(DEFINITIONES(?: AFFECTUUM)?|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|DEMONSTRATIO|COROLLARIUM(?:\s+[IVXLCDM]+)?|SCHOLIUM(?:\s+[IVXLCDM]+)?|EXPLICATIO|APPENDIX|CAPUT\s+[IVXLCDM]+|AFFECTUUM GENERALIS DEFINITIO|[IVXLCDM]+\.)/i.test(
+  /^(DEFINITIONES(?: AFFECTUUM)?|DEFINITIO\b|AFFECTUUM DEFINITIONES|AXIOMATA|AXIOMA(?:\s+[IVXLCDM]+)?|POSTULATA|PROPOSITIO\s+[IVXLCDM]+|LEMMA\s+[IVXLCDM]+|DEMONSTRATIO|COROLLARIUM(?:\s+[IVXLCDM]+)?|SCHOLIUM(?:\s+[IVXLCDM]+)?|EXPLICATIO|APPENDIX|CAPUT\s+[IVXLCDM]+|AFFECTUUM GENERALIS DEFINITIO|[IVXLCDM]+\.)/i.test(
     paragraph
   );
 
@@ -721,7 +809,19 @@ const main = async () => {
   for (const partNumber of PARTS) {
     const englishElements = readEnglishElements(partNumber);
     const latinParagraphs = await cleanLatinParagraphs(partNumber);
-    const aligned = alignPart(partNumber, englishElements, latinParagraphs);
+    const { aligned, skipped } = alignPart(partNumber, englishElements, latinParagraphs);
+    const unexpected = skipped.filter(
+      block => !EXPECTED_SKIPPED_LATIN.some(entry => entry.before === block.before && block.text.startsWith(entry.label))
+    );
+
+    if (unexpected.length) {
+      throw new Error(
+        `Latin text was not placed in Part ${partNumber}:\n${unexpected
+          .map(block => `  before ${block.before}: ${block.text.slice(0, 120)}`)
+          .join('\n')}`
+      );
+    }
+
     const missing = englishElements
       .map(element => element.id)
       .filter(id => !Object.prototype.hasOwnProperty.call(aligned, id));

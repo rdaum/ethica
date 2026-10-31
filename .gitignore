@@ -77,3 +77,6 @@ temp/
 # Playwright
 /playwright-report/
 /test-results/
+
+# Cached source downloads
+/.cache/

@@ -134,15 +134,16 @@ I said that God is the cause of an idea—for instance, of the idea of a circle,
       </proof>
       <corollary id="II.prop.9.corollary">
         <text>Whatsoever takes place in the individual object of any idea, the knowledge thereof is in God, in so far only as he has the idea of the object.</text>
+        <proof id="II.prop.9.corollary.proof">
+          <text>Whatsoever takes place in the object of any idea, its idea is in God (by Prop. iii. of this part), not in so far as he is infinite, but in so far as he is considered as affected by another idea of an individual thing (by the last Prop.); but (by Prop. vii. of this part) the order and connection of ideas is the same as the order and connection of things. The knowledge, therefore, of that which takes place in any individual object will be in God, in so far only as he has the idea of that object. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="II.prop.9.proof2">
-        <text>Whatsoever takes place in the object of any idea, its idea is in God (by Prop. iii. of this part), not in so far as he is infinite, but in so far as he is considered as affected by another idea of an individual thing (by the last Prop.); but (by Prop. vii. of this part) the order and connection of ideas is the same as the order and connection of things. The knowledge, therefore, of that which takes place in any individual object will be in God, in so far only as he has the idea of that object. Q.E.D.</text>
-      </proof>
     </prop>
     <prop id="II.prop.10" number="10">
-      <text>The being of substance does not appertain to the essence of man—in other words, substance does not constitute the actual being[2] of man.
-
-[2] &quot;Forma&quot;</text>
+      <text>The being of substance does not appertain to the essence of man—in other words, substance does not constitute the actual being[2] of man.</text>
+      <footnote number="2">
+        <text>&quot;Forma&quot;</text>
+      </footnote>
       <proof id="II.prop.10.proof">
         <text>The being of substance involves necessary existence (Part i., Prop. vii.). If, therefore, the being of substance appertains to the essence of man, substance being granted, man would necessarily be granted also (II. Def. ii.), and, consequently, man would necessarily exist, which is absurd (II. Ax. i.). Therefore, &amp;c. Q.E.D.</text>
       </proof>
@@ -189,9 +190,10 @@ However, I pass over this point. My intention her was only to give a reason for 
       <note id="II.prop.13.note">
         <text>We thus comprehend, not only that the human mind is united to the body, but also the nature of the union between mind and body. However, no one will be able to grasp this adequately or distinctly, unless he first has adequate knowledge of the nature of our body. The propositions we have advanced hitherto have been entirely general, applying not more to men than to other individual things, all of which, though in different degrees, are animated.[3] For of everything there is necessarily an idea in God, of which God is the cause, in the same way as there is an idea of the human body; thus whatever we have asserted of the idea of the human body must necessarily also be asserted of the idea of everything else. Still, on the other hand, we cannot deny that ideas, like objects, differ one from the other, one being more excellent than another and containing more reality, just as the object of one idea is more excellent than the object of another idea, and contains more reality.
 
-[3] &quot;Animata&quot;
-
 Wherefore, in order to determine, wherein the human mind differs from other things, and wherein it surpasses them, it is necessary for us to know the nature of its object, that is, of the human body. What this nature is, I am not able here to explain, nor is it necessary for the proof of what I advance, that I should do so. I will only say generally, that in proportion as any given body is more fitted than others for doing many actions or receiving many impressions at once, so also is the mind, of which it is the object, more fitted than others for forming many simultaneous perceptions; and the more the actions of the body depend on itself alone, and the fewer other bodies concur with it in action, the more fitted is the mind of which it is the object for distinct comprehension. We may thus recognize the superiority of one mind over others, and may further see the cause, why we have only a very confused knowledge of our body, and also many kindred questions, which I will, in the following propositions, deduce from what has been advanced. Wherefore I have thought it worth while to explain and prove more strictly my present statements. In order to do so, I must premise a few propositions concerning the nature of bodies.</text>
+        <footnote number="3">
+          <text>&quot;Animata&quot;</text>
+        </footnote>
       </note>
     </prop>
     <section type="physical_axioms" id="II.physical_axioms">
@@ -221,19 +223,27 @@ Wherefore, in order to determine, wherein the human mind differs from other thin
           <text>Bodies are individual things (II., Def. i.), which (Lemma I.) are distinguished one from the other in respect to motion and rest; thus (I. xxviii.) each must necessarily be determined to motion or rest by another individual thing, namely (II. vi.), by another body, which other body is also (Ax. i.) in motion or at rest. And this body again can only have been set in motion or caused to rest by being determined by a third body to motion or rest. This third body again by a fourth, and so on to infinity. Q.E.D.</text>
         </proof>
         <corollary id="II.lemma.3.corollary">
-          <text>Hence it follows, that a body in motion keeps in motion, until it is determined to a state of rest by some other body; and a body at rest remains so, until it is determined to a state of motion by some other body. This is indeed self—evident. For when I suppose, for instance, that a given body, A, is at rest, and do not take into consideration other bodies in motion, I cannot affirm anything concerning the body A, except that it is at rest. If it afterwards comes to pass that A is in motion, this cannot have resulted from its having been at rest, for no other consequence could have been involved than its remaining at rest. If, on the other hand, A be given in motion, we shall, so long as we only consider A, be unable to affirm anything concerning it, except that it is in motion. If A is subsequently found to be at rest, this rest cannot be the result of A's previous motion, for such motion can only have led to continued motion; the state of rest therefore must have resulted from something, which was not in A, namely, from an external cause determining A to a state of rest.
-
-Axiom I.—All modes, wherein one body is affected by another body, follow simultaneously from the nature of the body affected and the body affecting; so that one and the same body may be moved in different modes, according to the difference in the nature of the bodies moving it; on the other hand, different bodies may be moved in different modes by one and the same body.
-
-Axiom II.—When a body in motion impinges on another body at rest, which it is unable to move, it recoils, in order to continue its motion, and the angle made by the line of motion in the recoil and the plane of the body at rest, whereon the moving body has impinged, will be equal to the angle formed by the line of motion of incidence and the same plane.
-
-So far we have been speaking only of the most simple bodies, which are only distinguished one from the other by motion and rest, quickness and slowness. We now pass on to compound bodies.
-
-Definition.—When any given bodies of the same or different magnitude are compelled by other bodies to remain in contact, or if they be moved at the same or different rates of speed, so that their mutual movements should preserve among themselves a certain fixed relation, we say that such bodies are in union, and that together they compose one body or individual, which is distinguished from other bodies by the fact of this union.
-
-Axiom III.—In proportion as the parts of an individual, or a compound body, are in contact over a greater or less superficies, they will with greater or less difficulty admit of being moved from their position; consequently the individual will, with greater or less difficulty, be brought to assume another form. Those bodies, whose parts are in contact over large superficies, are called hard; those, whose parts are in contact over small superficies, are called soft; those, whose parts are in motion among one another, are called fluid.</text>
+          <text>Hence it follows, that a body in motion keeps in motion, until it is determined to a state of rest by some other body; and a body at rest remains so, until it is determined to a state of motion by some other body. This is indeed self—evident. For when I suppose, for instance, that a given body, A, is at rest, and do not take into consideration other bodies in motion, I cannot affirm anything concerning the body A, except that it is at rest. If it afterwards comes to pass that A is in motion, this cannot have resulted from its having been at rest, for no other consequence could have been involved than its remaining at rest. If, on the other hand, A be given in motion, we shall, so long as we only consider A, be unable to affirm anything concerning it, except that it is in motion. If A is subsequently found to be at rest, this rest cannot be the result of A's previous motion, for such motion can only have led to continued motion; the state of rest therefore must have resulted from something, which was not in A, namely, from an external cause determining A to a state of rest.</text>
         </corollary>
       </lemma>
+    </section>
+    <section type="physical_axioms" id="II.physical_axioms.2">
+      <axiom id="II.phys_ax2.1" number="1">
+        <text>All modes, wherein one body is affected by another body, follow simultaneously from the nature of the body affected and the body affecting; so that one and the same body may be moved in different modes, according to the difference in the nature of the bodies moving it; on the other hand, different bodies may be moved in different modes by one and the same body.</text>
+      </axiom>
+      <axiom id="II.phys_ax2.2" number="2">
+        <text>When a body in motion impinges on another body at rest, which it is unable to move, it recoils, in order to continue its motion, and the angle made by the line of motion in the recoil and the plane of the body at rest, whereon the moving body has impinged, will be equal to the angle formed by the line of motion of incidence and the same plane.
+
+So far we have been speaking only of the most simple bodies, which are only distinguished one from the other by motion and rest, quickness and slowness. We now pass on to compound bodies.</text>
+      </axiom>
+      <def id="II.phys_def.1" number="1">
+        <text>When any given bodies of the same or different magnitude are compelled by other bodies to remain in contact, or if they be moved at the same or different rates of speed, so that their mutual movements should preserve among themselves a certain fixed relation, we say that such bodies are in union, and that together they compose one body or individual, which is distinguished from other bodies by the fact of this union.</text>
+      </def>
+      <axiom id="II.phys_ax2.3" number="3">
+        <text>In proportion as the parts of an individual, or a compound body, are in contact over a greater or less superficies, they will with greater or less difficulty admit of being moved from their position; consequently the individual will, with greater or less difficulty, be brought to assume another form. Those bodies, whose parts are in contact over large superficies, are called hard; those, whose parts are in contact over small superficies, are called soft; those, whose parts are in motion among one another, are called fluid.</text>
+      </axiom>
+    </section>
+    <section type="lemmas" id="II.lemmas.2">
       <lemma id="II.lemma.4" number="4">
         <text>If from a body or individual, compounded of several bodies, certain bodies be separated, and if, at the same time, an equal number of other bodies of the same nature take their place, the individual will preserve its nature as before, without any change in its actuality (forma).</text>
         <proof id="II.lemma.4.proof">
@@ -283,7 +293,7 @@ Axiom III.—In proportion as the parts of an individual, or a compound body, ar
       <text>The human body can move external bodies, and arrange them in a variety of ways.</text>
     </postulate>
   </section>
-  <section type="propositions" id="II.propositions">
+  <section type="propositions" id="II.propositions.2">
     <prop id="II.prop.14" number="14">
       <text>The human mind is capable of perceiving a great number of things, and is so in proportion as its body is capable of receiving a great number of impressions.</text>
       <proof id="II.prop.14.proof">
@@ -315,10 +325,10 @@ Axiom III.—In proportion as the parts of an individual, or a compound body, ar
       </proof>
       <corollary id="II.prop.17.corollary">
         <text>The mind is able to regard as present external bodies, by which the human body has once been affected, even though they be no longer in existence or present.</text>
+        <proof id="II.prop.17.corollary.proof">
+          <text>When external bodies determine the fluid parts of the human body, so that they often impinge on the softer parts, they change the surface of the last named (Post. v.); hence (Ax. ii., after the Coroll. of Lemma iii.) they are refracted therefrom in a different manner from that which they followed before such change; and, further, when afterwards they impinge on the new surfaces by their own spontaneous movement, they will be refracted in the same manner, as though they had been impelled towards those surfaces by external bodies; consequently, they will, while they continue to be thus refracted, affect the human body in the same manner, whereof the mind (II. xii.) will again take cognizance—that is (II. xvii.), the mind will again regard the external body as present, and will do so, as often as the fluid parts of the human body impinge on the aforesaid surfaces by their own spontaneous motion. Wherefore, although the external bodies, by which the human body has once been affected, be no longer in existence, the mind will nevertheless regard them as present, as often as this action of the body is repeated. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="II.prop.17.proof2">
-        <text>When external bodies determine the fluid parts of the human body, so that they often impinge on the softer parts, they change the surface of the last named (Post. v.); hence (Ax. ii., after the Coroll. of Lemma iii.) they are refracted therefrom in a different manner from that which they followed before such change; and, further, when afterwards they impinge on the new surfaces by their own spontaneous movement, they will be refracted in the same manner, as though they had been impelled towards those surfaces by external bodies; consequently, they will, while they continue to be thus refracted, affect the human body in the same manner, whereof the mind (II. xii.) will again take cognizance—that is (II. xvii.), the mind will again regard the external body as present, and will do so, as often as the fluid parts of the human body impinge on the aforesaid surfaces by their own spontaneous motion. Wherefore, although the external bodies, by which the human body has once been affected, be no longer in existence, the mind will nevertheless regard them as present, as often as this action of the body is repeated. Q.E.D.</text>
-      </proof>
       <note id="II.prop.17.note">
         <text>We thus see how it comes about, as is often the case, that we regard as present many things which are not. It is possible that the same result may be brought about by other causes; but I think it suffices for me here to have indicated one possible explanation, just as well as if I had pointed out the true cause. Indeed, I do not think I am very far from the truth, for all my assumptions are based on postulates, which rest, almost without exception, on experience, that cannot be controverted by those who have shown, as we have, that the human body, as we feel it, exists (Coroll. after II. xiii.). Furthermore (II. vii. Coroll., II. xvi. Coroll. ii.), we clearly understand what is the difference between the idea, say, of Peter, which constitutes the essence of Peter's mind, and the idea of the said Peter, which is in another man, say, Paul. The former directly answers to the essence of Peter's own body, and only implies existence so long as Peter exists; the latter indicates rather the disposition of Paul's body than the nature of Peter, and, therefore, while this disposition of Paul's body lasts, Paul's mind will regard Peter as present to itself, even though he no longer exists. Further, to retain the usual phraseology, the modifications of the human body, of which the ideas represent external bodies as present to us, we will call the images of things, though they do not recall the figure of things. When the mind regards bodies in this fashion, we say that it imagines. I will here draw attention to the fact, in order to indicate where error lies, that the imaginations of the mind, looked at in themselves, do not contain error. The mind does not err in the mere act of imagining, but only in so far as it is regarded as being without the idea, which excludes the existence of such things as it imagines to be present to it. If the mind, while imagining non—existent things as present to it, is at the same time conscious that they do not really exist, this power of imagination must be set down to the efficacy of its nature, and not to a fault, especially if this faculty of imagination depend solely on its own nature—that is (I. Def. vii.), if this faculty of imagination be free.</text>
       </note>
@@ -384,10 +394,10 @@ Axiom III.—In proportion as the parts of an individual, or a compound body, ar
       </proof>
       <corollary id="II.prop.26.corollary">
         <text>In so far as the human mind imagines an external body, it has not an adequate knowledge thereof.</text>
+        <proof id="II.prop.26.corollary.proof">
+          <text>When the human mind regards external bodies through the ideas of the modifications of its own body, we say that it imagines (see II. xvii. note); now the mind can only imagine external bodies as actually existing. Therefore (by II. xxv.), in so far as the mind imagines external bodies, it has not an adequate knowledge of them. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="II.prop.26.proof2">
-        <text>When the human mind regards external bodies through the ideas of the modifications of its own body, we say that it imagines (see II. xvii. note); now the mind can only imagine external bodies as actually existing. Therefore (by II. xxv.), in so far as the mind imagines external bodies, it has not an adequate knowledge of them. Q.E.D.</text>
-      </proof>
     </prop>
     <prop id="II.prop.27" number="27">
       <text>The idea of each modification of the human body does not involve an adequate knowledge of the human body itself.</text>
@@ -473,10 +483,11 @@ Axiom III.—In proportion as the parts of an individual, or a compound body, ar
     <prop id="II.prop.38" number="38">
       <text>Those things, which are common to all, and which are equally in a part and in the whole, cannot be conceived except adequately.</text>
       <proof id="II.prop.38.proof">
-        <text>Let A be something, which is common to all bodies, and which is equally present in the part of any given body and in the whole. I say A cannot be conceived except adequately. For the idea thereof in God will necessarily be adequate (II. vii. Coroll.), both in so far as God has the idea of the human body, and also in so far as he has the idea of the modifications of the human body, which (II. xvi., xxv., xxvii.) involve in part the nature of the human body and the nature of external bodies; that is (II. xii., xiii.), the idea in God will necessarily be adequate, both in so far as he constitutes the human mind, and in so far as he has the ideas, which are in the human mind. Therefore the mind (II. xi. Coroll.) necessarily perceives A adequately, and has this adequate perception, both in so far as it perceives itself, and in so far as it perceives its own or any external body, nor can A be conceived in any other manner. Q.E.D.
-
-Corollary—Hence it follows that there are certain ideas or notions common to all men; for (by Lemma ii.) all bodies agree in certain respects, which (by the foregoing Prop.) must be adequately or clearly and distinctly perceived by all.</text>
+        <text>Let A be something, which is common to all bodies, and which is equally present in the part of any given body and in the whole. I say A cannot be conceived except adequately. For the idea thereof in God will necessarily be adequate (II. vii. Coroll.), both in so far as God has the idea of the human body, and also in so far as he has the idea of the modifications of the human body, which (II. xvi., xxv., xxvii.) involve in part the nature of the human body and the nature of external bodies; that is (II. xii., xiii.), the idea in God will necessarily be adequate, both in so far as he constitutes the human mind, and in so far as he has the ideas, which are in the human mind. Therefore the mind (II. xi. Coroll.) necessarily perceives A adequately, and has this adequate perception, both in so far as it perceives itself, and in so far as it perceives its own or any external body, nor can A be conceived in any other manner. Q.E.D.</text>
       </proof>
+      <corollary id="II.prop.38.corollary">
+        <text>Hence it follows that there are certain ideas or notions common to all men; for (by Lemma ii.) all bodies agree in certain respects, which (by the foregoing Prop.) must be adequately or clearly and distinctly perceived by all.</text>
+      </corollary>
     </prop>
     <prop id="II.prop.39" number="39">
       <text>That, which is common to and a property of the human body and such other bodies as are wont to affect the human body, and which is present equally in each part of either, or in the whole, will be represented by an adequate idea in the mind.</text>
@@ -500,11 +511,12 @@ It is thus not to be wondered at, that among philosophers, who seek to explain t
       <note id="II.prop.40.note2">
         <text>From all that has been said above it is clear, that we, in many cases, perceive and form our general notions:—(1.) From particular things represented to our intellect fragmentarily, confusedly, and without order through our senses (II. xxix. Coroll.); I have settled to call such perceptions by the name of knowledge from the mere suggestions of experience.[4]
 
-[4] A Baconian phrase. Nov. Org. Aph. 100. [Pollock, p. 126, n.]
-
 (2.) From symbols, e.g., from the fact of having read or heard certain words we remember things and form certain ideas concerning them, similar to those through which we imagine things (II. xviii. note). I shall call both these ways of regarding things knowledge of the first kind, opinion, or imagination. (3.) From the fact that we have notions common to all men, and adequate ideas of the properties of things (II. xxxviii. Coroll., xxxix. and Coroll. and xl.); this I call reason and knowledge of the second kind. Besides these two kinds of knowledge, there is, as I will hereafter show, a third kind of knowledge, which we will call intuition. This kind of knowledge proceeds from an adequate idea of the absolute essence of certain attributes of God to the adequate knowledge of the essence of things. I will illustrate all three kinds of knowledge by a single example. Three numbers are given for finding a fourth, which shall be to the third as the second is to the first. Tradesmen without hesitation multiply the second by the third, and divide the product by the first; either because they have not forgotten the rule which they received from a master without any proof, or because they have often made trial of it with simple numbers, or by virtue of the proof of the nineteenth proposition of the seventh book of Euclid, namely, in virtue of the general property of proportionals.
 
 But with very simple numbers there is no need of this. For instance, one, two, three, being given, everyone can see that the fourth proportional is six; and this is much clearer, because we infer the fourth number from an intuitive grasping of the ratio, which the first bears to the second.</text>
+        <footnote number="4">
+          <text>A Baconian phrase. Nov. Org. Aph. 100. [Pollock, p. 126, n.]</text>
+        </footnote>
       </note>
     </prop>
     <prop id="II.prop.41" number="41">
@@ -543,10 +555,10 @@ I think I have thus sufficiently answered these questions—namely, if a true id
       </note>
       <corollary id="II.prop.44.corollary2">
         <text>It is in the nature of reason to perceive things under a certain form of eternity (sub quâdam æternitatis specie).</text>
+        <proof id="II.prop.44.corollary2.proof">
+          <text>It is in the nature of reason to regard things, not as contingent, but as necessary (II. xliv.). Reason perceives this necessity of things (II. xli.) truly—that is (I. Ax. vi.), as it is in itself. But (I. xvi.) this necessity of things is the very necessity of the eternal nature of God; therefore, it is in the nature of reason to regard things under this form of eternity. We may add that the bases of reason are the notions (II. xxxviii.), which answer to things common to all, and which (II. xxxvii.) do not answer to the essence of any particular thing: which must therefore be conceived without any relation to time, under a certain form of eternity.</text>
+        </proof>
       </corollary>
-      <proof id="II.prop.44.proof2">
-        <text>It is in the nature of reason to regard things, not as contingent, but as necessary (II. xliv.). Reason perceives this necessity of things (II. xli.) truly—that is (I. Ax. vi.), as it is in itself. But (I. xvi.) this necessity of things is the very necessity of the eternal nature of God; therefore, it is in the nature of reason to regard things under this form of eternity. We may add that the bases of reason are the notions (II. xxxviii.), which answer to things common to all, and which (II. xxxvii.) do not answer to the essence of any particular thing: which must therefore be conceived without any relation to time, under a certain form of eternity.</text>
-      </proof>
     </prop>
     <prop id="II.prop.45" number="45">
       <text>Every idea of every body, or of every particular thing actually existing, necessarily involves the eternal and infinite essence of God.</text>
@@ -588,10 +600,10 @@ I think I have thus sufficiently answered these questions—namely, if a true id
       </proof>
       <corollary id="II.prop.49.corollary">
         <text>Will and understanding are one and the same.</text>
+        <proof id="II.prop.49.corollary.proof">
+          <text>Will and understanding are nothing beyond the individual volitions and ideas (II. xlviii. and note). But a particular volition and a particular idea are one and the same (by the foregoing Prop.); therefore, will and understanding are one and the same. Q.E.D.</text>
+        </proof>
       </corollary>
-      <proof id="II.prop.49.proof2">
-        <text>Will and understanding are nothing beyond the individual volitions and ideas (II. xlviii. and note). But a particular volition and a particular idea are one and the same (by the foregoing Prop.); therefore, will and understanding are one and the same. Q.E.D.</text>
-      </proof>
       <note id="II.prop.49.note">
         <text>We have thus removed the cause which is commonly assigned for error. For we have shown above, that falsity consists solely in the privation of knowledge involved in ideas which are fragmentary and confused. Wherefore, a false idea, inasmuch as it is false, does not involve certainty. When we say, then, that a man acquiesces in what is false, and that he has no doubts on the subject, we do not say that he is certain, but only that he does not doubt, or that he acquiesces in what is false, inasmuch as there are no reasons, which should cause his imagination to waver (see II. xliv. note). Thus, although the man be assumed to acquiesce in what is false, we shall never say that he is certain. For by certainty we mean something positive (II. xliii. and note), not merely the absence of doubt.
 

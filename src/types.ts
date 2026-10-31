@@ -15,11 +15,17 @@ export type EditorialKind = 'english_only_addition' | 'synthetic_heading' | 'nor
 
 export type SourceAuthority = 'latin_governed' | 'english_structural' | 'runtime_backfill';
 
+export interface Footnote {
+  number: string;
+  text: string;
+}
+
 export interface SpinozaElement {
   id: string;
   type: ElementType;
   text: string;
   latinText?: string;
+  footnotes?: Footnote[];
   sortIndex: number;
   sectionKind: string;
   number?: string;

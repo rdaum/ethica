@@ -1,3 +1,4 @@
+import { formatElementLabel, getVisibleElementIds } from './ethica';
 import { parseSpinozaXml, stripRulesFromN3 } from './ethica';
 
 describe('parseSpinozaXml', () => {
@@ -87,5 +88,69 @@ describe('stripRulesFromN3', () => {
 
     expect(stripRulesFromN3(content)).toContain('ethics:II.prop.1 ethics:cites ethics:I.def.5 .');
     expect(stripRulesFromN3(content)).not.toContain('dependsUpon');
+  });
+});
+
+describe('nested passages', () => {
+  const xml = `<part id="III" number="3" title="T">
+    <section type="propositions" id="III.propositions">
+      <prop id="III.prop.27" number="27">
+        <text>Statement with a marker[6].</text>
+        <footnote number="6"><text>The footnote.</text></footnote>
+        <proof id="III.prop.27.proof"><text>Main proof.</text></proof>
+        <proof id="III.prop.27.proof2"><text>Another way.</text></proof>
+        <corollary id="III.prop.27.corollary2">
+          <text>A corollary.</text>
+          <proof id="III.prop.27.corollary2.proof"><text>Corollary demonstration about pity.</text></proof>
+        </corollary>
+        <note id="III.prop.27.note2"><text>A second note.</text></note>
+      </prop>
+      <prop id="III.prop.28" number="28"><text>Unrelated.</text></prop>
+    </section>
+  </part>`;
+  const elements = parseSpinozaXml(xml);
+  const list = [...elements.values()];
+
+  test('keeps a corollary proof under its corollary, in reading order', () => {
+    expect(elements.get('III.prop.27.corollary2.proof')?.parentId).toBe('III.prop.27.corollary2');
+    expect(list.map(element => element.id)).toEqual([
+      'III.prop.27',
+      'III.prop.27.proof',
+      'III.prop.27.proof2',
+      'III.prop.27.corollary2',
+      'III.prop.27.corollary2.proof',
+      'III.prop.27.note2',
+      'III.prop.28'
+    ]);
+  });
+
+  test('labels passages by what they are', () => {
+    const label = (id: string) => formatElementLabel(elements.get(id)!);
+    expect(label('III.prop.27.proof')).toBe('Proof');
+    expect(label('III.prop.27.proof2')).toBe('Alternate Proof');
+    expect(label('III.prop.27.corollary2')).toBe('Corollary II');
+    expect(label('III.prop.27.corollary2.proof')).toBe('Proof of Corollary II');
+    expect(label('III.prop.27.note2')).toBe('Note II');
+  });
+
+  test('marks only true alternates as variants', () => {
+    expect(elements.get('III.prop.27.proof2')?.variantLabel).toBe('proof2');
+    expect(elements.get('III.prop.27.corollary2')?.variantLabel).toBeUndefined();
+    expect(elements.get('III.prop.27.corollary2.proof')?.variantLabel).toBeUndefined();
+  });
+
+  test('separates footnotes from passage text', () => {
+    const proposition = elements.get('III.prop.27');
+    expect(proposition?.text).toBe('Statement with a marker[6].');
+    expect(proposition?.footnotes).toEqual([{ number: '6', text: 'The footnote.' }]);
+  });
+
+  test('a search keeps ancestors of a match and everything under one', () => {
+    expect([...getVisibleElementIds(list, 'pity')]).toEqual(
+      expect.arrayContaining(['III.prop.27', 'III.prop.27.corollary2', 'III.prop.27.corollary2.proof'])
+    );
+    expect(getVisibleElementIds(list, 'pity').has('III.prop.27.proof')).toBe(false);
+    expect(getVisibleElementIds(list, 'a corollary').has('III.prop.27.corollary2.proof')).toBe(true);
+    expect(getVisibleElementIds(list, 'pity').has('III.prop.28')).toBe(false);
   });
 });

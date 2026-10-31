@@ -244,3 +244,25 @@
     gap: 1rem;
   }
 }
+
+.entry-footnotes {
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0 0 1.4rem;
+  border-top: 1px solid rgba(120, 95, 60, 0.18);
+  font-size: 0.85em;
+  opacity: 0.85;
+}
+
+.entry-footnotes li + li {
+  margin-top: 0.3rem;
+}
+
+.footnote-marker {
+  font-size: 0.7em;
+  line-height: 0;
+  padding-left: 0.1em;
+}
+
+.child-entry .entry-children {
+  margin-top: 0.8rem;
+}

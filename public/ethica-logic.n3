@@ -214,8 +214,14 @@ ethics:I.prop.10 a ethics:Proposition ;
 ethics:I.prop.10.proof a ethics:Proof ;
     ethics:partNumber 1 ;
     ethics:partOf ethics:I.prop.10 ;
-    ethics:cites ethics:I.def.4, ethics:I.def.3, ethics:I.def.1  .
+    ethics:cites ethics:I.def.4, ethics:I.def.3  .
 ethics:I.prop.10 ethics:provedBy ethics:I.prop.10.proof .
+
+ethics:I.prop.10.note a ethics:Note ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.10 ;
+    ethics:cites ethics:I.def.1  .
+ethics:I.prop.10 ethics:hasNote ethics:I.prop.10.note .
 
 ethics:I.prop.11 a ethics:Proposition ;
     ethics:partNumber 1 ;
@@ -412,6 +418,16 @@ ethics:I.prop.20.proof a ethics:Proof ;
     ethics:cites ethics:I.def.8  .
 ethics:I.prop.20 ethics:provedBy ethics:I.prop.20.proof .
 
+ethics:I.prop.20.corollary1 a ethics:Corollary ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.20  .
+ethics:I.prop.20 ethics:hasCorollary ethics:I.prop.20.corollary1 .
+
+ethics:I.prop.20.corollary2 a ethics:Corollary ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.20  .
+ethics:I.prop.20 ethics:hasCorollary ethics:I.prop.20.corollary2 .
+
 ethics:I.prop.21 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 21 ;
@@ -574,13 +590,30 @@ ethics:I.prop.32 a ethics:Proposition ;
 ethics:I.prop.32.proof a ethics:Proof ;
     ethics:partNumber 1 ;
     ethics:partOf ethics:I.prop.32 ;
-    ethics:cites ethics:I.prop.28, ethics:I.prop.23, ethics:I.prop.29, ethics:I.def.7  .
+    ethics:cites ethics:I.prop.28, ethics:I.prop.23, ethics:I.def.7  .
 ethics:I.prop.32 ethics:provedBy ethics:I.prop.32.proof .
+
+ethics:I.prop.32.corollary1 a ethics:Corollary ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.32  .
+ethics:I.prop.32 ethics:hasCorollary ethics:I.prop.32.corollary1 .
+
+ethics:I.prop.32.corollary2 a ethics:Corollary ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.32 ;
+    ethics:cites ethics:I.prop.29  .
+ethics:I.prop.32 ethics:hasCorollary ethics:I.prop.32.corollary2 .
 
 ethics:I.prop.33 a ethics:Proposition ;
     ethics:partNumber 1 ;
     ethics:number 33 ;
     ethics:cites ethics:I.prop.16, ethics:I.prop.29, ethics:I.prop.11, ethics:I.prop.14, ethics:I.prop.17, ethics:I.def.1, ethics:I.def.7  .
+
+ethics:I.prop.33.proof a ethics:Proof ;
+    ethics:partNumber 1 ;
+    ethics:partOf ethics:I.prop.33 ;
+    ethics:cites ethics:I.prop.16, ethics:I.prop.29, ethics:I.prop.11, ethics:I.prop.14  .
+ethics:I.prop.33 ethics:provedBy ethics:I.prop.33.proof .
 
 ethics:I.prop.33.note1 a ethics:Note ;
     ethics:partNumber 1 ;
@@ -838,14 +871,15 @@ ethics:II.prop.9 ethics:provedBy ethics:II.prop.9.proof .
 
 ethics:II.prop.9.corollary a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.prop.9  .
-ethics:II.prop.9 ethics:hasCorollary ethics:II.prop.9.corollary .
-
-ethics:II.prop.9.proof2 a ethics:Proof ;
-    ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.9 ;
     ethics:cites ethics:II.prop.3, ethics:II.prop.7  .
-ethics:II.prop.9 ethics:provedBy ethics:II.prop.9.proof2 .
+ethics:II.prop.9 ethics:hasCorollary ethics:II.prop.9.corollary .
+
+ethics:II.prop.9.corollary.proof a ethics:Proof ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.9.corollary ;
+    ethics:cites ethics:II.prop.3, ethics:II.prop.7  .
+ethics:II.prop.9.corollary ethics:provedBy ethics:II.prop.9.corollary.proof .
 
 ethics:II.prop.10 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -962,7 +996,7 @@ ethics:II.lemma.2 ethics:provedBy ethics:II.lemma.2.proof .
 ethics:II.lemma.3 a ethics:Proposition ;
     ethics:partNumber 2 ;
     ethics:number 3 ;
-    ethics:cites ethics:I.prop.28, ethics:II.prop.6, ethics:II.def.1, ethics:II.ax.1, ethics:II.ax.2, ethics:II.ax.3, ethics:II.lemma.1  .
+    ethics:cites ethics:I.prop.28, ethics:II.prop.6, ethics:II.def.1, ethics:II.ax.1, ethics:II.lemma.1  .
 
 ethics:II.lemma.3.proof a ethics:Proof ;
     ethics:partNumber 2 ;
@@ -972,9 +1006,24 @@ ethics:II.lemma.3 ethics:provedBy ethics:II.lemma.3.proof .
 
 ethics:II.lemma.3.corollary a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.lemma.3 ;
-    ethics:cites ethics:II.def.1, ethics:II.ax.1, ethics:II.ax.2, ethics:II.ax.3  .
+    ethics:partOf ethics:II.lemma.3  .
 ethics:II.lemma.3 ethics:hasCorollary ethics:II.lemma.3.corollary .
+
+ethics:II.phys_ax2.1 a ethics:Axiom ;
+    ethics:partNumber 2 ;
+    ethics:number 1  .
+
+ethics:II.phys_ax2.2 a ethics:Axiom ;
+    ethics:partNumber 2 ;
+    ethics:number 2  .
+
+ethics:II.phys_def.1 a ethics:Definition ;
+    ethics:partNumber 2 ;
+    ethics:number 1  .
+
+ethics:II.phys_ax2.3 a ethics:Axiom ;
+    ethics:partNumber 2 ;
+    ethics:number 3  .
 
 ethics:II.lemma.4 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -1104,20 +1153,21 @@ ethics:II.prop.17 ethics:provedBy ethics:II.prop.17.proof .
 
 ethics:II.prop.17.corollary a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.prop.17  .
-ethics:II.prop.17 ethics:hasCorollary ethics:II.prop.17.corollary .
-
-ethics:II.prop.17.proof2 a ethics:Proof ;
-    ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.17 ;
     ethics:cites ethics:II.prop.12, ethics:II.prop.17, ethics:II.ax.2, ethics:II.lemma.3, ethics:II.post.5  .
-ethics:II.prop.17 ethics:provedBy ethics:II.prop.17.proof2 .
+ethics:II.prop.17 ethics:hasCorollary ethics:II.prop.17.corollary .
 
 ethics:II.prop.17.note a ethics:Note ;
     ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.17 ;
     ethics:cites ethics:I.def.7, ethics:II.prop.13, ethics:II.prop.7, ethics:II.prop.16.corollary2, ethics:II.def.7  .
 ethics:II.prop.17 ethics:hasNote ethics:II.prop.17.note .
+
+ethics:II.prop.17.corollary.proof a ethics:Proof ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.17.corollary ;
+    ethics:cites ethics:II.prop.12, ethics:II.prop.17, ethics:II.ax.2, ethics:II.lemma.3, ethics:II.post.5  .
+ethics:II.prop.17.corollary ethics:provedBy ethics:II.prop.17.corollary.proof .
 
 ethics:II.prop.18 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -1232,14 +1282,15 @@ ethics:II.prop.26 ethics:provedBy ethics:II.prop.26.proof .
 
 ethics:II.prop.26.corollary a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.prop.26  .
-ethics:II.prop.26 ethics:hasCorollary ethics:II.prop.26.corollary .
-
-ethics:II.prop.26.proof2 a ethics:Proof ;
-    ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.26 ;
     ethics:cites ethics:II.prop.17, ethics:II.prop.25  .
-ethics:II.prop.26 ethics:provedBy ethics:II.prop.26.proof2 .
+ethics:II.prop.26 ethics:hasCorollary ethics:II.prop.26.corollary .
+
+ethics:II.prop.26.corollary.proof a ethics:Proof ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.26.corollary ;
+    ethics:cites ethics:II.prop.17, ethics:II.prop.25  .
+ethics:II.prop.26.corollary ethics:provedBy ethics:II.prop.26.corollary.proof .
 
 ethics:II.prop.27 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -1398,8 +1449,14 @@ ethics:II.prop.38 a ethics:Proposition ;
 ethics:II.prop.38.proof a ethics:Proof ;
     ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.38 ;
-    ethics:cites ethics:II.prop.7, ethics:II.prop.16, ethics:II.prop.12, ethics:II.prop.11, ethics:II.lemma.2  .
+    ethics:cites ethics:II.prop.7, ethics:II.prop.16, ethics:II.prop.12, ethics:II.prop.11  .
 ethics:II.prop.38 ethics:provedBy ethics:II.prop.38.proof .
+
+ethics:II.prop.38.corollary a ethics:Corollary ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.38 ;
+    ethics:cites ethics:II.lemma.2  .
+ethics:II.prop.38 ethics:hasCorollary ethics:II.prop.38.corollary .
 
 ethics:II.prop.39 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -1503,14 +1560,15 @@ ethics:II.prop.44 ethics:hasNote ethics:II.prop.44.note .
 
 ethics:II.prop.44.corollary2 a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.prop.44  .
-ethics:II.prop.44 ethics:hasCorollary ethics:II.prop.44.corollary2 .
-
-ethics:II.prop.44.proof2 a ethics:Proof ;
-    ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.44 ;
     ethics:cites ethics:I.ax.6, ethics:II.prop.44, ethics:II.prop.41, ethics:I.prop.16, ethics:II.prop.38, ethics:II.prop.37  .
-ethics:II.prop.44 ethics:provedBy ethics:II.prop.44.proof2 .
+ethics:II.prop.44 ethics:hasCorollary ethics:II.prop.44.corollary2 .
+
+ethics:II.prop.44.corollary2.proof a ethics:Proof ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.44.corollary2 ;
+    ethics:cites ethics:I.ax.6, ethics:II.prop.44, ethics:II.prop.41, ethics:I.prop.16, ethics:II.prop.38, ethics:II.prop.37  .
+ethics:II.prop.44.corollary2 ethics:provedBy ethics:II.prop.44.corollary2.proof .
 
 ethics:II.prop.45 a ethics:Proposition ;
     ethics:partNumber 2 ;
@@ -1587,20 +1645,21 @@ ethics:II.prop.49 ethics:provedBy ethics:II.prop.49.proof .
 
 ethics:II.prop.49.corollary a ethics:Corollary ;
     ethics:partNumber 2 ;
-    ethics:partOf ethics:II.prop.49  .
-ethics:II.prop.49 ethics:hasCorollary ethics:II.prop.49.corollary .
-
-ethics:II.prop.49.proof2 a ethics:Proof ;
-    ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.49 ;
     ethics:cites ethics:II.prop.48  .
-ethics:II.prop.49 ethics:provedBy ethics:II.prop.49.proof2 .
+ethics:II.prop.49 ethics:hasCorollary ethics:II.prop.49.corollary .
 
 ethics:II.prop.49.note a ethics:Note ;
     ethics:partNumber 2 ;
     ethics:partOf ethics:II.prop.49 ;
     ethics:cites ethics:II.prop.1, ethics:II.prop.44, ethics:II.prop.43, ethics:II.prop.17, ethics:II.prop.35  .
 ethics:II.prop.49 ethics:hasNote ethics:II.prop.49.note .
+
+ethics:II.prop.49.corollary.proof a ethics:Proof ;
+    ethics:partNumber 2 ;
+    ethics:partOf ethics:II.prop.49.corollary ;
+    ethics:cites ethics:II.prop.48  .
+ethics:II.prop.49.corollary ethics:provedBy ethics:II.prop.49.corollary.proof .
 
 ethics:III.def.1 a ethics:Definition ;
     ethics:partNumber 3 ;
@@ -1839,20 +1898,21 @@ ethics:III.prop.15 ethics:provedBy ethics:III.prop.15.proof .
 
 ethics:III.prop.15.corollary a ethics:Corollary ;
     ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.15  .
-ethics:III.prop.15 ethics:hasCorollary ethics:III.prop.15.corollary .
-
-ethics:III.prop.15.proof2 a ethics:Proof ;
-    ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.15 ;
     ethics:cites ethics:III.prop.14, ethics:III.prop.11, ethics:III.prop.12, ethics:III.prop.13  .
-ethics:III.prop.15 ethics:provedBy ethics:III.prop.15.proof2 .
+ethics:III.prop.15 ethics:hasCorollary ethics:III.prop.15.corollary .
 
 ethics:III.prop.15.note a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.15 ;
     ethics:cites ethics:III.prop.1  .
 ethics:III.prop.15 ethics:hasNote ethics:III.prop.15.note .
+
+ethics:III.prop.15.corollary.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.15.corollary ;
+    ethics:cites ethics:III.prop.14, ethics:III.prop.11, ethics:III.prop.12, ethics:III.prop.13  .
+ethics:III.prop.15.corollary ethics:provedBy ethics:III.prop.15.corollary.proof .
 
 ethics:III.prop.16 a ethics:Proposition ;
     ethics:partNumber 3 ;
@@ -2033,41 +2093,43 @@ ethics:III.prop.27 ethics:hasNote ethics:III.prop.27.note1 .
 
 ethics:III.prop.27.corollary1 a ethics:Corollary ;
     ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.27  .
-ethics:III.prop.27 ethics:hasCorollary ethics:III.prop.27.corollary1 .
-
-ethics:III.prop.27.proof2 a ethics:Proof ;
-    ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.27 ;
     ethics:cites ethics:III.prop.22, ethics:III.prop.21, ethics:III.prop.1  .
-ethics:III.prop.27 ethics:provedBy ethics:III.prop.27.proof2 .
+ethics:III.prop.27 ethics:hasCorollary ethics:III.prop.27.corollary1 .
 
 ethics:III.prop.27.corollary2 a ethics:Corollary ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.27  .
 ethics:III.prop.27 ethics:hasCorollary ethics:III.prop.27.corollary2 .
 
-ethics:III.prop.27.proof3 a ethics:Proof ;
-    ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.27  .
-ethics:III.prop.27 ethics:provedBy ethics:III.prop.27.proof3 .
-
 ethics:III.prop.27.corollary3 a ethics:Corollary ;
-    ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.27  .
-ethics:III.prop.27 ethics:hasCorollary ethics:III.prop.27.corollary3 .
-
-ethics:III.prop.27.proof4 a ethics:Proof ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.27 ;
     ethics:cites ethics:III.prop.13, ethics:III.prop.9  .
-ethics:III.prop.27 ethics:provedBy ethics:III.prop.27.proof4 .
+ethics:III.prop.27 ethics:hasCorollary ethics:III.prop.27.corollary3 .
 
 ethics:III.prop.27.note2 a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.27 ;
     ethics:cites ethics:III.prop.22  .
 ethics:III.prop.27 ethics:hasNote ethics:III.prop.27.note2 .
+
+ethics:III.prop.27.corollary1.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.27.corollary1 ;
+    ethics:cites ethics:III.prop.22, ethics:III.prop.21, ethics:III.prop.1  .
+ethics:III.prop.27.corollary1 ethics:provedBy ethics:III.prop.27.corollary1.proof .
+
+ethics:III.prop.27.corollary2.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.27.corollary2  .
+ethics:III.prop.27.corollary2 ethics:provedBy ethics:III.prop.27.corollary2.proof .
+
+ethics:III.prop.27.corollary3.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.27.corollary3 ;
+    ethics:cites ethics:III.prop.13, ethics:III.prop.9  .
+ethics:III.prop.27.corollary3 ethics:provedBy ethics:III.prop.27.corollary3.proof .
 
 ethics:III.prop.28 a ethics:Proposition ;
     ethics:partNumber 3 ;
@@ -2203,19 +2265,20 @@ ethics:III.prop.36 ethics:provedBy ethics:III.prop.36.proof .
 
 ethics:III.prop.36.corollary a ethics:Corollary ;
     ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.36  .
-ethics:III.prop.36 ethics:hasCorollary ethics:III.prop.36.corollary .
-
-ethics:III.prop.36.proof2 a ethics:Proof ;
-    ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.36 ;
     ethics:cites ethics:III.prop.19  .
-ethics:III.prop.36 ethics:provedBy ethics:III.prop.36.proof2 .
+ethics:III.prop.36 ethics:hasCorollary ethics:III.prop.36.corollary .
 
 ethics:III.prop.36.note a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.36  .
 ethics:III.prop.36 ethics:hasNote ethics:III.prop.36.note .
+
+ethics:III.prop.36.corollary.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.36.corollary ;
+    ethics:cites ethics:III.prop.19  .
+ethics:III.prop.36.corollary ethics:provedBy ethics:III.prop.36.corollary.proof .
 
 ethics:III.prop.37 a ethics:Proposition ;
     ethics:partNumber 3 ;
@@ -2280,19 +2343,20 @@ ethics:III.prop.40 ethics:hasCorollary ethics:III.prop.40.corollary1 .
 
 ethics:III.prop.40.corollary2 a ethics:Corollary ;
     ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.40  .
-ethics:III.prop.40 ethics:hasCorollary ethics:III.prop.40.corollary2 .
-
-ethics:III.prop.40.proof2 a ethics:Proof ;
-    ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.40 ;
     ethics:cites ethics:III.prop.26, ethics:III.prop.39  .
-ethics:III.prop.40 ethics:provedBy ethics:III.prop.40.proof2 .
+ethics:III.prop.40 ethics:hasCorollary ethics:III.prop.40.corollary2 .
 
 ethics:III.prop.40.note2 a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.40  .
 ethics:III.prop.40 ethics:hasNote ethics:III.prop.40.note2 .
+
+ethics:III.prop.40.corollary2.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.40.corollary2 ;
+    ethics:cites ethics:III.prop.26, ethics:III.prop.39  .
+ethics:III.prop.40.corollary2 ethics:provedBy ethics:III.prop.40.corollary2.proof .
 
 ethics:III.prop.41 a ethics:Proposition ;
     ethics:partNumber 3 ;
@@ -2458,7 +2522,7 @@ ethics:III.prop.51 ethics:provedBy ethics:III.prop.51.proof .
 ethics:III.prop.51.note a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.51 ;
-    ethics:cites ethics:III.prop.39, ethics:II.prop.13, ethics:III.prop.28, ethics:III.prop.49  .
+    ethics:cites ethics:III.prop.39, ethics:III.prop.28, ethics:III.prop.49, ethics:II.prop.13  .
 ethics:III.prop.51 ethics:hasNote ethics:III.prop.51.note .
 
 ethics:III.prop.52 a ethics:Proposition ;
@@ -2531,20 +2595,21 @@ ethics:III.prop.55 ethics:hasNote ethics:III.prop.55.note .
 
 ethics:III.prop.55.corollary2 a ethics:Corollary ;
     ethics:partNumber 3 ;
-    ethics:partOf ethics:III.prop.55  .
-ethics:III.prop.55 ethics:hasCorollary ethics:III.prop.55.corollary2 .
-
-ethics:III.prop.55.proof2 a ethics:Proof ;
-    ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.55 ;
     ethics:cites ethics:III.prop.24, ethics:III.prop.13, ethics:III.prop.11  .
-ethics:III.prop.55 ethics:provedBy ethics:III.prop.55.proof2 .
+ethics:III.prop.55 ethics:hasCorollary ethics:III.prop.55.corollary2 .
 
 ethics:III.prop.55.note2 a ethics:Note ;
     ethics:partNumber 3 ;
     ethics:partOf ethics:III.prop.55 ;
     ethics:cites ethics:III.prop.52  .
 ethics:III.prop.55 ethics:hasNote ethics:III.prop.55.note2 .
+
+ethics:III.prop.55.corollary2.proof a ethics:Proof ;
+    ethics:partNumber 3 ;
+    ethics:partOf ethics:III.prop.55.corollary2 ;
+    ethics:cites ethics:III.prop.24, ethics:III.prop.13, ethics:III.prop.11  .
+ethics:III.prop.55.corollary2 ethics:provedBy ethics:III.prop.55.corollary2.proof .
 
 ethics:III.prop.56 a ethics:Proposition ;
     ethics:partNumber 3 ;
@@ -3193,14 +3258,15 @@ ethics:IV.prop.12 ethics:provedBy ethics:IV.prop.12.proof .
 
 ethics:IV.prop.12.corollary a ethics:Corollary ;
     ethics:partNumber 4 ;
-    ethics:partOf ethics:IV.prop.12  .
-ethics:IV.prop.12 ethics:hasCorollary ethics:IV.prop.12.corollary .
-
-ethics:IV.prop.12.proof2 a ethics:Proof ;
-    ethics:partNumber 4 ;
     ethics:partOf ethics:IV.prop.12 ;
     ethics:cites ethics:IV.prop.9, ethics:IV.prop.10  .
-ethics:IV.prop.12 ethics:provedBy ethics:IV.prop.12.proof2 .
+ethics:IV.prop.12 ethics:hasCorollary ethics:IV.prop.12.corollary .
+
+ethics:IV.prop.12.corollary.proof a ethics:Proof ;
+    ethics:partNumber 4 ;
+    ethics:partOf ethics:IV.prop.12.corollary ;
+    ethics:cites ethics:IV.prop.9, ethics:IV.prop.10  .
+ethics:IV.prop.12.corollary ethics:provedBy ethics:IV.prop.12.corollary.proof .
 
 ethics:IV.prop.13 a ethics:Proposition ;
     ethics:partNumber 4 ;
@@ -3874,8 +3940,14 @@ ethics:IV.prop.58 a ethics:Proposition ;
 ethics:IV.prop.58.proof a ethics:Proof ;
     ethics:partNumber 4 ;
     ethics:partOf ethics:IV.prop.58 ;
-    ethics:cites ethics:IV.prop.37, ethics:IV.prop.52, ethics:IV.prop.44, ethics:IV.def.1  .
+    ethics:cites ethics:IV.prop.37, ethics:IV.def.1  .
 ethics:IV.prop.58 ethics:provedBy ethics:IV.prop.58.proof .
+
+ethics:IV.prop.58.note a ethics:Note ;
+    ethics:partNumber 4 ;
+    ethics:partOf ethics:IV.prop.58 ;
+    ethics:cites ethics:IV.prop.52, ethics:IV.prop.44  .
+ethics:IV.prop.58 ethics:hasNote ethics:IV.prop.58.note .
 
 ethics:IV.prop.59 a ethics:Proposition ;
     ethics:partNumber 4 ;
@@ -3963,19 +4035,20 @@ ethics:IV.prop.63 ethics:hasNote ethics:IV.prop.63.note .
 
 ethics:IV.prop.63.corollary a ethics:Corollary ;
     ethics:partNumber 4 ;
-    ethics:partOf ethics:IV.prop.63  .
-ethics:IV.prop.63 ethics:hasCorollary ethics:IV.prop.63.corollary .
-
-ethics:IV.prop.63.proof2 a ethics:Proof ;
-    ethics:partNumber 4 ;
     ethics:partOf ethics:IV.prop.63 ;
     ethics:cites ethics:III.prop.59, ethics:IV.prop.61, ethics:IV.prop.8  .
-ethics:IV.prop.63 ethics:provedBy ethics:IV.prop.63.proof2 .
+ethics:IV.prop.63 ethics:hasCorollary ethics:IV.prop.63.corollary .
 
 ethics:IV.prop.63.note2 a ethics:Note ;
     ethics:partNumber 4 ;
     ethics:partOf ethics:IV.prop.63  .
 ethics:IV.prop.63 ethics:hasNote ethics:IV.prop.63.note2 .
+
+ethics:IV.prop.63.corollary.proof a ethics:Proof ;
+    ethics:partNumber 4 ;
+    ethics:partOf ethics:IV.prop.63.corollary ;
+    ethics:cites ethics:III.prop.59, ethics:IV.prop.61, ethics:IV.prop.8  .
+ethics:IV.prop.63.corollary ethics:provedBy ethics:IV.prop.63.corollary.proof .
 
 ethics:IV.prop.64 a ethics:Proposition ;
     ethics:partNumber 4 ;
@@ -4116,10 +4189,10 @@ ethics:IV.prop.72 a ethics:Proposition ;
     ethics:partNumber 4 ;
     ethics:number 72  .
 
-ethics:IV.prop.72.proof a ethics:Proof ;
+ethics:IV.prop.72.note a ethics:Note ;
     ethics:partNumber 4 ;
     ethics:partOf ethics:IV.prop.72  .
-ethics:IV.prop.72 ethics:provedBy ethics:IV.prop.72.proof .
+ethics:IV.prop.72 ethics:hasNote ethics:IV.prop.72.note .
 
 ethics:IV.prop.73 a ethics:Proposition ;
     ethics:partNumber 4 ;
@@ -4180,6 +4253,11 @@ ethics:V.prop.3.proof a ethics:Proof ;
     ethics:partOf ethics:V.prop.3 ;
     ethics:cites ethics:II.prop.21, ethics:III.prop.3  .
 ethics:V.prop.3 ethics:provedBy ethics:V.prop.3.proof .
+
+ethics:V.prop.3.corollary a ethics:Corollary ;
+    ethics:partNumber 5 ;
+    ethics:partOf ethics:V.prop.3  .
+ethics:V.prop.3 ethics:hasCorollary ethics:V.prop.3.corollary .
 
 ethics:V.prop.4 a ethics:Proposition ;
     ethics:partNumber 5 ;
@@ -4249,8 +4327,14 @@ ethics:V.prop.8 a ethics:Proposition ;
 ethics:V.prop.8.proof a ethics:Proof ;
     ethics:partNumber 5 ;
     ethics:partOf ethics:V.prop.8 ;
-    ethics:cites ethics:V.ax.2, ethics:III.prop.7, ethics:IV.prop.5, ethics:V.prop.1  .
+    ethics:cites ethics:III.prop.7, ethics:IV.prop.5  .
 ethics:V.prop.8 ethics:provedBy ethics:V.prop.8.proof .
+
+ethics:V.prop.8.note a ethics:Note ;
+    ethics:partNumber 5 ;
+    ethics:partOf ethics:V.prop.8 ;
+    ethics:cites ethics:V.ax.2, ethics:V.prop.1  .
+ethics:V.prop.8 ethics:hasNote ethics:V.prop.8.note .
 
 ethics:V.prop.9 a ethics:Proposition ;
     ethics:partNumber 5 ;
@@ -4349,12 +4433,12 @@ ethics:V.prop.16 ethics:provedBy ethics:V.prop.16.proof .
 ethics:V.prop.17 a ethics:Proposition ;
     ethics:partNumber 5 ;
     ethics:number 17 ;
-    ethics:cites ethics:II.def.4, ethics:II.prop.32, ethics:II.prop.3  .
+    ethics:cites ethics:II.def.4, ethics:II.prop.32, ethics:I.prop.20.corollary2, ethics:II.prop.3  .
 
 ethics:V.prop.17.proof a ethics:Proof ;
     ethics:partNumber 5 ;
     ethics:partOf ethics:V.prop.17 ;
-    ethics:cites ethics:II.def.4, ethics:II.prop.32, ethics:II.prop.3  .
+    ethics:cites ethics:II.def.4, ethics:II.prop.32, ethics:I.prop.20.corollary2, ethics:II.prop.3  .
 ethics:V.prop.17 ethics:provedBy ethics:V.prop.17.proof .
 
 ethics:V.prop.17.corollary a ethics:Corollary ;
@@ -4475,6 +4559,11 @@ ethics:V.prop.25 ethics:provedBy ethics:V.prop.25.proof .
 ethics:V.prop.26 a ethics:Proposition ;
     ethics:partNumber 5 ;
     ethics:number 26  .
+
+ethics:V.prop.26.proof a ethics:Proof ;
+    ethics:partNumber 5 ;
+    ethics:partOf ethics:V.prop.26  .
+ethics:V.prop.26 ethics:provedBy ethics:V.prop.26.proof .
 
 ethics:V.prop.27 a ethics:Proposition ;
     ethics:partNumber 5 ;

@@ -1,6 +1,6 @@
 import { XMLParser } from 'fast-xml-parser';
 import { Parser, Store } from 'n3';
-import { EditorialKind, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
+import { EditorialKind, Footnote, PartMetadata, ReaderSectionSummary, SourceAuthority, SpinozaElement } from '../types';
 
 const SECTION_LABELS: Record<string, string> = {
   preface: 'Preface',
@@ -108,6 +108,12 @@ export const formatElementLabel = (element: Pick<SpinozaElement, 'id' | 'type' |
     return 'Appendix';
   }
 
+  const subElementLabel = formatSubElementLabel(element);
+
+  if (subElementLabel) {
+    return subElementLabel;
+  }
+
   const parts = element.id.split('.');
   const subElement = parts[3];
   const numberToken = element.number ?? parts[2];
@@ -125,22 +131,41 @@ export const formatElementLabel = (element: Pick<SpinozaElement, 'id' | 'type' |
             ? `Lemma ${romanNumber}`
             : element.type === 'postulate'
               ? `Postulate ${romanNumber}`
-              : element.type === 'proof'
-                ? 'Proof'
-                : element.type === 'corollary'
-                  ? 'Corollary'
-                  : element.type === 'note'
-                    ? 'Note'
-                    : element.type === 'explanation'
-                      ? 'Explanation'
-                      : humanizeToken(element.type);
+              : humanizeToken(element.type);
 
-  if (!subElement || ['proof', 'corollary', 'note', 'explanation'].includes(element.type)) {
+  if (!subElement) {
     return base.trim();
   }
 
   return `${base} ${humanizeToken(subElement)}`.trim();
 };
+
+const withNumeral = (label: string, digits: string | undefined): string =>
+  digits ? `${label} ${toRoman(Number.parseInt(digits, 10))}` : label;
+
+const formatSubElementLabel = ({ id, type }: Pick<SpinozaElement, 'id' | 'type'>): string | null => {
+  if (type === 'proof') {
+    const corollaryProof = id.match(/\.corollary(\d*)\.proof\d*$/);
+
+    if (corollaryProof) {
+      return `Proof of ${withNumeral('Corollary', corollaryProof[1])}`;
+    }
+
+    return /\.proof\d+$/.test(id) ? 'Alternate Proof' : 'Proof';
+  }
+
+  if (type === 'corollary' || type === 'note' || type === 'explanation') {
+    const label = humanizeToken(type);
+    return withNumeral(label, id.match(new RegExp(`\\.${type}(\\d+)$`))?.[1]);
+  }
+
+  return null;
+};
+
+export const missingLatinMessage = ({ isEditorial }: Pick<SpinozaElement, 'isEditorial'>): string =>
+  isEditorial
+    ? 'This note was added by the English edition and has no separate Latin passage.'
+    : 'Latin text is not available for this passage.';
 
 export const matchesQuery = (element: SpinozaElement, query: string): boolean => {
   const normalizedQuery = query.trim().toLowerCase();
@@ -152,6 +177,38 @@ export const matchesQuery = (element: SpinozaElement, query: string): boolean =>
   return [element.text, element.latinText, element.canonicalLabel ?? formatElementLabel(element), element.heading, element.id]
     .filter(Boolean)
     .some(value => value!.toLowerCase().includes(normalizedQuery));
+};
+
+/**
+ * The passages a search leaves on the page: anything that matches, everything under
+ * a match, and the ancestors needed to reach a match.
+ */
+export const getVisibleElementIds = (elements: SpinozaElement[], query: string): Set<string> => {
+  if (!query.trim()) {
+    return new Set(elements.map(element => element.id));
+  }
+
+  const byId = new Map(elements.map(element => [element.id, element]));
+  const matched = new Set(elements.filter(element => matchesQuery(element, query)).map(element => element.id));
+  const visible = new Set(matched);
+
+  matched.forEach(id => {
+    for (let parentId = byId.get(id)?.parentId; parentId; parentId = byId.get(parentId)?.parentId) {
+      visible.add(parentId);
+    }
+  });
+
+  // Parents sort before their children, so a match cascades all the way down.
+  [...elements]
+    .sort((left, right) => left.sortIndex - right.sortIndex)
+    .forEach(element => {
+      if (element.parentId && matched.has(element.parentId)) {
+        matched.add(element.id);
+        visible.add(element.id);
+      }
+    });
+
+  return visible;
 };
 
 export const mergeLatinText = (
@@ -242,6 +299,11 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
   const processInlineChildren = (node: OrderedNode, parentId: string, sectionKind: string) => {
     getChildren(node).forEach(child => {
       const tag = getTagName(child);
+
+      if (tag !== 'proof' && tag !== 'corollary' && tag !== 'note' && tag !== 'explanation') {
+        return;
+      }
+
       const attrs = getAttributes(child);
       const text = extractNodeBody(child);
 
@@ -249,50 +311,17 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
         return;
       }
 
-      if (tag === 'proof') {
-        addElement({
-          id: attrs['@_id'],
-          type: 'proof',
-          text,
-          parentId,
-          sectionKind,
-          isEditorial: attrs['@_editorial'] === 'true'
-        });
-      }
-
-      if (tag === 'corollary') {
-        addElement({
-          id: attrs['@_id'],
-          type: 'corollary',
-          text,
-          parentId,
-          sectionKind,
-          isEditorial: attrs['@_editorial'] === 'true'
-        });
-      }
-
-      if (tag === 'note' || tag === 'footnote') {
-        addElement({
-          id: attrs['@_id'],
-          type: 'note',
-          text,
-          number: attrs['@_number'],
-          parentId,
-          sectionKind,
-          isEditorial: attrs['@_editorial'] === 'true'
-        });
-      }
-
-      if (tag === 'explanation') {
-        addElement({
-          id: attrs['@_id'],
-          type: 'explanation',
-          text,
-          parentId,
-          sectionKind,
-          isEditorial: attrs['@_editorial'] === 'true'
-        });
-      }
+      addElement({
+        id: attrs['@_id'],
+        type: tag,
+        text,
+        number: tag === 'note' ? attrs['@_number'] : undefined,
+        parentId,
+        sectionKind,
+        footnotes: extractFootnotes(child),
+        isEditorial: attrs['@_editorial'] === 'true'
+      });
+      processInlineChildren(child, attrs['@_id'], sectionKind);
     });
   };
 
@@ -307,6 +336,7 @@ export const parseSpinozaXml = (xmlText: string): Map<string, SpinozaElement> =>
       text,
       number: attrs['@_number'],
       sectionKind,
+      footnotes: extractFootnotes(node),
       isEditorial: attrs['@_editorial'] === 'true'
     });
 
@@ -523,6 +553,14 @@ const extractNodeBody = (node: OrderedNode): string => {
   return joinText(segments);
 };
 
+const extractFootnotes = (node: OrderedNode): Footnote[] | undefined => {
+  const footnotes = getChildren(node)
+    .filter(child => getTagName(child) === 'footnote')
+    .map(child => ({ number: getAttributes(child)['@_number'], text: extractNodeBody(child) }));
+
+  return footnotes.length ? footnotes : undefined;
+};
+
 const extractRecursiveText = (node: OrderedNode): string => joinText(collectText(node));
 
 const PARTS_BY_NUMERAL = Object.fromEntries(Object.values(PARTS).map(part => [part.numeral, part])) as Record<
@@ -553,24 +591,15 @@ const romanNumeralToInteger = (value: string): number | undefined => {
   return total;
 };
 
+// Only "Another proof" passages are true alternates; numbered notes and corollaries
+// carry their number in their label instead.
 const inferVariantLabel = (id: string, type: SpinozaElement['type']): string | undefined => {
-  const pattern =
-    type === 'proof'
-      ? /\.proof(\d+)$/
-      : type === 'corollary'
-        ? /\.corollary(\d+)$/
-        : type === 'note'
-          ? /\.note(\d+)$/
-          : type === 'explanation'
-            ? /\.explanation(\d+)$/
-            : null;
-
-  if (!pattern) {
+  if (type !== 'proof' || /\.corollary\d*\.proof/.test(id)) {
     return undefined;
   }
 
-  const match = id.match(pattern);
-  return match ? `${type}${match[1]}` : undefined;
+  const match = id.match(/\.proof(\d+)$/);
+  return match ? `proof${match[1]}` : undefined;
 };
 
 const inferEditorialKind = (

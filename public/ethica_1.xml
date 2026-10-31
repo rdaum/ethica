@@ -14,9 +14,10 @@
       <text>By attribute, I mean that which the intellect perceives as constituting the essence of substance.</text>
     </def>
     <def id="I.def.5" number="5">
-      <text>By mode, I mean the modifications[1] of substance, or that which exists in, and is conceived through, something other than itself.
-
-[1] &quot;Affectiones&quot;</text>
+      <text>By mode, I mean the modifications[1] of substance, or that which exists in, and is conceived through, something other than itself.</text>
+      <footnote number="1">
+        <text>&quot;Affectiones&quot;</text>
+      </footnote>
     </def>
     <def id="I.def.6" number="6">
       <text>By God, I mean a being absolutely infinite—that is, a substance consisting in infinite attributes, of which each expresses eternal and infinite essentiality.</text>
@@ -131,12 +132,13 @@ It therefore follows that, if a given number of individual things exist in natur
     <prop id="I.prop.10" number="10">
       <text>Each particular attribute of the one substance must be conceived through itself.</text>
       <proof id="I.prop.10.proof">
-        <text>An attribute is that which the intellect perceives of substance, as constituting its essence (Def. iv.), and, therefore, must be conceived through itself (Def. iii.). Q.E.D.
-
-Note—It is thus evident that, though two attributes are, in fact, conceived as distinct—that is, one without the help of the other—yet we cannot, therefore, conclude that they constitute two entities, or two different substances. For it is the nature of substance that each of its attributes is conceived through itself, inasmuch as all the attributes it has have always existed simultaneously in it, and none could be produced by any other; but each expresses the reality or being of substance. It is, then, far from an absurdity to ascribe several attributes to one substance: for nothing in nature is more clear than that each and every entity must be conceived under some attribute, and that its reality or being is in proportion to the number of its attributes expressing necessity or eternity and infinity. Consequently it is abundantly clear, that an absolutely infinite being must necessarily be defined as consisting in infinite attributes, each of which expresses a certain eternal and infinite essence.
+        <text>An attribute is that which the intellect perceives of substance, as constituting its essence (Def. iv.), and, therefore, must be conceived through itself (Def. iii.). Q.E.D.</text>
+      </proof>
+      <note id="I.prop.10.note">
+        <text>It is thus evident that, though two attributes are, in fact, conceived as distinct—that is, one without the help of the other—yet we cannot, therefore, conclude that they constitute two entities, or two different substances. For it is the nature of substance that each of its attributes is conceived through itself, inasmuch as all the attributes it has have always existed simultaneously in it, and none could be produced by any other; but each expresses the reality or being of substance. It is, then, far from an absurdity to ascribe several attributes to one substance: for nothing in nature is more clear than that each and every entity must be conceived under some attribute, and that its reality or being is in proportion to the number of its attributes expressing necessity or eternity and infinity. Consequently it is abundantly clear, that an absolutely infinite being must necessarily be defined as consisting in infinite attributes, each of which expresses a certain eternal and infinite essence.
 
 If anyone now ask, by what sign shall he be able to distinguish different substances, let him read the following propositions, which show that there is but one substance in the universe, and that it is absolutely infinite, wherefore such a sign would be sought in vain.</text>
-      </proof>
+      </note>
     </prop>
     <prop id="I.prop.11" number="11">
       <text>God, or substance, consisting of infinite attributes, of which each expresses eternal and infinite essentiality, necessarily exists.</text>
@@ -270,12 +272,14 @@ For example, a man is the cause of another man's existence, but not of his essen
     <prop id="I.prop.20" number="20">
       <text>The existence of God and his essence are one and the same.</text>
       <proof id="I.prop.20.proof">
-        <text>God (by the last Prop.) and all his attributes are eternal, that is (by Def. viii.) each of his attributes expresses existence. Therefore the same attributes of God which explain his eternal essence, explain at the same time his eternal existence—in other words, that which constitutes God's essence constitutes at the same time his existence. Wherefore God's existence and God's essence are one and the same. Q.E.D.
-
-Coroll. I.—Hence it follows that God's existence, like his essence, is an eternal truth.
-
-Coroll. II—Secondly, it follows that God, and all the attributes of God, are unchangeable. For if they could be changed in respect to existence, they must also be able to be changed in respect to essence—that is, obviously, be changed from true to false, which is absurd.</text>
+        <text>God (by the last Prop.) and all his attributes are eternal, that is (by Def. viii.) each of his attributes expresses existence. Therefore the same attributes of God which explain his eternal essence, explain at the same time his eternal existence—in other words, that which constitutes God's essence constitutes at the same time his existence. Wherefore God's existence and God's essence are one and the same. Q.E.D.</text>
       </proof>
+      <corollary id="I.prop.20.corollary1">
+        <text>Hence it follows that God's existence, like his essence, is an eternal truth.</text>
+      </corollary>
+      <corollary id="I.prop.20.corollary2">
+        <text>Secondly, it follows that God, and all the attributes of God, are unchangeable. For if they could be changed in respect to existence, they must also be able to be changed in respect to essence—that is, obviously, be changed from true to false, which is absurd.</text>
+      </corollary>
     </prop>
     <prop id="I.prop.21" number="21">
       <text>All things which follow from the absolute nature of any attribute of God must always exist and be infinite, or, in other words, are eternal and infinite through the said attribute.</text>
@@ -374,17 +378,20 @@ By nature viewed as passive I understand all that which follows from the necessi
     <prop id="I.prop.32" number="32">
       <text>Will cannot be called a free cause, but only a necessary cause.</text>
       <proof id="I.prop.32.proof">
-        <text>Will is only a particular mode of thinking, like intellect; therefore (by Prop. xxviii.) no volition can exist, nor be conditioned to act, unless it be conditioned by some cause other than itself, which cause is conditioned by a third cause, and so on to infinity. But if will be supposed infinite, it must also be conditioned to exist and act by God, not by virtue of his being substance absolutely infinite, but by virtue of his possessing an attribute which expresses the infinite and eternal essence of thought (by Prop. xxiii.). Thus, however it be conceived, whether as finite or infinite, it requires a cause by which it should be conditioned to exist and act. Thus (Def. vii.) it cannot be called a free cause, but only a necessary or constrained cause. Q.E.D.
-
-Coroll. I.—Hence it follows, first, that God does not act according to freedom of the will.
-
-Coroll. II.—It follows, secondly, that will and intellect stand in the same relation to the nature of God as do motion, and rest, and absolutely all natural phenomena, which must be conditioned by God (Prop. xxix.) to exist and act in a particular manner. For will, like the rest, stands in need of a cause, by which it is conditioned to exist and act in a particular manner. And although, when will or intellect be granted, an infinite number of results may follow, yet God cannot on that account be said to act from freedom of the will, any more than the infinite number of results from motion and rest would justify us in saying that motion and rest act by free will. Wherefore will no more appertains to God than does anything else in nature, but stands in the same relation to him as motion, rest, and the like, which we have shown to follow from the necessity of the divine nature, and to be conditioned by it to exist and act in a particular manner.</text>
+        <text>Will is only a particular mode of thinking, like intellect; therefore (by Prop. xxviii.) no volition can exist, nor be conditioned to act, unless it be conditioned by some cause other than itself, which cause is conditioned by a third cause, and so on to infinity. But if will be supposed infinite, it must also be conditioned to exist and act by God, not by virtue of his being substance absolutely infinite, but by virtue of his possessing an attribute which expresses the infinite and eternal essence of thought (by Prop. xxiii.). Thus, however it be conceived, whether as finite or infinite, it requires a cause by which it should be conditioned to exist and act. Thus (Def. vii.) it cannot be called a free cause, but only a necessary or constrained cause. Q.E.D.</text>
       </proof>
+      <corollary id="I.prop.32.corollary1">
+        <text>Hence it follows, first, that God does not act according to freedom of the will.</text>
+      </corollary>
+      <corollary id="I.prop.32.corollary2">
+        <text>It follows, secondly, that will and intellect stand in the same relation to the nature of God as do motion, and rest, and absolutely all natural phenomena, which must be conditioned by God (Prop. xxix.) to exist and act in a particular manner. For will, like the rest, stands in need of a cause, by which it is conditioned to exist and act in a particular manner. And although, when will or intellect be granted, an infinite number of results may follow, yet God cannot on that account be said to act from freedom of the will, any more than the infinite number of results from motion and rest would justify us in saying that motion and rest act by free will. Wherefore will no more appertains to God than does anything else in nature, but stands in the same relation to him as motion, rest, and the like, which we have shown to follow from the necessity of the divine nature, and to be conditioned by it to exist and act in a particular manner.</text>
+      </corollary>
     </prop>
     <prop id="I.prop.33" number="33">
-      <text>Things could not have been brought into being by God in any manner or in any order different from that which has in fact obtained.
-
-Proof—All things necessarily follow from the nature of God (Prop. xvi.), and by the nature of God are conditioned to exist and act in a particular way (Prop. xxix.). If things, therefore, could have been of a different nature, or have been conditioned to act in a different way, so that the order of nature would have been different, God's nature would also have been able to be different from what it now is; and therefore (by Prop. xi.) that different nature also would have perforce existed, and consequently there would have been able to be two or more Gods. This (by Prop. xiv., Coroll. i.) is absurd. Therefore things could not have been brought into being by God in any other manner, &amp;c. Q.E.D.</text>
+      <text>Things could not have been brought into being by God in any manner or in any order different from that which has in fact obtained.</text>
+      <proof id="I.prop.33.proof">
+        <text>All things necessarily follow from the nature of God (Prop. xvi.), and by the nature of God are conditioned to exist and act in a particular way (Prop. xxix.). If things, therefore, could have been of a different nature, or have been conditioned to act in a different way, so that the order of nature would have been different, God's nature would also have been able to be different from what it now is; and therefore (by Prop. xi.) that different nature also would have perforce existed, and consequently there would have been able to be two or more Gods. This (by Prop. xiv., Coroll. i.) is absurd. Therefore things could not have been brought into being by God in any other manner, &amp;c. Q.E.D.</text>
+      </proof>
       <note id="I.prop.33.note1">
         <text>As I have thus shown, more clearly than the sun at noonday, that there is nothing to justify us in calling things contingent, I wish to explain briefly what meaning we shall attach to the word contingent; but I will first explain the words necessary and impossible.
 

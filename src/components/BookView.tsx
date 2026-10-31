@@ -1,11 +1,12 @@
 import React from 'react';
 import './BookView.css';
-import { formatElementLabel, getSectionLabel, matchesQuery } from '../lib/ethica';
+import { formatElementLabel, getSectionLabel, missingLatinMessage } from '../lib/ethica';
 import { ReadingMode, SpinozaElement } from '../types';
 
 interface BookViewProps {
   elements: SpinozaElement[];
   query: string;
+  visibleIds: Set<string>;
   onElementHover: (elementId: string | null) => void;
   onElementSelect: (elementId: string | null) => void;
   selectedElement: string | null;
@@ -17,7 +18,7 @@ interface BookViewProps {
 
 const BookView: React.FC<BookViewProps> = ({
   elements,
-  query,
+  visibleIds,
   onElementHover,
   onElementSelect,
   selectedElement,
@@ -29,7 +30,7 @@ const BookView: React.FC<BookViewProps> = ({
   const childrenByParent = new Map<string, SpinozaElement[]>();
 
   elements.forEach(element => {
-    if (!element.parentId) {
+    if (!element.parentId || !visibleIds.has(element.id)) {
       return;
     }
 
@@ -38,18 +39,43 @@ const BookView: React.FC<BookViewProps> = ({
     childrenByParent.set(element.parentId, children);
   });
 
-  const topLevelElements = elements.filter(element => !element.parentId);
-  const visibleElements = topLevelElements.filter(topLevel => {
-    if (!query.trim()) {
-      return true;
+  const visibleElements = elements.filter(element => !element.parentId && visibleIds.has(element.id));
+
+  const renderChildren = (parentId: string) => {
+    const children = childrenByParent.get(parentId) ?? [];
+
+    if (children.length === 0) {
+      return null;
     }
 
-    if (matchesQuery(topLevel, query)) {
-      return true;
-    }
-
-    return (childrenByParent.get(topLevel.id) ?? []).some(child => matchesQuery(child, query));
-  });
+    return (
+      <div className="entry-children">
+        {children.map(child => (
+          <article
+            key={child.id}
+            className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''} ${hoveredElement === child.id ? 'hovered' : ''}`}
+            onMouseEnter={() => onElementHover(child.id)}
+            onMouseLeave={() => onElementHover(null)}
+            onClick={event => {
+              event.stopPropagation();
+              onElementSelect(selectedElement === child.id ? null : child.id);
+            }}
+            data-element-id={child.id}
+          >
+            <header className="entry-header child-header">
+              <div>
+                <p className="entry-type">{child.type}</p>
+                <h4>{formatElementLabel(child)}</h4>
+              </div>
+              <span className="entry-id">{child.id}</span>
+            </header>
+            <div className="entry-body compact">{renderEntryBody(child, readingMode)}</div>
+            {renderChildren(child.id)}
+          </article>
+        ))}
+      </div>
+    );
+  };
 
   let previousSectionKind: string | null = null;
 
@@ -70,7 +96,6 @@ const BookView: React.FC<BookViewProps> = ({
       {visibleElements.map(element => {
         const showSectionHeading = previousSectionKind !== element.sectionKind;
         previousSectionKind = element.sectionKind;
-        const parentMatches = matchesQuery(element, query);
 
         return (
           <div key={element.id} data-section-kind={element.sectionKind}>
@@ -95,21 +120,9 @@ const BookView: React.FC<BookViewProps> = ({
                 <span className="entry-id">{element.id}</span>
               </header>
 
-              <div className="entry-body">
-                {renderEntryBody(element, readingMode)}
-              </div>
+              <div className="entry-body">{renderEntryBody(element, readingMode)}</div>
 
-              {renderChildren(
-                element.id,
-                childrenByParent,
-                query,
-                parentMatches,
-                selectedElement,
-                hoveredElement,
-                onElementHover,
-                onElementSelect,
-                readingMode
-              )}
+              {renderChildren(element.id)}
             </article>
           </div>
         );
@@ -118,63 +131,9 @@ const BookView: React.FC<BookViewProps> = ({
   );
 };
 
-const renderChildren = (
-  parentId: string,
-  childrenByParent: Map<string, SpinozaElement[]>,
-  query: string,
-  parentMatches: boolean,
-  selectedElement: string | null,
-  hoveredElement: string | null,
-  onElementHover: (elementId: string | null) => void,
-  onElementSelect: (elementId: string | null) => void,
-  readingMode: ReadingMode
-) => {
-  const children = (childrenByParent.get(parentId) ?? []).filter(child => {
-    if (!query.trim()) {
-      return true;
-    }
-
-    return parentMatches || matchesQuery(child, query);
-  });
-
-  if (children.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="entry-children">
-      {children.map(child => (
-        <article
-          key={child.id}
-          className={`child-entry entry-${child.type} ${selectedElement === child.id ? 'selected' : ''} ${hoveredElement === child.id ? 'hovered' : ''}`}
-          onMouseEnter={() => onElementHover(child.id)}
-          onMouseLeave={() => onElementHover(null)}
-          onClick={event => {
-            event.stopPropagation();
-            onElementSelect(selectedElement === child.id ? null : child.id);
-          }}
-          data-element-id={child.id}
-        >
-          <header className="entry-header child-header">
-            <div>
-              <p className="entry-type">{child.type}</p>
-              <h4>{formatElementLabel(child)}</h4>
-            </div>
-            <span className="entry-id">{child.id}</span>
-          </header>
-          <div className="entry-body compact">
-            {renderEntryBody(child, readingMode)}
-          </div>
-        </article>
-      ))}
-    </div>
-  );
-};
-
 const renderEntryBody = (element: SpinozaElement, readingMode: ReadingMode) => {
   if (readingMode === 'latin') {
-    const text = element.latinText || 'Latin text not yet available for this passage.';
-    return renderParagraphs(text, element.latinText ? 'latin' : 'english');
+    return renderParagraphs(element.latinText || missingLatinMessage(element), element.latinText ? 'latin' : 'english');
   }
 
   if (readingMode === 'bilingual') {
@@ -182,21 +141,33 @@ const renderEntryBody = (element: SpinozaElement, readingMode: ReadingMode) => {
       <div className="parallel-text">
         <div className="parallel-column">
           <p className="parallel-label">English</p>
-          {renderParagraphs(element.text, 'english')}
+          {renderEnglish(element)}
         </div>
         <div className="parallel-column">
           <p className="parallel-label">Latin</p>
-          {renderParagraphs(
-            element.latinText || 'Latin text not yet available for this passage.',
-            element.latinText ? 'latin' : 'english'
-          )}
+          {renderParagraphs(element.latinText || missingLatinMessage(element), element.latinText ? 'latin' : 'english')}
         </div>
       </div>
     );
   }
 
-  return renderParagraphs(element.text, 'english');
+  return renderEnglish(element);
 };
+
+const renderEnglish = (element: SpinozaElement) => (
+  <>
+    {renderParagraphs(element.text, 'english')}
+    {element.footnotes && (
+      <ol className="entry-footnotes" aria-label="Footnotes">
+        {element.footnotes.map(footnote => (
+          <li key={footnote.number} value={Number(footnote.number)}>
+            {footnote.text}
+          </li>
+        ))}
+      </ol>
+    )}
+  </>
+);
 
 const renderParagraphs = (text: string, language: 'english' | 'latin') =>
   text
@@ -205,8 +176,20 @@ const renderParagraphs = (text: string, language: 'english' | 'latin') =>
     .filter(Boolean)
     .map((paragraph, index) => (
       <p key={`${language}-${index}`} lang={language === 'latin' ? 'la' : 'en'}>
-        {paragraph}
+        {renderFootnoteMarkers(paragraph)}
       </p>
     ));
+
+const renderFootnoteMarkers = (paragraph: string) =>
+  paragraph.split(/(\[\d+\])/).map((segment, index) => {
+    const marker = segment.match(/^\[(\d+)\]$/);
+    return marker ? (
+      <sup key={index} className="footnote-marker">
+        {marker[1]}
+      </sup>
+    ) : (
+      segment
+    );
+  });
 
 export default BookView;

@@ -7,7 +7,9 @@ import { XMLParser } from 'fast-xml-parser';
 const ROOT = process.cwd();
 const RAW_TEXT_PATH = path.join(ROOT, 'ethica.txt');
 const PUBLIC_DIR = path.join(ROOT, 'public');
-const EDITORIAL_ELEMENT_IDS = new Set(['II.ax.5.note', 'III.def.3.note', 'III.post.1.note', 'IV.prop.10.corollary']);
+// Elwes adds this cross-reference as a separate note. In the Latin it is only a
+// parenthesis inside the axiom, so it has no passage of its own to align to.
+const EDITORIAL_ELEMENT_IDS = new Set(['II.ax.5.note']);
 
 const PARTS = {
   I: {
@@ -66,7 +68,7 @@ const main = async () => {
 };
 
 const parseAllParts = rawText => {
-  const partHeadingRegex = /^PART\s+(I|II|III|IV|V)[.:](?:\s+(.*))?$/gm;
+  const partHeadingRegex = /^PART[ \t]+(I|II|III|IV|V)[.:](?:[ \t]+(.*))?$/gm;
   const partStarts = [...rawText.matchAll(partHeadingRegex)].map(match => ({
     numeral: match[1],
     heading: match[0],
@@ -155,8 +157,19 @@ const parsePartSegment = (numeral, segment, inlineTitle = '') => {
     numeral,
     number: metadata.number,
     title,
-    sections
+    sections: uniquifySectionIds(sections)
   };
+};
+
+// Part II's propositions resume after the postulates, giving two sections of one type.
+const uniquifySectionIds = sections => {
+  const seen = new Map();
+
+  return sections.map(section => {
+    const count = (seen.get(section.id) ?? 0) + 1;
+    seen.set(section.id, count);
+    return count === 1 ? section : { ...section, id: `${section.id}.${count}` };
+  });
 };
 
 const parseSection = (numeral, heading, lines) => {
@@ -285,13 +298,14 @@ const parseNumberedItems = (numeral, prefix, lines, options) => {
   return blocks.map((block, index) => {
     const number = block.number ? String(romanToNumber(block.number)) : String(index + 1);
     const id = `${numeral}.${prefix}.${number}`;
-    const { text, children } = splitChildren(block.paragraphs, id, options.sectionType, options.itemTag === 'def');
+    const { text, footnotes, children } = splitChildren(block.paragraphs, id, options.sectionType, options.itemTag === 'def');
 
     return {
       tag: options.itemTag,
       id,
       number,
       text,
+      footnotes,
       children
     };
   });
@@ -323,8 +337,8 @@ const parsePropositionsSection = (numeral, lines) => {
 
       const number = String(romanToNumber(match[1]));
       const id = `${numeral}.prop.${number}`;
-      const { text, children } = splitChildren(block, id, 'propositions', false);
-      items.push({ kind: 'prop', id, number, text, children });
+      const { text, footnotes, children } = splitChildren(block, id, 'propositions', false);
+      items.push({ kind: 'prop', id, number, text, footnotes, children });
       continue;
     }
 
@@ -356,7 +370,8 @@ const parsePropositionsSection = (numeral, lines) => {
           index < paragraphs.length &&
           !/^PROP\.\s+[IVXLCDM]+\./.test(paragraphs[index]) &&
           !/^LEMMA\s+[IVXLCDM]+\./.test(paragraphs[index]) &&
-          !/^POSTULATES$/i.test(paragraphs[index])
+          !/^POSTULATES$/i.test(paragraphs[index]) &&
+          !startsMidLemmaGroup(paragraphs[index])
         ) {
           block.push(paragraphs[index]);
           index += 1;
@@ -364,10 +379,45 @@ const parsePropositionsSection = (numeral, lines) => {
 
         const number = String(romanToNumber(match[1]));
         const id = `${numeral}.lemma.${number}`;
-        const { text, children } = splitChildren(block, id, 'lemmas', false);
-        lemmas.push({ tag: 'lemma', id, number, text, children });
+        const { text, footnotes, children } = splitChildren(block, id, 'lemmas', false);
+        lemmas.push({ tag: 'lemma', id, number, text, footnotes, children });
       }
       items.push({ kind: 'section', type: 'lemmas', id: `${numeral}.lemmas`, items: lemmas });
+      continue;
+    }
+
+    if (startsMidLemmaGroup(paragraph)) {
+      // Spinoza pauses after Lemma III for further axioms and a definition of the individual.
+      const groupItems = [];
+
+      while (
+        index < paragraphs.length &&
+        !/^PROP\.\s+[IVXLCDM]+\./.test(paragraphs[index]) &&
+        !/^LEMMA\s+[IVXLCDM]+\./.test(paragraphs[index]) &&
+        !/^POSTULATES$/i.test(paragraphs[index])
+      ) {
+        const current = paragraphs[index];
+        const axiomMatch = current.match(MID_LEMMA_AXIOM);
+        const definitionMatch = current.match(MID_LEMMA_DEFINITION);
+
+        if (axiomMatch) {
+          const number = String(romanToNumber(axiomMatch[1]));
+          groupItems.push({ tag: 'axiom', id: `${numeral}.phys_ax2.${number}`, number, text: [axiomMatch[2].trim()], children: [] });
+        } else if (definitionMatch) {
+          groupItems.push({ tag: 'def', id: `${numeral}.phys_def.1`, number: '1', text: [definitionMatch[1].trim()], children: [] });
+        } else {
+          groupItems[groupItems.length - 1].text.push(current.trim());
+        }
+
+        index += 1;
+      }
+
+      items.push({
+        kind: 'section',
+        type: 'physical_axioms',
+        id: `${numeral}.physical_axioms`,
+        items: groupItems.map(item => ({ ...item, text: item.text.join('\n\n') }))
+      });
       continue;
     }
 
@@ -384,76 +434,102 @@ const parsePropositionsSection = (numeral, lines) => {
     index += 1;
   }
 
-  return items;
+  return uniquifySectionIds(items);
 };
+
+// A label ends in a period, a dash, or both: "Proof.—", "Proof—", "Note I.—".
+const LABEL_END = String.raw`(?:\.(?:—|-)?|—|-)`;
+const PROOF_LABEL = new RegExp(`^(Proof|Another proof)${LABEL_END}\\s*(.*)$`, 'i');
+const COROLLARY_LABEL = new RegExp(`^Coroll(?:ary|\\.)?(?:\\s+([IVXLCDM]+))?${LABEL_END}\\s*(.*)$`, 'i');
+const NOTE_LABEL = new RegExp(`^Note(?:\\s+([IVXLCDM]+))?${LABEL_END}\\s*(.*)$`, 'i');
+const EXPLANATION_LABEL = new RegExp(`^Explanation${LABEL_END}\\s*(.*)$`, 'i');
+const NB_LABEL = /^N\.B\.\s*(.*)$/i;
+const FOOTNOTE_BODY = /^\[(\d+)\]\s+(.*)$/;
+const MID_LEMMA_AXIOM = /^Axiom\s+([IVXLCDM]+)\.—\s*(.*)$/;
+const MID_LEMMA_DEFINITION = /^Definition\.—\s*(.*)$/;
+const startsMidLemmaGroup = paragraph => MID_LEMMA_AXIOM.test(paragraph) || MID_LEMMA_DEFINITION.test(paragraph);
+
+// The source labels this passage "Proof", but it translates the Latin scholium. The
+// English of the actual demonstration is missing from the source text.
+const MISLABELLED_AS_PROOF = new Set(['IV.prop.72']);
 
 const splitChildren = (paragraphs, parentId, sectionType, allowExplanation) => {
   const textParts = [];
   const children = [];
+  const ownFootnotes = [];
+  const proofCounts = new Map();
   let currentChild = null;
-  let proofCount = 0;
+  let lastCorollary = null;
   let corollaryCount = 0;
   let noteCount = 0;
   let explanationCount = 0;
 
-  const pushCurrent = () => {
-    if (currentChild) {
-      currentChild.text = currentChild.text.join('\n\n').trim();
-      children.push(currentChild);
-      currentChild = null;
-    }
+  const startChild = (child, siblings = children) => {
+    currentChild = { ...child, text: [child.text], footnotes: [], children: [] };
+    siblings.push(currentChild);
+    return currentChild;
+  };
+
+  const nextProofId = ownerId => {
+    const count = (proofCounts.get(ownerId) ?? 0) + 1;
+    proofCounts.set(ownerId, count);
+    return count === 1 ? `${ownerId}.proof` : `${ownerId}.proof${count}`;
   };
 
   paragraphs.forEach(paragraph => {
-    const proofMatch = paragraph.match(/^(Proof|Another proof)\.(?:—|-)?\s*(.*)$/i);
-    const corollaryMatch = paragraph.match(/^Corollary(?:\s+([IVXLCDM]+))?\.(?:—|-)?\s*(.*)$/i);
-    const noteMatch = paragraph.match(/^Note(?:\s+([IVXLCDM]+))?\.(?:—|-)?\s*(.*)$/i);
-    const explanationMatch = paragraph.match(/^Explanation\.(?:—|-)?\s*(.*)$/i) || paragraph.match(/^Explanation(?:—|-)\s*(.*)$/i);
-    const nbMatch = paragraph.match(/^N\.B\.\s*(.*)$/i);
+    const footnoteMatch = paragraph.match(FOOTNOTE_BODY);
+    const mislabelledNote = MISLABELLED_AS_PROOF.has(parentId) ? paragraph.match(PROOF_LABEL) : null;
+    const proofMatch = mislabelledNote ? null : paragraph.match(PROOF_LABEL);
+    const corollaryMatch = paragraph.match(COROLLARY_LABEL);
+    const noteMatch = paragraph.match(NOTE_LABEL);
+    const explanationMatch = paragraph.match(EXPLANATION_LABEL);
+    const nbMatch = paragraph.match(NB_LABEL);
+
+    if (footnoteMatch) {
+      (currentChild?.footnotes ?? ownFootnotes).push({ number: footnoteMatch[1], text: footnoteMatch[2].trim() });
+      return;
+    }
 
     if (proofMatch) {
-      pushCurrent();
-      proofCount += 1;
-      currentChild = {
-        type: 'proof',
-        id: proofCount === 1 ? `${parentId}.proof` : `${parentId}.proof${proofCount}`,
-        text: [proofMatch[2].trim()]
-      };
+      // A plain "Proof" right after a corollary demonstrates that corollary. Only
+      // "Another proof" is an alternate demonstration of the proposition itself.
+      const isAlternate = /^another/i.test(proofMatch[1]);
+      const ownsProof = !isAlternate && lastCorollary && currentChild === lastCorollary;
+      const owner = ownsProof ? lastCorollary : null;
+      const ownerId = owner?.id ?? parentId;
+      startChild({ type: 'proof', id: nextProofId(ownerId), text: proofMatch[2].trim() }, owner?.children ?? children);
       return;
     }
 
     if (corollaryMatch) {
-      pushCurrent();
       corollaryCount += 1;
       const suffix = corollaryMatch[1] ? romanToNumber(corollaryMatch[1]) : corollaryCount > 1 ? corollaryCount : '';
-      currentChild = {
+      lastCorollary = startChild({
         type: 'corollary',
         id: suffix ? `${parentId}.corollary${suffix}` : `${parentId}.corollary`,
-        text: [corollaryMatch[2].trim()]
-      };
+        text: corollaryMatch[2].trim()
+      });
       return;
     }
 
-    if (noteMatch || nbMatch) {
-      pushCurrent();
+    if (noteMatch || nbMatch || mislabelledNote) {
       noteCount += 1;
       const numeral = noteMatch?.[1] ? romanToNumber(noteMatch[1]) : noteCount > 1 ? noteCount : '';
-      currentChild = {
+      startChild({
         type: 'note',
         id: numeral ? `${parentId}.note${numeral}` : `${parentId}.note`,
-        text: [(noteMatch?.[2] ?? nbMatch?.[1] ?? '').trim()]
-      };
+        text: (noteMatch?.[2] ?? nbMatch?.[1] ?? mislabelledNote?.[2] ?? '').trim()
+      });
       return;
     }
 
     if (allowExplanation && explanationMatch) {
-      pushCurrent();
       explanationCount += 1;
-      currentChild = {
+      startChild({
         type: 'explanation',
         id: explanationCount === 1 ? `${parentId}.explanation` : `${parentId}.explanation${explanationCount}`,
-        text: [explanationMatch[1].trim()]
-      };
+        text: explanationMatch[1].trim()
+      });
       return;
     }
 
@@ -465,11 +541,16 @@ const splitChildren = (paragraphs, parentId, sectionType, allowExplanation) => {
     textParts.push(paragraph.trim());
   });
 
-  pushCurrent();
+  const finalize = child => ({
+    ...child,
+    text: child.text.join('\n\n').trim(),
+    children: child.children.map(finalize)
+  });
 
   return {
     text: textParts.join('\n\n').trim(),
-    children
+    footnotes: ownFootnotes,
+    children: children.map(finalize)
   };
 };
 
@@ -672,7 +753,7 @@ const renderPropositionItem = item => {
   if (item.kind === 'section') {
     const tag = item.type === 'lemmas' ? 'lemma' : item.type === 'physical_axioms' ? 'axiom' : 'postulate';
     return `    <section type="${item.type}" id="${item.id}">\n${item.items
-      .map(child => renderSimpleItem(tag, child, 6))
+      .map(child => renderSimpleItem(child.tag ?? tag, child, 6))
       .join('\n')}\n    </section>`;
   }
 
@@ -680,18 +761,34 @@ const renderPropositionItem = item => {
   return renderSimpleItem(tag, item, 4);
 };
 
+const renderFootnotes = (footnotes, indent) => {
+  const spacing = ' '.repeat(indent);
+  return (footnotes ?? []).map(
+    footnote => `${spacing}<footnote number="${footnote.number}">\n${spacing}  <text>${escapeXml(footnote.text)}</text>\n${spacing}</footnote>`
+  );
+};
+
 const renderSimpleItem = (tag, item, indent = 4) => {
   const spacing = ' '.repeat(indent);
-  const children = item.children?.map(child => renderChild(child, indent + 2)).join('\n') ?? '';
+  const body = [
+    ...renderFootnotes(item.footnotes, indent + 2),
+    ...(item.children ?? []).map(child => renderChild(child, indent + 2))
+  ];
   return `${spacing}<${tag} id="${item.id}" number="${item.number}">\n${spacing}  <text>${escapeXml(item.text)}</text>${
-    children ? `\n${children}` : ''
+    body.length ? `\n${body.join('\n')}` : ''
   }\n${spacing}</${tag}>`;
 };
 
 const renderChild = (child, indent) => {
   const spacing = ' '.repeat(indent);
   const editorial = EDITORIAL_ELEMENT_IDS.has(child.id) ? ' editorial="true"' : '';
-  return `${spacing}<${child.type} id="${child.id}"${editorial}>\n${spacing}  <text>${escapeXml(child.text)}</text>\n${spacing}</${child.type}>`;
+  const body = [
+    ...renderFootnotes(child.footnotes, indent + 2),
+    ...(child.children ?? []).map(grandchild => renderChild(grandchild, indent + 2))
+  ];
+  return `${spacing}<${child.type} id="${child.id}"${editorial}>\n${spacing}  <text>${escapeXml(child.text)}</text>${
+    body.length ? `\n${body.join('\n')}` : ''
+  }\n${spacing}</${child.type}>`;
 };
 
 const escapeXml = value =>

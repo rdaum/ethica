@@ -12,8 +12,9 @@ import {
 } from './lib/readerUrl';
 import {
   formatElementLabel,
+  missingLatinMessage,
+  getVisibleElementIds,
   mergeLatinText,
-  matchesQuery,
   parseSpinozaXml,
   PARTS,
   summarizeSections
@@ -347,35 +348,13 @@ const App: React.FC = () => {
 
   const orderedElements = Array.from(elements.values()).sort((left, right) => left.sortIndex - right.sortIndex);
   const topLevelElements = orderedElements.filter(element => !element.parentId);
-  const visibleTopLevelElements = topLevelElements.filter(topLevel => {
-    if (!deferredQuery.trim()) {
-      return true;
-    }
-
-    if (matchesQuery(topLevel, deferredQuery)) {
-      return true;
-    }
-
-    return orderedElements.some(
-      candidate => candidate.parentId === topLevel.id && matchesQuery(candidate, deferredQuery)
-    );
-  });
+  const visibleIds = getVisibleElementIds(orderedElements, deferredQuery);
+  const visibleTopLevelElements = topLevelElements.filter(element => visibleIds.has(element.id));
   const sectionSummaries: ReaderSectionSummary[] = summarizeSections(visibleTopLevelElements);
   const selectedEntry = selectedElement ? elements.get(selectedElement) : undefined;
   const currentPartMetadata = PARTS[currentPart];
   const totalPassageCount = topLevelElements.length;
-  const selectableEntries = orderedElements.filter(element => {
-    if (!deferredQuery.trim()) {
-      return true;
-    }
-
-    if (matchesQuery(element, deferredQuery)) {
-      return true;
-    }
-
-    const parent = element.parentId ? elements.get(element.parentId) : null;
-    return parent ? matchesQuery(parent, deferredQuery) : false;
-  });
+  const selectableEntries = orderedElements.filter(element => visibleIds.has(element.id));
   const selectedIndex = selectedElement ? selectableEntries.findIndex(element => element.id === selectedElement) : -1;
   const previousEntry = selectedIndex > 0 ? selectableEntries[selectedIndex - 1] : null;
   const nextEntry =
@@ -602,6 +581,7 @@ const App: React.FC = () => {
             <BookView
               elements={orderedElements}
               query={deferredQuery}
+              visibleIds={visibleIds}
               selectedElement={selectedElement}
               hoveredElement={hoveredElement}
               onElementHover={setHoveredElement}
@@ -672,14 +652,14 @@ const MetadataChips = ({ element }: { element: SpinozaElement }) => {
 
 const renderSelectionPreview = (element: SpinozaElement, readingMode: ReadingMode) => {
   if (readingMode === 'latin') {
-    return <p>{truncateText(element.latinText || 'Latin text not yet available for this passage.')}</p>;
+    return <p>{truncateText(element.latinText || missingLatinMessage(element))}</p>;
   }
 
   if (readingMode === 'bilingual') {
     return (
       <div className="selection-preview-grid">
         <p>{truncateText(element.text, 140)}</p>
-        <p>{truncateText(element.latinText || 'Latin text not yet available.', 140)}</p>
+        <p>{truncateText(element.latinText || missingLatinMessage(element), 140)}</p>
       </div>
     );
   }
